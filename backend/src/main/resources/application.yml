@@ -5,3 +5,7 @@ spring:
     url: jdbc:mysql://localhost:3306/WorkArrangement?useUnicode=true&characterEncoding=utf8
     username: root
     password: 918spyder
+
+server:
+  # 运行端口
+  port: 8081
