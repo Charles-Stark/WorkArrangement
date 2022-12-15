@@ -9,3 +9,7 @@ spring:
 server:
   # 运行端口
   port: 8081
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
