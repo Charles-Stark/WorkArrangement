@@ -113,4 +113,36 @@ public class UserController {
         }
     }
 
+    @PostMapping("/info/update/{id}")
+    public ResultVO<Map<String, Object>> updateUserInfo(@PathVariable long id, @RequestParam Map<String, Object> map) {
+        try {
+            User user = new User();
+            user.setId(id);
+            if (map.containsKey("telephone")) {
+                user.setTelephone(map.get("telephone").toString());
+            }
+            if (map.containsKey("username")) {
+                user.setUsername(map.get("username").toString());
+            }
+            if (map.containsKey("password")) {
+                // Send sms code to verify
+                // if ok then proceed
+            }
+            // give a new token
+            return null;
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "修改信息失败", null);
+        }
+    }
+
+    @PostMapping("/password/reset")
+    public ResultVO<Object> resetPassword(@RequestParam Map<String, Object> map) {
+        return null;
+    }
+
+    @PostMapping("/logout")
+    public ResultVO<Object> logout(@RequestParam("id") long id) {
+        return null;
+    }
+
 }
