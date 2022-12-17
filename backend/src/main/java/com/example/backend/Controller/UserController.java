@@ -61,6 +61,7 @@ public class UserController {
 
     @PostMapping("/login/code")
     public ResultVO<Map<String, Object>> loginByCode(@RequestParam Map<String, Object> map) {
+        String name;
         return null;
     }
 
