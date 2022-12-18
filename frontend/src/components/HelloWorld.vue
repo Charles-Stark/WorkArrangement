@@ -1,36 +1,33 @@
 <template>
-  <div class="hello">
-    <h1>你好</h1>
+  <v-app id="inspire">
+    <v-navigation-drawer v-model="drawer" app>
+      <!--  -->
+    </v-navigation-drawer>
 
-  </div>
+    <v-app-bar app >
+
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+
+      <v-toolbar-title>Application</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn right @click="check()"></v-btn>
+    </v-app-bar>
+
+    <v-main>
+      <!--  -->
+    </v-main>
+  </v-app>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  data: () => ({ 
+    drawer: null ,
+  }),
+  methods:{
+    check(){
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+    }
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
-</style>
