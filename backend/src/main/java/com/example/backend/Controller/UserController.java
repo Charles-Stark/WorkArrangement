@@ -104,7 +104,7 @@ public class UserController {
     @PostMapping("/photo/upload/{id}")
     public ResultVO<Object> uploadUserPhoto(@PathVariable long id, @RequestParam("photo") MultipartFile multipartFile) {
         try {
-            User user = new User(id, null, null, null, multipartFile.getBytes(), multipartFile.getContentType());
+            User user = new User(id, null, null, null, multipartFile.getBytes(), multipartFile.getContentType(), null);
             userMapper.updateById(user);
             return new ResultVO<>(0, "修改头像成功", null);
         } catch (Exception e) {
