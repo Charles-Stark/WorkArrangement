@@ -82,7 +82,6 @@ public class UserController {
     public void getUserPhoto(@PathVariable long id, HttpServletResponse response) {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("id", id);
-        System.out.println(id);
         User result = userMapper.selectByMap(searchingMap).get(0);
 
         try {
