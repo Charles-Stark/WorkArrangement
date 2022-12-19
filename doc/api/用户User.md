@@ -1,11 +1,11 @@
 # API - 用户登陆/注册/账户设置相关
 
 ## 注册
-用户注册时，输入手机号、密码（重复密码）、用户姓名，点击获取短信验证码。以上全部输入完毕，点击注册按钮，发送注册请求如下。
+用户注册时，输入邮箱、密码（重复密码）、用户姓名，点击获取邮箱验证码。以上全部输入完毕，点击注册按钮，发送注册请求如下。
 
 POST请求 /api/user/register
 ```yaml
-telephone: string 11位电话号码
+email: string 邮箱地址
 password: string 密码
 username: string 用户姓名（不唯一）
 verify: string 用户接收到的验证码
@@ -16,7 +16,7 @@ verify: string 用户接收到的验证码
   "message": "用户注册成功",
   "data": {
     "id": 1024,
-    "token": 
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsInRlbGVwaG9uZSI6IjE4ODU3MDA1NDc3IiwiZXhwIjoxNjcxMzE2ODI4fQ.D0nA_MIlRTdCl06wbCfFzZiW6hr9xuBc4VJnvynJz4E"
   }
 }
 ```
@@ -28,12 +28,12 @@ verify: string 用户接收到的验证码
 }
 ```
 
-## 获取短信验证码
-用户注册时，需获取短信验证码以验证手机号为本人所有。
+## 获取邮箱验证码
+用户注册时，需获取邮箱验证码以验证邮箱为本人所有。
 
-POST请求 /api/user/sms/sendCode
+POST请求 /api/user/email/sendCode
 ```yaml
-telephone: string 11位电话号码
+email: string 邮箱地址
 ```
 ```json
 {
@@ -51,11 +51,11 @@ telephone: string 11位电话号码
 ```
 
 ## 密码登陆
-用户使用密码登陆时，输入手机号、密码，点击登录按钮，发送登陆请求。
+用户使用密码登陆时，输入邮箱、密码，点击登录按钮，发送登陆请求。
 
 POST请求 /api/user/login/password
 ```yaml
-telephone: string 11位电话号码
+email: string 邮箱
 password: string 密码
 ```
 ```json
@@ -64,7 +64,7 @@ password: string 密码
   "message": "用户登陆成功",
   "data": {
     "id": 1024,
-    "token":
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsInRlbGVwaG9uZSI6IjE4ODU3MDA1NDc3IiwiZXhwIjoxNjcxMzE2ODI4fQ.D0nA_MIlRTdCl06wbCfFzZiW6hr9xuBc4VJnvynJz4E"
   }
 }
 ```
@@ -76,12 +76,12 @@ password: string 密码
 }
 ```
 
-## 短信验证码登陆
-用户使用短信验证码登陆时，输入手机号、验证码，点击登录按钮，发送登陆请求。
+## 邮箱验证码登陆
+用户使用邮箱验证码登陆时，输入邮箱、验证码，点击登录按钮，发送登陆请求。
 
 POST请求 /api/user/login/code
 ```yaml
-telephone: string 11位电话号码
+email: string 邮箱
 verify: string 用户接收到的验证码
 ```
 ```json
@@ -90,7 +90,7 @@ verify: string 用户接收到的验证码
   "message": "用户登陆成功",
   "data": {
     "id": 1024,
-    "token":
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsInRlbGVwaG9uZSI6IjE4ODU3MDA1NDc3IiwiZXhwIjoxNjcxMzE2ODI4fQ.D0nA_MIlRTdCl06wbCfFzZiW6hr9xuBc4VJnvynJz4E"
   }
 }
 ```
@@ -103,7 +103,7 @@ verify: string 用户接收到的验证码
 ```
 
 ## 获取用户信息
-在用户设置页面发送该请求获取用户信息(用户名、手机号、id)以供显示。
+在用户设置页面发送该请求获取用户信息(用户名、邮箱、id)以供显示。
 
 GET请求 /api/user/info/get/{id}
 ```yaml
@@ -116,7 +116,7 @@ id: string 用户id
   "message": "用户信息获取成功",
   "data": {
     "id": 1024,
-    "telephone": 12234567890,
+    "email": "ouzhouren@example.com",
     "username": "王小明"
   }
 }
@@ -169,7 +169,7 @@ POST请求 /api/user/photo/upload/{id}
 
 POST请求 /api/user/info/update/{id}
 ```yaml
-telephone: string 11位电话号码
+邮箱: string 邮箱
 password: string 密码
 username: string 用户姓名（不唯一）
 ```
@@ -180,7 +180,7 @@ username: string 用户姓名（不唯一）
   "message": "修改信息成功",
   "data": {
     "id": 1024,
-    "token": 
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsInRlbGVwaG9uZSI6IjE4ODU3MDA1NDc3IiwiZXhwIjoxNjcxMzE2ODI4fQ.D0nA_MIlRTdCl06wbCfFzZiW6hr9xuBc4VJnvynJz4E"
   }
 }
 ```
@@ -197,7 +197,7 @@ username: string 用户姓名（不唯一）
 
 POST请求 /api/user/password/reset
 ```yaml
-telephone: string 11位电话号码
+邮箱: string 邮箱
 password: string 密码
 verify: string 用户接收到的验证码
 ```

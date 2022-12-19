@@ -30,7 +30,7 @@ public class UserController {
         return null;
     }
 
-    @PostMapping("/sms/sendCode")
+    @PostMapping("/email/sendCode")
     public ResultVO<String> sendCode(@RequestParam Map<String, Object> map) {
         return null;
     }
@@ -38,7 +38,7 @@ public class UserController {
     @PostMapping("/login/password")
     public ResultVO<Map<String, Object>> loginByPassword(@RequestParam Map<String, Object> map) {
         Map<String, Object> searchingMap = new HashMap<>();
-        searchingMap.put("telephone", map.get("telephone"));
+        searchingMap.put("email", map.get("email"));
         List<User> result = userMapper.selectByMap(searchingMap);
         if (result.size() == 0) {
             return new ResultVO<>(-1, "用户不存在", null);
@@ -47,7 +47,7 @@ public class UserController {
             return new ResultVO<>(-1, "密码错误", null);
         }
 
-        String token = JwtUtil.sign(String.valueOf(map.get("telephone")));
+        String token = JwtUtil.sign(String.valueOf(map.get("email")));
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("token", token);
         resultMap.put("id", result.get(0).getId());
@@ -70,7 +70,7 @@ public class UserController {
             Map<String, Object> searchingMap = new HashMap<>();
             searchingMap.put("id", id);
             User result = userMapper.selectByMap(searchingMap).get(0);
-            searchingMap.put("telephone", result.getTelephone());
+            searchingMap.put("email", result.getEmail());
             searchingMap.put("username", result.getUsername());
             return new ResultVO<>(0, "用户信息获取成功", searchingMap);
         } catch (Exception e) {
@@ -118,14 +118,14 @@ public class UserController {
         try {
             User user = new User();
             user.setId(id);
-            if (map.containsKey("telephone")) {
-                user.setTelephone(map.get("telephone").toString());
+            if (map.containsKey("email")) {
+                user.setEmail(map.get("email").toString());
             }
             if (map.containsKey("username")) {
                 user.setUsername(map.get("username").toString());
             }
             if (map.containsKey("password")) {
-                // Send sms code to verify
+                // Send email code to verify
                 // if ok then proceed
             }
             // give a new token

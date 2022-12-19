@@ -16,12 +16,12 @@ public class JwtUtil {
     // salt
     private static final String salt = "*12sca*3q74h??";
 
-    public static String sign(String telephone) {
+    public static String sign(String email) {
         String token = null;
         try {
             token = JWT.create()
                     .withIssuer("auth0")
-                    .withClaim("telephone", telephone)
+                    .withClaim("email", email)
                     .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
                     .sign(Algorithm.HMAC256(salt));
         } catch (IllegalArgumentException | JWTCreationException e) {
