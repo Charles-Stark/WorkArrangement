@@ -2,6 +2,7 @@ package com.example.backend.Config;
 
 import com.example.backend.Interceptor.CorsInterceptor;
 import com.example.backend.Interceptor.LoginInterceptor;
+import com.example.backend.Interceptor.UserInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
@@ -15,9 +16,19 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // 跨域拦截器
         registry.addInterceptor(new CorsInterceptor()).addPathPatterns("/**");
-        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns("/api/user/register",
-                "/api/user/login/password");
+
+        // 登陆拦截器，拦截未登陆（无Token或Token无效）用户
+        registry.addInterceptor(new LoginInterceptor())
+                .addPathPatterns("/**")
+                .excludePathPatterns("/api/user/register", "/api/user/login/password");
+
+        // 用户权限拦截器（员工/管理员）
+        registry.addInterceptor(new UserInterceptor())
+                .excludePathPatterns("/**")
+                .addPathPatterns();
+
         WebMvcConfigurer.super.addInterceptors(registry);
     }
 

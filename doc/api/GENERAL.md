@@ -3,7 +3,9 @@
 ## API请求格式
 API请求地址均以`/api`开头。
 
-用户登陆后，后端会返回该用户的token，此时前端应将token存储于localStorage中。此后，在该用户登陆状态下每次发送请求时，须将该token置于请求头的Authorization字段中，否则后端将视为未登陆。
+用户登陆后，后端会返回该用户的`token`，此时前端应将`token`存储于`localStorage`中。此后，在该用户登陆状态下每次发送请求时，须将该`token`置于请求头的`Authorization`字段中，否则后端将视为***未登陆***。
+
+用户登陆后，后端会返回该用户的`id`，此时前端应将`用户id`存储于`localStorage`中。此后，在该用户登陆状态下每次发送请求时，须将该`用户id`置于请求头的`userId`字段中，并以此判断该用户的***权限（管理员/员工）***。
 
 ## 返回格式
 若请求结果不是图片等数据类型，则返回[`ResultVO`](https://github.com/Charles-Stark/WorkArrangement/blob/main/backend/src/main/java/com/example/backend/VO/ResultVO.java)类的Json数据。
