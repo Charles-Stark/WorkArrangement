@@ -15,5 +15,6 @@ public class User {
     private String username;
     private byte[] photo;
     private String photoType;
+    private boolean isManager;
 
 }
