@@ -1,10 +1,25 @@
-# 数据库配置
 spring:
+  # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/WorkArrangement?useUnicode=true&characterEncoding=utf8
     username: root
     password: 918spyder
+  # 邮件服务
+  mail:
+    host: smtp.163.com
+    username: workarrangement@163.com
+    # password为邮箱授权码，勿动
+    password: UENZBTVEJKDWYDSW
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+      debug: true
 
 server:
   # 运行端口
