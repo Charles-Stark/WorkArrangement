@@ -1,6 +1,7 @@
 package com.example.backend.Controller;
 
 import com.example.backend.POJO.User;
+import com.example.backend.Utils.HashUtil;
 import com.example.backend.Utils.JwtUtil;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.UserMapper;
@@ -40,10 +41,11 @@ public class UserController {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("email", map.get("email"));
         List<User> result = userMapper.selectByMap(searchingMap);
+
         if (result.size() == 0) {
             return new ResultVO<>(-1, "用户不存在", null);
         }
-        if (!result.get(0).getPassword().equals(map.get("password"))) {
+        if (!HashUtil.isHashSame(map.get("password").toString(), result.get(0).getPassword())) {
             return new ResultVO<>(-1, "密码错误", null);
         }
 
