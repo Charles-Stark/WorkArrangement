@@ -20,14 +20,16 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(new CorsInterceptor()).addPathPatterns("/**");
 
         // 登陆拦截器，拦截未登陆（无Token或Token无效）用户
-        registry.addInterceptor(new LoginInterceptor())
-                .addPathPatterns("/**")
-                .excludePathPatterns("/api/user/register", "/api/user/login/password");
+        // 暂时注释以便调试
+//        registry.addInterceptor(new LoginInterceptor())
+//                .addPathPatterns("/**")
+//                .excludePathPatterns("/api/user/register", "/api/user/login/password");
 
         // 用户权限拦截器（员工/管理员）
-        registry.addInterceptor(new UserInterceptor())
-                .excludePathPatterns("/**")
-                .addPathPatterns();
+        // 暂时注释以便调试
+//        registry.addInterceptor(new UserInterceptor())
+//                .excludePathPatterns("/**")
+//                .addPathPatterns();
 
         WebMvcConfigurer.super.addInterceptors(registry);
     }
