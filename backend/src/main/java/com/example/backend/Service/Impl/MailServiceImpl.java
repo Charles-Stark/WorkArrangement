@@ -27,4 +27,9 @@ public class MailServiceImpl implements MailService {
 
         mailSender.send(simpleMailMessage);
     }
+
+    @Override
+    public void sendVerifyCode(String to) {
+
+    }
 }
