@@ -54,4 +54,14 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public ResultVO<Map<String, Object>> updateUserInfo(long id, Map<String, Object> map) {
+        return null;
+    }
+
+    @Override
+    public ResultVO<Map<String, Object>> resetPassword(String email, String password, String code) {
+        return null;
+    }
+
 }

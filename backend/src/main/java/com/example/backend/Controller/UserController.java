@@ -76,9 +76,9 @@ public class UserController {
     public void getUserPhoto(@PathVariable long id, HttpServletResponse response) {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("id", id);
-        User result = userMapper.selectByMap(searchingMap).get(0);
 
         try {
+            User result = userMapper.selectByMap(searchingMap).get(0);
             InputStream inputStream = new ByteArrayInputStream(result.getPhoto());
             response.setContentType(result.getPhotoType());
 
@@ -108,29 +108,16 @@ public class UserController {
 
     @PostMapping("/info/update/{id}")
     public ResultVO<Map<String, Object>> updateUserInfo(@PathVariable long id, @RequestParam Map<String, Object> map) {
-        try {
-            User user = new User();
-            user.setId(id);
-            if (map.containsKey("email")) {
-                user.setEmail(map.get("email").toString());
-            }
-            if (map.containsKey("username")) {
-                user.setUsername(map.get("username").toString());
-            }
-            if (map.containsKey("password")) {
-                // Send email code to verify
-                // if ok then proceed
-            }
-            // give a new token
-            return null;
-        } catch (Exception e) {
-            return new ResultVO<>(-1, "修改信息失败", null);
-        }
+        return userService.updateUserInfo(id, map);
     }
 
     @PostMapping("/password/reset")
-    public ResultVO<Object> resetPassword(@RequestParam Map<String, Object> map) {
-        return null;
+    public ResultVO<Map<String, Object>> resetPassword(@RequestParam Map<String, Object> map) {
+        if (map.containsKey("email") && map.containsKey("password") && map.containsKey("verify")) {
+            return userService.resetPassword(map.get("email").toString(), map.get("password").toString(), map.get("verify").toString());
+        } else {
+            return new ResultVO<>(-1, "未接收到参数", null);
+        }
     }
 
     @PostMapping("/logout")
