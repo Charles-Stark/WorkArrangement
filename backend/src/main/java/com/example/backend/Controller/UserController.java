@@ -1,8 +1,7 @@
 package com.example.backend.Controller;
 
 import com.example.backend.POJO.User;
-import com.example.backend.Utils.HashUtil;
-import com.example.backend.Utils.JwtUtil;
+import com.example.backend.Service.UserService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,6 +23,8 @@ public class UserController {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/register")
     public ResultVO<Map> register(@RequestParam Map<String, Object> map) {
@@ -38,32 +38,20 @@ public class UserController {
 
     @PostMapping("/login/password")
     public ResultVO<Map<String, Object>> loginByPassword(@RequestParam Map<String, Object> map) {
-        Map<String, Object> searchingMap = new HashMap<>();
-        searchingMap.put("email", map.get("email"));
-        List<User> result = userMapper.selectByMap(searchingMap);
-
-        if (result.size() == 0) {
-            return new ResultVO<>(-1, "用户不存在", null);
-        }
-        if (!HashUtil.isHashSame(map.get("password").toString(), result.get(0).getPassword())) {
-            return new ResultVO<>(-1, "密码错误", null);
-        }
-
-        String token = JwtUtil.sign(String.valueOf(map.get("email")));
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("token", token);
-        resultMap.put("id", result.get(0).getId());
-
-        if (token != null) {
-            return new ResultVO<>(0, "用户登陆成功", resultMap);
+        if (map.containsKey("email") && map.containsKey("password")) {
+            return userService.loginByPassword(map.get("email").toString(), map.get("password").toString());
         } else {
-            return new ResultVO<>(-1, "Token生成失败", null);
+            return new ResultVO<>(-1, "未接收到参数", null);
         }
     }
 
     @PostMapping("/login/code")
     public ResultVO<Map<String, Object>> loginByCode(@RequestParam Map<String, Object> map) {
-        return null;
+        if (map.containsKey("email") && map.containsKey("verify")) {
+            return userService.loginByPassword(map.get("email").toString(), map.get("verify").toString());
+        } else {
+            return new ResultVO<>(-1, "未接收到参数", null);
+        }
     }
 
     @GetMapping("/info/get/{id}")
