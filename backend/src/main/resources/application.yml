@@ -1,5 +1,5 @@
 spring:
-  # 数据库配置
+  # MySQL数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/WorkArrangement?useUnicode=true&characterEncoding=utf8
@@ -20,6 +20,10 @@ spring:
             enable: true
             required: true
       debug: true
+  # Redis数据库配置
+  redis:
+    host: localhost
+    port: 6379
 
 server:
   # 运行端口
