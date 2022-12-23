@@ -27,8 +27,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResultVO<Map> register(@RequestParam Map<String, Object> map) {
-        return null;
+    public ResultVO<Map<String, Object>> register(@RequestParam Map<String, Object> map) {
+        if (map.containsKey("email") && map.containsKey("password") && map.containsKey("username") && map.containsKey("verify")) {
+            return userService.register(map.get("email").toString(), map.get("password").toString(), map.get("username").toString(), map.get("verify").toString());
+        } else {
+            return new ResultVO<>(-1, "未接收到参数", null);
+        }
     }
 
     @PostMapping("/email/sendCode")

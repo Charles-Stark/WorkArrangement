@@ -20,6 +20,11 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
+    public ResultVO<Map<String, Object>> register(String email, String password, String username, String verify) {
+        return null;
+    }
+
+    @Override
     public ResultVO<Map<String, Object>> loginByPassword(String email, String password) {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("email", email);
