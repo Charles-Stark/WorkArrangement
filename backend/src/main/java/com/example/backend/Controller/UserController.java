@@ -70,7 +70,7 @@ public class UserController {
     @PostMapping("/login/code")
     public ResultVO<Map<String, Object>> loginByCode(@RequestParam Map<String, Object> map) {
         if (map.containsKey("email") && map.containsKey("verify")) {
-            return userService.loginByPassword(map.get("email").toString(), map.get("verify").toString());
+            return userService.loginByCode(map.get("email").toString(), map.get("verify").toString());
         } else {
             return new ResultVO<>(-1, "未接收到参数", null);
         }
