@@ -29,7 +29,14 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void sendVerifyCode(String to) {
-
+    public void sendVerifyCode(String to, String code) {
+        try {
+            String subject = "【验证码】" + code;
+            String content = "确认你的邮箱地址\n" + code + "\n验证码在10分钟后过期";
+            sendSimpleMail(to, subject, content);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 }

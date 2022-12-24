@@ -5,14 +5,24 @@ import com.example.backend.Interceptor.LoginInterceptor;
 import com.example.backend.Interceptor.UserInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.concurrent.Executors;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        AntPathMatcher matcher = new AntPathMatcher();
+        // url不区分大小写
+        matcher.setCaseSensitive(false);
+        configurer.setPathMatcher(matcher);
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

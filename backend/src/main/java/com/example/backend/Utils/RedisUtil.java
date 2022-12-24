@@ -48,7 +48,9 @@ public class RedisUtil {
 
     public boolean delete(String key) {
         try {
-            redisTemplate.delete(key);
+            if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+                redisTemplate.delete(key);
+            }
             return true;
         } catch (Exception e) {
             e.printStackTrace();
