@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 //引入组件
 
 
-
+//导出 router
 export default new VueRouter({
   routes:[
 
