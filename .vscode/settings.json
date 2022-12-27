@@ -1,9 +1,0 @@
-{
-    "java.compile.nullAnalysis.mode": "automatic",
-    "eslint.workingDirectories": [
-        {
-            "mode": "auto"
-        }
-    ],
-    "java.configuration.updateBuildConfiguration": "interactive",
-}
