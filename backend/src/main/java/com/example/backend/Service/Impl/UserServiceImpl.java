@@ -35,8 +35,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResultVO<Map<String, Object>> register(String email, String password, String username, String verify) {
-        return null;
+    public ResultVO<Map<String, Object>> register(String email, String password, String username, String code) {
+        User result = searchUserByEmail(email);
+
+        if (result != null) {
+            return new ResultVO<>(-1, "用户已存在", null);
+        }
+        if (!verifyCodeUtil.verifyCode(email, code)) {
+            return new ResultVO<>(-1, "验证码错误", null);
+        }
+
+        try {
+            result = new User(null, email, HashUtil.getSHA256(password), username, null, null, true);
+            userMapper.insert(result);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "用户注册失败", null);
+        }
+
+        return loginByPassword(email, password);
+
     }
 
     @Override
