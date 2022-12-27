@@ -79,7 +79,8 @@
       width="220">
       <v-list-item class="px-2 mt-2">
         <v-list-item v-if="mini == false">
-          <v-img :src="require('../../assets/logo-md.png')" width="10"></v-img>
+          <v-img v-if="$vuetify.theme.dark===false" :src="require('../../assets/logo-md.png')" width="10"></v-img>
+          <v-img v-else :src="require('../../assets/logo-md-dark.png')" width="10"></v-img>
         </v-list-item>
 
         <v-avatar v-if="mini == true">
@@ -144,7 +145,7 @@
       </v-list>
 
       <v-footer absolute v-if="mini === false" class="text-center">
-        <v-subheader class="grey--text font-italic ">©2023</v-subheader>
+        <v-subheader class="grey--text font-italic">©2023</v-subheader>
       </v-footer>
     </v-navigation-drawer>
 
