@@ -1,7 +1,8 @@
 <template>
-  <div id="app">
-    <mainLayout/>
-  </div>
+  <v-app id="inspire">
+
+    <mainLayout />
+  </v-app>
 </template>
 
 <script>

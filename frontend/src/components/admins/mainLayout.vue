@@ -1,5 +1,7 @@
 <template>
   <v-app id="inspire">
+
+    <!-- 顶栏 -->
     <v-app-bar app>
       <v-app-bar-nav-icon @click="miniManual = !miniManual" class="hidden-sm-and-down"></v-app-bar-nav-icon>
       <v-toolbar-title>慧博云通智能排班系统</v-toolbar-title>
@@ -74,7 +76,8 @@
 
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawer" :permanent="true" :mini-variant="mini" app class="" mini-variant-width="60"
+    <!-- 导航栏 -->
+    <v-navigation-drawer v-model="drawer" permanent :mini-variant="mini" app class="" mini-variant-width="60"
       width="220">
       <v-list-item class="px-2 mt-2">
         <v-list-item v-if="mini == false">
@@ -132,7 +135,7 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-item class="my-5">
+          <v-list-item class="my-5" @click="$router.push('/settings')">
             <v-list-item-icon>
               <v-icon>mdi-cogs</v-icon>
             </v-list-item-icon>
@@ -149,9 +152,13 @@
     </v-navigation-drawer>
 
 
-
+    <!-- 内容显示区 -->
     <v-main>
-      <!--  -->
+      <v-container>
+        <router-view></router-view>
+      </v-container>
+        
+
     </v-main>
   </v-app>
 </template>
@@ -161,9 +168,9 @@
 export default {
   data: () => ({
     drawer: false,
-    selectedItem: 0,
+    selectedItem: null,
     noti: 99,
-    miniManual:false,
+    miniManual: false,
     user: {
       initials: 'JD',
       fullName: 'John Doe',
@@ -183,8 +190,8 @@ export default {
     ],
 
   }),
-  computed:{
-    mini(){
+  computed: {
+    mini() {
       return this.$vuetify.breakpoint.smAndDown ? true : this.miniManual
     }
   },
