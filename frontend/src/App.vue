@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <mainLayout msg="Welcome to Your Vue.js App"/>
+    <mainLayout/>
   </div>
 </template>
 

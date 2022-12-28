@@ -1,15 +1,15 @@
 <template>
   <v-app id="inspire">
     <v-app-bar app>
-      <v-app-bar-nav-icon @click="mini = !mini"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="miniManual = !miniManual" class="hidden-sm-and-down"></v-app-bar-nav-icon>
       <v-toolbar-title>慧博云通智能排班系统</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-btn right @click="$vuetify.theme.dark = !$vuetify.theme.dark" icon>
+      <v-btn right @click="darkMode()" icon>
         <v-icon>mdi-theme-light-dark</v-icon>
       </v-btn>
 
-      <v-menu offset-y allow-overflow="true" max-height="500" max-width="300">
+      <v-menu offset-y allow-overflow max-height="500" max-width="300">
         <template v-slot:activator="{ on, attrs }">
           <v-badge :value="noti" :content="noti" overlap bordered dot>
             <v-btn icon v-bind="attrs" v-on="on">
@@ -74,12 +74,11 @@
 
     </v-app-bar>
 
-
     <v-navigation-drawer v-model="drawer" :permanent="true" :mini-variant="mini" app class="" mini-variant-width="60"
       width="220">
       <v-list-item class="px-2 mt-2">
         <v-list-item v-if="mini == false">
-          <v-img v-if="$vuetify.theme.dark===false" :src="require('../../assets/logo-md.png')" width="10"></v-img>
+          <v-img v-if="$vuetify.theme.dark === false" :src="require('../../assets/logo-md.png')" width="10"></v-img>
           <v-img v-else :src="require('../../assets/logo-md-dark.png')" width="10"></v-img>
         </v-list-item>
 
@@ -158,12 +157,13 @@
 </template>
 
 <script>
+
 export default {
   data: () => ({
     drawer: false,
-    mini: false,
     selectedItem: 0,
     noti: 99,
+    miniManual:false,
     user: {
       initials: 'JD',
       fullName: 'John Doe',
@@ -171,23 +171,29 @@ export default {
     },
     notices: [
       { type: '请假消息', avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg', name: 'aa' },
-      { type: '开放班次超时'},
-      { type: '请假消息',avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg', name: 'bb' },
-      { type: '开放班次超时'},
-      { type: '开放班次超时'},
-      { type: '开放班次超时'},
-      { type: '开放班次超时'},
-      { type: '开放班次超时'},
-      { type: '开放班次超时'},
+      { type: '开放班次超时' },
+      { type: '请假消息', avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg', name: 'bb' },
+      { type: '开放班次超时' },
+      { type: '开放班次超时' },
+      { type: '开放班次超时' },
+      { type: '开放班次超时' },
+      { type: '开放班次超时' },
+      { type: '开放班次超时' },
 
     ],
 
   }),
+  computed:{
+    mini(){
+      return this.$vuetify.breakpoint.smAndDown ? true : this.miniManual
+    }
+  },
   methods: {
     darkMode() {
-      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+      window.localStorage.dark = window.localStorage.dark === 'true' ? '' : 'true'
+      this.$vuetify.theme.dark = window.localStorage.dark
     },
-    jumpToNoti(){
+    jumpToNoti() {
       alert("~~~")
     }
   }
