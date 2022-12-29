@@ -140,7 +140,7 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResultVO<Object> logout(@RequestParam("id") long id) {
-        return null;
+        return new ResultVO<>(0, "退出登陆成功", null);
     }
 
 }
