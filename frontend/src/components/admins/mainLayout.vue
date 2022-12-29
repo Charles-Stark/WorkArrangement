@@ -77,8 +77,9 @@
     </v-app-bar>
 
     <!-- 导航栏 -->
-    <v-navigation-drawer v-model="drawer" permanent :mini-variant="mini" app class="" mini-variant-width="60"
+    <v-navigation-drawer v-model="drawer" permanent :mini-variant="mini" app mini-variant-width="60"
       width="220">
+
       <v-list-item class="px-2 mt-2">
         <v-list-item v-if="mini == false">
           <v-img v-if="$vuetify.theme.dark === false" :src="require('../../assets/logo-md.png')" width="10"></v-img>
@@ -94,7 +95,7 @@
 
         <v-list-item-group v-model="selectedItem" color="primary">
 
-          <v-list-item class="my-5">
+          <v-list-item class="my-5" link>
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
@@ -146,7 +147,7 @@
 
       </v-list>
 
-      <v-footer absolute v-if="mini === false" class="text-center">
+      <v-footer absolute v-if="mini === false">
         <v-subheader class="grey--text font-italic">©2023</v-subheader>
       </v-footer>
     </v-navigation-drawer>
