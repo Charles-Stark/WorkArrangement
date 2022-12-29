@@ -146,7 +146,7 @@ id: string 用户id
 
 POST请求 /api/user/photo/upload/{id}
 ```yaml
-头像图片
+photo: 头像图片(文件)
 ```
 
 ```json
