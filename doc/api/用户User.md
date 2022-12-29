@@ -164,30 +164,25 @@ photo: 头像图片(文件)
 }
 ```
 
-## 修改用户信息
-在用户设置页面发送该请求以修改用户信息。
+## 修改用户名
+在用户设置页面发送该请求以修改用户名。
 
-POST请求 /api/user/info/update/{id}
+POST请求 /api/user/info/username/update/{id}
 ```yaml
-邮箱: string 邮箱
-password: string 密码
 username: string 用户姓名（不唯一）
 ```
 
 ```json
 {
   "code": 0,
-  "message": "修改信息成功",
-  "data": {
-    "id": 1024,
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsInRlbGVwaG9uZSI6IjE4ODU3MDA1NDc3IiwiZXhwIjoxNjcxMzE2ODI4fQ.D0nA_MIlRTdCl06wbCfFzZiW6hr9xuBc4VJnvynJz4E"
-  }
+  "message": "修改用户名成功",
+  "data": null
 }
 ```
 ```json
 {
   "code": -1,
-  "message": "修改信息失败",
+  "message": "修改用户名失败",
   "data": null
 }
 ```
