@@ -1,7 +1,6 @@
 //vuex的store创建
 import Vue from 'vue'
 import Vuex from 'vuex'
-import theme from  './theme'
 
 Vue.use(Vuex)
 
@@ -19,6 +18,10 @@ const mutations = {
   auto_dark(state, value) {
     state.autoDark = value
     window.localStorage.autoDark = value ? 'true' : ''
+  },
+  theme(state, value) {
+    state.currentTheme = value
+    window.localStorage.theme = value
   }
 
 }
@@ -27,9 +30,9 @@ const mutations = {
 
 //state用于存储数据
 const state = {
-  dark: window.localStorage.dark==='true',
-  autoDark: window.localStorage.autoDark==='true',
-  theme
+  dark: window.localStorage.dark === 'true',
+  autoDark: window.localStorage.autoDark === 'true',
+  currentTheme: window.localStorage.theme
 }
 
 

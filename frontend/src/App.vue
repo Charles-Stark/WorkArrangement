@@ -7,6 +7,7 @@
 
 <script>
 import mainLayout from './components/admins/mainLayout.vue'
+import themes from './store/themes'
 
 export default {
   name: 'App',
@@ -14,6 +15,28 @@ export default {
     mainLayout
   },
   created(){
+    for(var theme in themes){
+      if(this.$store.state.currentTheme===theme){
+        switch(theme){
+          case 'blue':
+            this.$vuetify.theme.themes = themes.blue;
+            break;
+          case 'green':
+            this.$vuetify.theme.themes = themes.green;
+            break;
+          case 'purple':
+            this.$vuetify.theme.themes = themes.purple;
+            break;
+          case 'orange':
+            this.$vuetify.theme.themes = themes.orange;
+            break;
+          case 'pink':
+            this.$vuetify.theme.themes = themes.pink;
+            break;
+        }
+        break;
+      }
+    }
     if (this.$store.state.autoDark === true) {
       this.$vuetify.theme.dark = window.matchMedia("(prefers-color-scheme: dark)").matches
       window.localStorage.dark = window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : ''
@@ -21,6 +44,7 @@ export default {
     else{
       this.$vuetify.theme.dark=this.$store.state.dark
     }
+    
   }
 }
 </script>

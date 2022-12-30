@@ -98,7 +98,8 @@
                   </v-list-item-icon>
                   <v-list-item-title>主题颜色</v-list-item-title>
                   <v-btn-toggle v-model="toggle" mandatory>
-                  <v-btn class="mx-2" fab :color="color" v-for="color in colors" :key="color"></v-btn>
+                    <v-btn class="mx-2" fab :color="color.type" v-for="color in colors" :key="color.type"
+                      @click="changeTheme(color)"></v-btn>
                   </v-btn-toggle>
                 </v-list-item>
               </v-list-item-group>
@@ -116,12 +117,12 @@
 </template>
 
 <script>
-
+import themes from '../../../store/themes'
 export default {
   data: () => ({
     dark: null,
     autoDark: null,
-    toggle:[],
+    toggle: [],
     personal: {
       avatar: 'https://avatars0.githubusercontent.com/u/9064066?v=4&s=460',
       name: 'John Leider',
@@ -130,7 +131,7 @@ export default {
       email: 'abcdefg@xxx.com',
       psw: '1234567'
     },
-    colors: ['blue' , 'green' ,'purple', 'orange', 'pink' ,'yellow' ]
+
   }),
   computed: {
     infos() {
@@ -141,6 +142,14 @@ export default {
         { type: "密码", data: '点击修改', editable: true, icon: 'mdi-key' }
       ]
     },
+    colors(){
+      return [{ type: 'blue', theme: themes.blue },
+      { type: 'green', theme: themes.green },
+      { type: 'purple', theme: themes.purple },
+      { type: 'orange', theme: themes.orange },
+      { type: 'pink', theme: themes.pink }]
+    } 
+    
   },
 
   methods: {
@@ -149,6 +158,10 @@ export default {
     },
     changeAvatar() {
       alert('更换头像')
+    },
+    changeTheme(color) {
+      this.$vuetify.theme.themes = color.theme
+      this.$store.commit('theme',color.type)
     },
     darkMode() {
       this.$store.commit('dark', this.dark)
@@ -166,7 +179,6 @@ export default {
         this.dark = window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : ''
         this.$vuetify.theme.dark = window.matchMedia("(prefers-color-scheme: dark)").matches
         this.$store.commit('dark', window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : '')
-
       }
     }
   },
