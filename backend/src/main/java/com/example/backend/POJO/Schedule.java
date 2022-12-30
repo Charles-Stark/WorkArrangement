@@ -24,6 +24,9 @@ public class Schedule {
 
     private ArrayList<WorkUnit[][]> weeks;  // 排班内容，ArrayList每项为一周，每周为一个WorkUnit二维数组
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     private static class WorkUnit {
         // 班次最小单元，一个WorkUnit代表一个小时
 
