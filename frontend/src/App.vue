@@ -12,6 +12,15 @@ export default {
   name: 'App',
   components: {
     mainLayout
+  },
+  created(){
+    if (this.$store.state.autoDark === true) {
+      this.$vuetify.theme.dark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      window.localStorage.dark = window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : ''
+    }
+    else{
+      this.$vuetify.theme.dark=this.$store.state.dark
+    }
   }
 }
 </script>

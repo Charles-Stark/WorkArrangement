@@ -7,10 +7,6 @@
       <v-toolbar-title>慧博云通智能排班系统</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-btn right @click="darkMode()" icon>
-        <v-icon>mdi-theme-light-dark</v-icon>
-      </v-btn>
-
       <v-menu offset-y allow-overflow max-height="500" max-width="300">
         <template v-slot:activator="{ on, attrs }">
           <v-badge :value="noti" :content="noti" overlap bordered dot>
@@ -43,9 +39,9 @@
         </v-list>
       </v-menu>
 
-      <v-menu bottom min-width="170" rounded class="ma-3" offset-y>
+      <v-menu bottom min-width="170" rounded class="ma-6" offset-y>
         <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on" class="ma-3">
+          <v-btn icon v-on="on" class="ma-8">
             <v-avatar color="blue" size="44">
               <span class="white--text text-h6">{{ user.initials }}</span>
             </v-avatar>
