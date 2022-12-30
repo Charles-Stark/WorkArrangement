@@ -11,7 +11,7 @@ export default new Vuetify({
     iconfont:'mdi'
   },
   theme: {
-    dark: window.localStorage.dark,
+    dark: false,
     default: 'light',
     disable: false,
     options: {
@@ -38,7 +38,7 @@ export default new Vuetify({
         info: '#2196F3',
         success: '#4CAF50',
         warning: '#FB8C00',
-      }
+      },
     }
   }
 })

@@ -5,18 +5,18 @@
         <v-expansion-panel hide-actions>
           <v-expansion-panel-header>
             <v-row align="center" class="spacer" no-gutters>
-              <v-col cols="4" sm="2" md="1">
-                <v-avatar size="36px">
+              <v-col cols="4" sm="3" md="2">
+                <v-avatar size="80" @click="changeAvatar()">
                   <img v-if="personal.avatar" alt="Avatar"
                     src="https://avatars0.githubusercontent.com/u/9064066?v=4&s=460">
                 </v-avatar>
               </v-col>
 
-              <v-col class="hidden-xs-only" sm="5" md="3">
+              <v-col sm="5" md="3">
                 <strong>{{ personal.name }}</strong>
               </v-col>
 
-              <v-col class="text-no-wrap" cols="5" sm="3">
+              <v-col class="text-no-wrap hidden-xs-only" cols="5" sm="2">
                 <strong>账户设置</strong>
               </v-col>
 
@@ -26,11 +26,12 @@
             </v-row>
           </v-expansion-panel-header>
 
-          <v-expansion-panel-content v-for="info in infos" :key="info.type" >
-            <v-divider></v-divider>
-            <v-list flat >
+          <v-expansion-panel-content>
+            <v-list flat rounded v-for="info in infos" :key="info.type">
+              <v-divider></v-divider>
               <v-list-item-group>
                 <v-list-item @click="editInfo()">
+
                   <v-list-item-icon>
                     <v-icon color="accent">{{ info.icon }}</v-icon>
                   </v-list-item-icon>
@@ -48,7 +49,7 @@
           <v-expansion-panel-header>
             <v-row align="center" class="spacer" no-gutters>
               <v-col cols="4" sm="2" md="1">
-                <v-icon color="green" size="28">
+                <v-icon color="green" size="35">
                   mdi-draw
                 </v-icon>
               </v-col>
@@ -57,18 +58,55 @@
                 <strong>显示设置</strong>
               </v-col>
 
-              <v-col class="grey--text text-truncate hidden-sm-and-down">
-                深色模式，主题
+              <v-col class="grey--text text-truncate hidden-xs-only">
+                深色模式，跟随系统颜色设置，主题
               </v-col>
             </v-row>
           </v-expansion-panel-header>
 
           <v-expansion-panel-content>
             <v-divider></v-divider>
-            asffasfas
+            <v-list flat rounded>
+              <v-list-item-group>
+                <v-list-item @click="darkMode()">
+                  <v-list-item-icon>
+                    <v-icon color="accent" size="30">mdi-theme-light-dark</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>深色模式</v-list-item-title>
+                  <v-switch v-model="dark" :disabled="autoDark"></v-switch>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+            <v-divider></v-divider>
+            <v-list flat rounded>
+              <v-list-item-group>
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon color="accent" size="30">mdi-desktop-classic</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>跟随系统颜色模式</v-list-item-title>
+                  <v-switch v-model="autoDark" @change="autoDarkMode()"></v-switch>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+            <v-divider></v-divider>
+            <v-list flat rounded>
+              <v-list-item-group>
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon color="accent" size="30">mdi-palette</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>主题颜色</v-list-item-title>
+                  <v-btn-toggle v-model="toggle" mandatory>
+                  <v-btn class="mx-2" fab :color="color" v-for="color in colors" :key="color"></v-btn>
+                  </v-btn-toggle>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
           </v-expansion-panel-content>
 
         </v-expansion-panel>
+
       </v-expansion-panels>
     </v-row>
   </v-container>
@@ -81,6 +119,9 @@
 
 export default {
   data: () => ({
+    dark: null,
+    autoDark: null,
+    toggle:[],
     personal: {
       avatar: 'https://avatars0.githubusercontent.com/u/9064066?v=4&s=460',
       name: 'John Leider',
@@ -89,8 +130,7 @@ export default {
       email: 'abcdefg@xxx.com',
       psw: '1234567'
     },
-
-
+    colors: ['blue' , 'green' ,'purple', 'orange', 'pink' ,'yellow' ]
   }),
   computed: {
     infos() {
@@ -100,15 +140,41 @@ export default {
         { type: "邮箱", data: this.personal.email, editable: true, icon: 'mdi-gmail' },
         { type: "密码", data: '点击修改', editable: true, icon: 'mdi-key' }
       ]
+    },
+  },
+
+  methods: {
+    editInfo() {
+      alert('编辑信息')
+    },
+    changeAvatar() {
+      alert('更换头像')
+    },
+    darkMode() {
+      this.$store.commit('dark', this.dark)
+      this.$vuetify.theme.dark = this.dark
+    },
+    autoDarkMode() {
+      this.$store.commit('auto_dark', this.autoDark)
+    }
+
+  },
+
+  watch: {
+    autoDark() {
+      if (this.$store.state.autoDark === true) {
+        this.dark = window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : ''
+        this.$vuetify.theme.dark = window.matchMedia("(prefers-color-scheme: dark)").matches
+        this.$store.commit('dark', window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : '')
+
+      }
     }
   },
 
-  methods:{
-    editInfo(){
-      
-    }
+  created() {
+    this.dark = this.$store.state.dark
+    this.autoDark = this.$store.state.autoDark
   }
-
 
 
 }
