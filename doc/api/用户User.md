@@ -64,6 +64,7 @@ password: string 密码
   "message": "用户登陆成功",
   "data": {
     "id": 1024,
+    "isManager": 1,
     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsInRlbGVwaG9uZSI6IjE4ODU3MDA1NDc3IiwiZXhwIjoxNjcxMzE2ODI4fQ.D0nA_MIlRTdCl06wbCfFzZiW6hr9xuBc4VJnvynJz4E"
   }
 }
@@ -90,6 +91,7 @@ verify: string 用户接收到的验证码
   "message": "用户登陆成功",
   "data": {
     "id": 1024,
+    "isManager": 0,
     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsInRlbGVwaG9uZSI6IjE4ODU3MDA1NDc3IiwiZXhwIjoxNjcxMzE2ODI4fQ.D0nA_MIlRTdCl06wbCfFzZiW6hr9xuBc4VJnvynJz4E"
   }
 }
