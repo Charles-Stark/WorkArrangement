@@ -124,9 +124,15 @@ public class UserController {
         }
     }
 
-    @PostMapping("/info/update/{id}")
-    public ResultVO<Map<String, Object>> updateUserInfo(@PathVariable long id, @RequestParam Map<String, Object> map) {
-        return userService.updateUserInfo(id, map);
+    @PostMapping("/info/username/update/{id}")
+    public ResultVO<Map<String, Object>> updateUserInfo(@PathVariable long id, @RequestParam("username") String username) {
+        try {
+            User user = new User(id, null, null, username, null, null, null);
+            userMapper.updateById(user);
+            return new ResultVO<>(0, "修改用户名成功", null);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "修改用户名失败", null);
+        }
     }
 
     @PostMapping("/password/reset")
@@ -140,7 +146,7 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResultVO<Object> logout(@RequestParam("id") long id) {
-        return null;
+        return new ResultVO<>(0, "退出登陆成功", null);
     }
 
 }
