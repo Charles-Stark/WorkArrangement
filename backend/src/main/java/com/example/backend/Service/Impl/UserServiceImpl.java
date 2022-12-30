@@ -71,6 +71,7 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("token", token);
         resultMap.put("id", result.getId());
+        resultMap.put("isManager", result.getIsManager());
 
         if (token != null) {
             return new ResultVO<>(0, "用户登陆成功", resultMap);
@@ -94,6 +95,7 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("id", result.getId());
         resultMap.put("token", token);
+        resultMap.put("isManager", result.getIsManager());
 
         if (token != null) {
             return new ResultVO<>(0, "用户登陆成功", resultMap);
