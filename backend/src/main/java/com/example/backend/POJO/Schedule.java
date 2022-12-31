@@ -22,20 +22,26 @@ public class Schedule {
     private Date startAt;  // 该表所排班次开始日期
     private Date endAt;  // 该表所排班次结束日期
 
-    private ArrayList<WorkUnit[][]> weeks;  // 排班内容，ArrayList每项为一周，每周为一个WorkUnit二维数组
+    private ArrayList<Week> weeks; // 排班内容，ArrayList每项为一周，每周为一个Week对象
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    private static class WorkUnit {
+    public static class Week {
+        private Date startAt;  // 本周开始日期
+        private Date endAt;  // 本周结束日期
+        private WorkUnit[][] data;  // 排班具体内容
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class WorkUnit {
         // 班次最小单元，一个WorkUnit代表一个小时
 
-        private Date date;  // 所处日期
-        private Date beginTime;  // 该单元开始时间
-        private Date endTime;  // 该单元结束时间
-        private int week;  // 所处星期
+        private Date beginTime;  // 该单元开始的日期时间
 
-        private ArrayList<Employee> employees;  // 该单元安排的员工
+        private ArrayList<Employee> employees;  // 该单元安排的员工列表
 
     }
 
