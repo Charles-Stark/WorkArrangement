@@ -89,7 +89,7 @@
 
       <v-list rounded class="mt-5 text-left">
 
-        <v-list-item-group v-model="selectedItem" color="primary">
+        <v-list-item-group v-model="selectedItem" color="primary" mandatory>
 
           <v-list-item class="my-5" link>
             <v-list-item-icon>
@@ -105,7 +105,7 @@
             <v-list-item-title>智能排班</v-list-item-title>
           </v-list-item>
 
-          <v-list-item class="my-5">
+          <v-list-item class="my-5" @click="$router.push('/absences')">
             <v-list-item-icon>
               <v-icon>mdi-shore</v-icon>
             </v-list-item-icon>
@@ -151,7 +151,7 @@
 
     <!-- 内容显示区 -->
     <v-main>
-      <v-container>
+      <v-container fluid>
         <router-view></router-view>
       </v-container>
         
@@ -165,7 +165,6 @@
 export default {
   data: () => ({
     drawer: false,
-    selectedItem: null,
     noti: 99,
     miniManual: false,
     user: {
@@ -190,6 +189,9 @@ export default {
   computed: {
     mini() {
       return this.$vuetify.breakpoint.smAndDown ? true : this.miniManual
+    },
+    selectedItem(){
+      return this.$router.currentRoute.meta.selectedItem
     }
   },
   methods: {

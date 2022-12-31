@@ -4,19 +4,47 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 //引入组件
+import absenceArrange from '../components/admins/view/absenceArrange'
 import settingPage from '../components/admins/view/settingPage'
+
+var RouterVer = function () {
+  //判断身份为管理员或用户 加载不同路由
+  var jurisdiction = 'admin'
+  if (jurisdiction==='admin') {
+    return [
+      {
+        path: '/absences',
+        component: absenceArrange,
+        meta: {
+          title: '用户设置',
+
+          //控制左侧导航栏选中
+          selectedItem: 2
+        }
+      },
+      {
+        path: '/settings',
+        component: settingPage,
+        meta: {
+          title: '用户设置',
+
+          //控制左侧导航栏选中
+          selectedItem: 4
+        }
+      },
+    ]
+  } else {
+    return [
+      
+    ]
+  }
+}
 
 //导出 router
 const router = new VueRouter({
-  routes: [
-    {
-      path: '/settings',
-      component: settingPage,
-      meta: {
-        title: '设置'
-      }
-    },
-  ]
+  mode: 'hash',
+  base: '',
+  routes: RouterVer()
 })
 
 //全局前置路由守卫

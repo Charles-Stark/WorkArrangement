@@ -38,15 +38,15 @@ const themes = {
   purple: {
     light: {
       primary: '#6A1B9A',
-      secondary: '#7986CB',
-      accent: '#4A148C',
+      secondary: '#B39DDB',
+      accent: '#8C9EFF',
       error: '#FF5252',
       success: '#4CAF50',
       warning: '#FB8C00',
     },
     dark: {
       primary: '#B39DDB',
-      secondary: '#D1C4E9',
+      secondary: '#9575CD',
       accent: '#8C9EFF',
       error: '#FF5252',
       success: '#4CAF50',
