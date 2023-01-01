@@ -1,14 +1,14 @@
 <template>
   <v-data-iterator :items="items" :items-per-page.sync="itemsPerPage" :page.sync="page" :search="search"
-    :sort-by="sortBy.toLowerCase()" :sort-desc="sortDesc" hide-default-footer>
+    :sort-by="keys[sortBy]" :sort-desc="sortDesc" hide-default-footer>
     <template v-slot:header>
       <v-toolbar class="mb-1" elevation="2" rounded>
         <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
-          label="Search"></v-text-field>
+          label="搜索"></v-text-field>
         <template v-if="$vuetify.breakpoint.mdAndUp">
           <v-spacer></v-spacer>
-          <v-select v-model="sortBy" flat solo-inverted hide-details :items="keys" prepend-inner-icon="mdi-magnify"
-            label="Sort by"></v-select>
+          <v-select v-model="sortBy" clearable flat solo-inverted hide-details :items="Object.keys(keys)"
+            prepend-inner-icon="mdi-magnify" label="排序"></v-select>
           <v-spacer></v-spacer>
           <v-btn-toggle v-model="sortDesc" mandatory>
             <v-btn large depressed color="secondary" :value="false">
@@ -23,8 +23,8 @@
     </template>
 
     <template v-slot:default="props">
-      <div class="ma-5">
-        <v-row class="mt-5 hidden-sm-and-down">
+      <div class="mx-10">
+        <v-row class="mt-5">
           <v-col cols="2" class="ml-4">请假时间</v-col>
           <v-col cols="2">工号</v-col>
           <v-col cols="2">姓名</v-col>
@@ -62,14 +62,54 @@
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="3" md="2" right class="align-end">
-            <v-btn outlined color="secondary" :disabled="item.approved != null">
-              <v-icon v-if="item.approved === true">mdi-check</v-icon>
-              <v-icon v-else-if="item.approved === false">mdi-close</v-icon>
-              <span v-if="item.approved === null">查看详情</span>
-              <span v-else-if="item.approved === true">已批准</span>
-              <span v-else>已拒绝</span>
 
-            </v-btn>
+            <v-dialog v-model="item.dialog" max-width="450" :fullscreen="fullscreen">
+              <template v-slot:activator="{ on, attrs }">
+
+                <v-btn outlined color="secondary" :disabled="item.approved != null" v-bind="attrs" v-on="on">
+                  <v-icon v-if="item.approved === true">mdi-check</v-icon>
+                  <v-icon v-else-if="item.approved === false">mdi-close</v-icon>
+                  <span v-if="item.approved === null">查看详情</span>
+                  <span v-else-if="item.approved === true">已批准</span>
+                  <span v-else>已拒绝</span>
+                </v-btn>
+
+              </template>
+              <v-card>
+                <v-card-title class="text-h4">
+                  请假条
+                </v-card-title>
+                <v-card-text class="text-h6 mt-4">
+                  姓名: {{ item.name }}
+                </v-card-text>
+                <v-card-text class="text-h6">
+                  请假时间: {{ item.time }}
+                </v-card-text>
+                <v-card-text class="text-h6">
+                  请假原因: <br>
+                  <p class="text-body-1 mx-3 mt-3">{{ item.reason }}</p>
+
+                </v-card-text>
+                <v-card-text class="text-h6">
+                  相关附件:
+                </v-card-text>
+                <v-img class="mx-15" :src="item.attachment"></v-img>
+                <v-card-actions class="mt-4">
+                  <v-spacer></v-spacer>
+                  <v-btn color="grey" text @click="close(item)" large>
+                    返回
+                  </v-btn>
+                  <v-btn color="error" text @click="approve()" large>
+                    拒绝
+                  </v-btn>
+                  <v-btn color="success" text @click="reject()" large>
+                    批准
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
+
           </v-col>
         </v-row>
       </div>
@@ -88,51 +128,62 @@ export default {
     return {
       search: '',
       filter: {},
-      sortDesc: true,
+      sortDesc: false,
       page: 1,
       itemsPerPage: 10,
-      sortBy: 'time',
-      keys: [
-        'time',
-        'id',
-        'name',
-        'reason',
-      ],
+      sortBy: '',
+      dialog: [false, false, false, false, false],
+      keys: {
+        '工号': 'id',
+        '姓名': 'name'
+      },
+
+
       items: [
         {
           time: '2022/12/31',
           id: 'A0001',
-          name: 'AA',
+          name: 'BBB',
           reason: 'safadsgasgfadsfadgadfadsfasfjfadsjfhuiashfuiasuiavocnojquiobiasfas',
-          approved: true
+          approved: true,
+          dialog: false,
+          attachment: ''
         },
         {
           time: '2020/9/20',
           id: 'A0002',
-          name: 'BBB',
+          name: 'AA',
           reason: 2,
-          approved: false
+          approved: false,
+          dialog: false,
+          attachment: ''
         },
         {
           time: '2021/4/5',
-          id: 'A0003C',
+          id: 'A0003',
           name: 'CC',
-          reason: 3,
-          approved: null
+          reason: 'safadsgasgfadsfadgadfadsfasfjfadsjfhuiashfuiasuiavocnojquiobiasfassafadsgasgfadsfadgadfadsfasfjfadsjfhuiashfuiasuiavocnojquiobiasfassafadsgasgfadsfadgadfadsfasfjfadsjfhuiashfuiasuiavocnojquiobiasfassafadsgasgfadsfadgadfadsfasfjfadsjfhuiashfuiasuiavocnojquiobiasfas',
+          approved: null,
+          dialog: false,
+          attachment: ''
         },
         {
           time: '2002/4/4',
           id: 'A0004',
-          name: 'DD',
+          name: 'EE',
           reason: 4,
-          approved: false
+          approved: false,
+          dialog: false,
+          attachment: ''
         },
         {
           time: '2022/4/3',
           id: 'A0005',
-          name: 'EE',
+          name: 'DD',
           reason: 5,
-          approved: null
+          approved: null,
+          dialog: false,
+          attachment: ''
         },
 
       ],
@@ -142,6 +193,9 @@ export default {
     numberOfPages() {
       return Math.ceil(this.items.length / this.itemsPerPage)
     },
+    fullscreen() {
+      return this.$vuetify.breakpoint.xsOnly ? true : false
+    }
   },
   methods: {
     nextPage() {
@@ -152,6 +206,9 @@ export default {
     },
     updateItemsPerPage(number) {
       this.itemsPerPage = number
+    },
+    close(item) {
+      item.dialog = false
     },
   },
 }

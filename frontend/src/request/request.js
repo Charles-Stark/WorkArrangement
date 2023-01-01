@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost',
   timeout: 4000
 })
 
@@ -9,8 +9,10 @@ const instance = axios.create({
 instance.interceptors.request.use(config => {
   //部分接口需要拿到token
   let token = localStorage.getItem('token')
+  let userId = localStorage.getItem('userId')
   if (token) {
-    config.headers.token = token;
+    config.headers.Authorization = token;
+    config.headers.userId = userId;
   }
   return config
 }, err => {

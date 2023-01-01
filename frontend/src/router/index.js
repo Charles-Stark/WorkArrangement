@@ -3,39 +3,59 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
-//引入组件
-import absenceArrange from '../components/admins/view/absenceArrange'
-import settingPage from '../components/admins/view/settingPage'
-
 var RouterVer = function () {
   //判断身份为管理员或用户 加载不同路由
   var jurisdiction = 'admin'
-  if (jurisdiction==='admin') {
+
+  if (jurisdiction === 'admin') {
+    //管理员身份的路由
     return [
       {
-        path: '/absences',
-        component: absenceArrange,
-        meta: {
-          title: '用户设置',
+        path:'/',
+        component:()=>import('../components/admins/mainLayout'),
+        children:[
+          {
+            path: 'absences',
+            component: () => import('../components/admins/view/absenceArrange'),
+            meta: {
+              title: '请假管理',
+              //控制左侧导航栏选中
+              selectedItem: 2
+            }
+          },
+          {
+            path: 'branches',
+            component: () => import('../components/admins/view/branchInfo'),
+            meta: {
+              title: '分店信息',
+              selectedItem: 5
+            }
+          },
+          {
+            path: 'staff',
+            component: () => import('../components/admins/view/staffInfo'),
+            meta: {
+              title: '员工信息',
 
-          //控制左侧导航栏选中
-          selectedItem: 2
-        }
-      },
-      {
-        path: '/settings',
-        component: settingPage,
-        meta: {
-          title: '用户设置',
+              selectedItem: 6
+            }
+          },
+          {
+            path: '/settings',
+            component: () => import('../components/admins/view/settingPage'),
+            meta: {
+              title: '用户设置',
 
-          //控制左侧导航栏选中
-          selectedItem: 4
-        }
-      },
+              selectedItem: 4
+            }
+          },
+        ]
+      }
     ]
   } else {
+    //普通用户身份的路由
     return [
-      
+
     ]
   }
 }

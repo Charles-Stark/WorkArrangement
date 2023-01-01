@@ -1,19 +1,15 @@
 <template>
   <v-app id="inspire">
 
-    <mainLayout />
+    <router-view></router-view>
   </v-app>
 </template>
 
 <script>
-import mainLayout from './components/admins/mainLayout.vue'
 import themes from './store/themes'
 
 export default {
   name: 'App',
-  components: {
-    mainLayout
-  },
   created(){
     for(var theme in themes){
       if(this.$store.state.currentTheme===theme){

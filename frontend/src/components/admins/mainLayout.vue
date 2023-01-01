@@ -4,7 +4,7 @@
     <!-- 顶栏 -->
     <v-app-bar app>
       <v-app-bar-nav-icon @click="miniManual = !miniManual" class="hidden-sm-and-down"></v-app-bar-nav-icon>
-      <v-toolbar-title>慧博云通智能排班系统</v-toolbar-title>
+      <v-toolbar-title>{{ $router.currentRoute.meta.title }}</v-toolbar-title>
       <v-spacer></v-spacer>
 
       <v-menu offset-y allow-overflow max-height="500" max-width="300">
@@ -73,8 +73,7 @@
     </v-app-bar>
 
     <!-- 导航栏 -->
-    <v-navigation-drawer v-model="drawer" permanent :mini-variant="mini" app mini-variant-width="60"
-      width="220">
+    <v-navigation-drawer v-model="drawer" permanent :mini-variant="mini" app mini-variant-width="60" width="220">
 
       <v-list-item class="px-2 mt-2">
         <v-list-item v-if="mini == false">
@@ -95,44 +94,44 @@
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>首页</v-list-item-title>
+            <v-list-item-title>概览</v-list-item-title>
           </v-list-item>
 
-          <v-list-item class="my-5">
+          <v-list-item class="my-5" link>
             <v-list-item-icon>
               <v-icon>mdi-sitemap</v-icon>
             </v-list-item-icon>
             <v-list-item-title>智能排班</v-list-item-title>
           </v-list-item>
 
-          <v-list-item class="my-5" @click="$router.push('/absences')">
+          <v-list-item class="my-5" to="absences" link>
             <v-list-item-icon>
               <v-icon>mdi-shore</v-icon>
             </v-list-item-icon>
             <v-list-item-title>请假管理</v-list-item-title>
           </v-list-item>
 
-          <v-list-group prepend-icon="mdi-inbox" class="my-5">
+          <v-list-group prepend-icon="mdi-inbox" class="my-5" mandatory :value="expand">
             <template v-slot:activator>
               <v-list-item-title>信息管理</v-list-item-title>
             </template>
 
-            <v-list-item>
+            <v-list-item to="branches" link>
               <v-list-item-icon>
-                <v-icon size="20">mdi-store</v-icon>
+                <v-icon size="23">mdi-store</v-icon>
               </v-list-item-icon>
               <v-list-item-title>分店信息</v-list-item-title>
             </v-list-item>
 
-            <v-list-item>
+            <v-list-item to="staff" link>
               <v-list-item-icon>
-                <v-icon size="20">mdi-account</v-icon>
+                <v-icon size="23">mdi-account</v-icon>
               </v-list-item-icon>
               <v-list-item-title>员工信息</v-list-item-title>
             </v-list-item>
           </v-list-group>
 
-          <v-list-item class="my-5" @click="$router.push('/settings')">
+          <v-list-item class="my-5" to="settings" link>
             <v-list-item-icon>
               <v-icon>mdi-cogs</v-icon>
             </v-list-item-icon>
@@ -148,14 +147,11 @@
       </v-footer>
     </v-navigation-drawer>
 
-
     <!-- 内容显示区 -->
     <v-main>
       <v-container fluid>
         <router-view></router-view>
       </v-container>
-        
-
     </v-main>
   </v-app>
 </template>
@@ -185,14 +181,23 @@ export default {
 
     ],
 
+
+
   }),
   computed: {
     mini() {
       return this.$vuetify.breakpoint.smAndDown ? true : this.miniManual
     },
-    selectedItem(){
-      return this.$router.currentRoute.meta.selectedItem
-    }
+    selectedItem: {
+      set() { },
+      get() {
+        return this.$router.currentRoute.meta.selectedItem
+      }
+    },
+    expand() {
+      let path = this.$router.currentRoute.meta.selectedItem
+      return path > 4 ? true : false
+    },
   },
   methods: {
     darkMode() {
@@ -201,7 +206,8 @@ export default {
     },
     jumpToNoti() {
       alert("~~~")
-    }
-  }
+    },
+  },
+
 }
 </script>
