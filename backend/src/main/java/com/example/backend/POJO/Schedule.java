@@ -41,7 +41,7 @@ public class Schedule {
 
         private Date beginTime;  // 该单元开始的日期时间
 
-        private ArrayList<Employee> employees;  // 该单元安排的员工列表
+        private ArrayList<Long> employees;  // 该单元安排的员工id列表
 
     }
 
