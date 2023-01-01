@@ -1,5 +1,7 @@
 package com.example.backend.POJO;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,7 @@ public class Schedule {
     private Date startAt;  // 该表所排班次开始日期
     private Date endAt;  // 该表所排班次结束日期
 
+    @TableField(typeHandler = JacksonTypeHandler.class)
     private ArrayList<Week> weeks; // 排班内容，ArrayList每项为一周，每周为一个Week对象
 
     @Data
