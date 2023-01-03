@@ -7,7 +7,7 @@
       <v-toolbar-title>{{ $router.currentRoute.meta.title }}</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-menu offset-y allow-overflow max-height="500" max-width="300">
+      <v-menu offset-y allow-overflow max-height="600" max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-badge :value="noti" :content="noti" overlap bordered dot>
             <v-btn icon v-bind="attrs" v-on="on">
@@ -22,18 +22,22 @@
             当前共有{{ noti }}条未读通知
           </v-subheader>
           <template v-for="(notice, index) in notices">
-
-            <v-list-item :key="notice.type" @click="jumpToNoti()">
-              <v-list-item-avatar size="50" v-if="notice.type === '请假消息'">
-                <v-img :src="notice.avatar"></v-img>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title>{{ notice.type }}</v-list-item-title>
-                <v-list-item-subtitle v-if="notice.type === '请假消息'">{{ notice.name }}申请了请假，点击查看详情</v-list-item-subtitle>
-                <v-list-item-subtitle v-if="notice.type === '开放班次超时'">有一个开放班次长时间无人认领，点击手动排班</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider :key="index"></v-divider>
+          <v-divider :key="index+' '+notice.type"></v-divider>
+            
+              <v-list-item :key="index" @click="jumpToNoti()">
+                <v-list-item-avatar size="50" v-if="notice.type === 1">
+                  <v-img :src="notice.avatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-subtitle class="mt-1 mx-2 text-subtitle-1" :class="notice.read === false ? 'black--text':'grey--text'" v-if="notice.type === 1">{{ notice.name
+                    }}申请了请假，点击查看详情</v-list-item-subtitle>
+                  <v-list-item-subtitle class="mt-1 mx-2 text-subtitle-1" :class="notice.read === false ? 'black--text':'grey--text'"
+                    v-else>有一个开放班次长时间无人认领，点击进行手动排班</v-list-item-subtitle>
+                  <v-list-item-subtitle class="text-caption mt-3">{{ notice.date}} {{ notice.time }}</v-list-item-subtitle>
+                </v-list-item-content>
+                                
+              </v-list-item>
+            
 
           </template>
         </v-list>
@@ -161,7 +165,6 @@
 export default {
   data: () => ({
     drawer: false,
-    noti: 99,
     miniManual: false,
     user: {
       initials: 'JD',
@@ -169,16 +172,15 @@ export default {
       email: 'john.doe@doe.com',
     },
     notices: [
-      { type: '请假消息', avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg', name: 'aa' },
-      { type: '开放班次超时' },
-      { type: '请假消息', avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg', name: 'bb' },
-      { type: '开放班次超时' },
-      { type: '开放班次超时' },
-      { type: '开放班次超时' },
-      { type: '开放班次超时' },
-      { type: '开放班次超时' },
-      { type: '开放班次超时' },
-
+      { type: 1, avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg', name: 'aa', time: '10:24', date: '2022/10/24', read: true },
+      { type: 2, time: '10:24', date: '2022/10/24', read: false },
+      { type: 1, avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg', name: 'bb', time: '10:24', date: '2022/10/24', read: false },
+      { type: 2, time: '10:24', date: '2022/10/24', read: true },
+      { type: 2, time: '10:24', date: '2022/10/24', read: false },
+      { type: 2, time: '10:24', date: '2022/10/24', read: true },
+      { type: 2, time: '10:24', date: '2022/10/24', read: false },
+      { type: 2, time: '10:24', date: '2022/10/24', read: false },
+      { type: 2, time: '10:24', date: '2022/10/24', read: true },
     ],
 
 
@@ -198,6 +200,15 @@ export default {
       let path = this.$router.currentRoute.meta.selectedItem
       return path > 4 ? true : false
     },
+    noti(){
+      var num=0
+      for(var notice in this.notices){
+        if (this.notices[notice].read===false) {
+            num++ 
+          }
+      }
+      return num
+    }
   },
   methods: {
     darkMode() {

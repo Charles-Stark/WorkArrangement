@@ -25,43 +25,37 @@
     <template v-slot:default="props">
       <div class="mx-10">
         <v-row class="mt-5">
-          <v-col cols="2" class="ml-4">请假时间</v-col>
-          <v-col cols="2">工号</v-col>
-          <v-col cols="2">姓名</v-col>
-          <v-col cols="4" class="hidden-sm-and-down">请假原因</v-col>
-          <v-col>审批状态</v-col>
+          <v-col cols="3" md="2">请假时间</v-col>
+          <v-col cols="3" md="2">工号</v-col>
+          <v-col cols="3" md="2">姓名</v-col>
+          <v-col class="hidden-sm-and-down">请假原因</v-col>
+          <v-spacer></v-spacer>
+          <v-col cols="3" md="2">审批状态</v-col>
+          <v-col cols="12"><v-divider></v-divider></v-col>
         </v-row>
         <v-row v-for="item in props.items" :key="item.id">
           <v-col cols="3" md="2">
-            <v-list-item>
-              <v-list-item-content :class="{ 'secondary': sortBy === item.time }">
+              <v-list-item-content>
                 {{ item.time }}
               </v-list-item-content>
-            </v-list-item>
           </v-col>
           <v-col cols="3" md="2">
-            <v-list-item>
-              <v-list-item-content :class="{ 'secondary': sortBy === item.id }">
+              <v-list-item-content>
                 {{ item.id }}
               </v-list-item-content>
-            </v-list-item>
           </v-col>
           <v-col cols="3" md="2">
-            <v-list-item>
-              <v-list-item-content :class="{ 'secondary': sortBy === item.name }">
+              <v-list-item-content>
                 {{ item.name }}
               </v-list-item-content>
-            </v-list-item>
           </v-col>
-          <v-col cols="2" md="4" class="hidden-sm-and-down">
-            <v-list-item>
-              <v-list-item-content class="align-end" :class="{ 'secondary': sortBy === item.reason }">
+          <v-col cols="4" class="hidden-sm-and-down">
+              <v-list-item-content>
                 {{ item.reason }}
               </v-list-item-content>
-            </v-list-item>
           </v-col>
           <v-spacer></v-spacer>
-          <v-col cols="3" md="2" right class="align-end">
+          <v-col cols="3" md="2">
 
             <v-dialog v-model="item.dialog" max-width="450" :fullscreen="fullscreen">
               <template v-slot:activator="{ on, attrs }">
@@ -111,12 +105,13 @@
 
 
           </v-col>
+          <v-col cols="12"><v-divider></v-divider></v-col>
         </v-row>
       </div>
     </template>
 
     <template v-slot:footer>
-      <v-pagination v-model="page" :length="numberOfPages"></v-pagination>
+      <v-pagination class="mt-4" v-model="page" :length="numberOfPages"></v-pagination>
     </template>
   </v-data-iterator>
 
