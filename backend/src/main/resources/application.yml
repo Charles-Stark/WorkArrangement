@@ -2,9 +2,12 @@ spring:
   # MySQL数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/WorkArrangement?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://localhost:3306/WorkArrangement?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
     password: 918spyder
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
   # 邮件服务
   mail:
     host: smtp.163.com
