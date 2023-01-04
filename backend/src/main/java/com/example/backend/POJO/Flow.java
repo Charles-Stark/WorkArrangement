@@ -1,6 +1,7 @@
 package com.example.backend.POJO;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,8 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerFlow {
+@TableName(autoResultMap = true)
+public class Flow {
 
     private Long id;
     private Long shop;  // 该客流量数据所属门店的id
