@@ -36,5 +36,8 @@ server:
   port: 8081
 
 mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
   configuration:
     map-underscore-to-camel-case: false
