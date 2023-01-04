@@ -12,9 +12,9 @@ import java.util.Date;
 public class Notification {
 
     private Long id;
-    private Boolean read;
-    private Long from;
-    private Long to;
+    private Boolean isRead;
+    private Long fromUser;
+    private Long toUser;
     private int type;
     private String text;
     private Date createAt;
