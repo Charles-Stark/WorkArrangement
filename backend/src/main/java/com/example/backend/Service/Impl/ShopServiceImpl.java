@@ -7,6 +7,8 @@ import com.example.backend.mapper.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class ShopServiceImpl implements ShopService {
 
@@ -37,4 +39,28 @@ public class ShopServiceImpl implements ShopService {
         return new ResultVO<>(0, "删除门店成功", null);
 
     }
+
+    @Override
+    public ResultVO<Object> getShop(long id) {
+
+        try {
+            return new ResultVO<>(-1, "获取门店信息成功", shopMapper.selectById(id));
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取门店信息失败", null);
+        }
+
+    }
+
+    @Override
+    public ResultVO<Object> updateShop(long id, String name, String address, Double size, Long manager) {
+
+        Shop shop = new Shop(id, name, address, size, manager);
+        try {
+            shopMapper.updateById(shop);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "更新门店失败", null);
+        }
+        return new ResultVO<>(0, "更新门店成功", shop);
+    }
+
 }
