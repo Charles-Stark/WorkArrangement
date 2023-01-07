@@ -1,22 +1,42 @@
 package com.example.backend.Controller;
 
+import com.example.backend.Service.ShopService;
 import com.example.backend.VO.ResultVO;
-import com.example.backend.mapper.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/shop")
 public class ShopController {
 
     @Autowired
-    private ShopMapper shopMapper;
+    private ShopService shopService;
 
     @PostMapping("/add")
-    public ResultVO<Object> addShop() {
-        return null;
+    public ResultVO<Object> addShop(@RequestParam("name") String name, @RequestParam("address") String address,
+                                    @RequestParam("size") Double size, @RequestParam("manager") Long manager) {
+        return shopService.addShop(name, address, size, manager);
+    }
+
+    @PostMapping("/delete")
+    public ResultVO<Object> deleteShop(@RequestParam("id") Long id) {
+        return shopService.deleteShop(id);
+    }
+
+    @GetMapping("/get/{id}")
+    public ResultVO<Object> getShop(@PathVariable Long id) {
+        return shopService.getShop(id);
+    }
+
+    @PostMapping("/update")
+    public ResultVO<Object> updateShop(@RequestParam("id") Long id,
+                                       @RequestParam(value = "name", required = false) String name,
+                                       @RequestParam(value = "address", required = false) String address,
+                                       @RequestParam(value = "size", required = false) Double size,
+                                       @RequestParam(value = "manager", required = false) Long manager) {
+        return shopService.updateShop(id, name, address, size, manager);
     }
 
 }
