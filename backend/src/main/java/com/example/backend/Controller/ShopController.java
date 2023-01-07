@@ -5,8 +5,6 @@ import com.example.backend.VO.ResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/shop")
 public class ShopController {
