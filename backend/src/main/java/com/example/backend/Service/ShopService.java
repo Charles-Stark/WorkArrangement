@@ -6,4 +6,6 @@ public interface ShopService {
 
     ResultVO<Object> addShop(String name, String address, double size, long manager);
 
+    ResultVO<Object> deleteShop(long id);
+
 }
