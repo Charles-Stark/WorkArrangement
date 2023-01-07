@@ -58,7 +58,7 @@ public class ShopServiceImpl implements ShopService {
         } catch (Exception e) {
             return new ResultVO<>(-1, "更新门店失败", null);
         }
-        return new ResultVO<>(0, "更新门店成功", shop);
+        return new ResultVO<>(0, "更新门店成功", shopMapper.selectById(id));
     }
 
 }
