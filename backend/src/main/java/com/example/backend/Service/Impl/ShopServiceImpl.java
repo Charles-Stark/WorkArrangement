@@ -7,6 +7,11 @@ import com.example.backend.mapper.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class ShopServiceImpl implements ShopService {
 
@@ -45,6 +50,21 @@ public class ShopServiceImpl implements ShopService {
             return new ResultVO<>(-1, "获取门店信息成功", shopMapper.selectById(id));
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取门店信息失败", null);
+        }
+
+    }
+
+    @Override
+    public ResultVO<Object> getAllShop(long managerId) {
+
+        try {
+            Map<String, Object> searchingMap = new HashMap<>();
+            searchingMap.put("manager", managerId);
+
+            List<Shop> shops = shopMapper.selectByMap(searchingMap);
+            return new ResultVO<>(0, "获取所有门店信息成功", shops);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取所有门店信息失败", null);
         }
 
     }

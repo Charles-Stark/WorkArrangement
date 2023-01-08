@@ -10,6 +10,8 @@ public interface ShopService {
 
     ResultVO<Object> getShop(long id);
 
+    ResultVO<Object> getAllShop(long managerId);
+
     ResultVO<Object> updateShop(long id, String name, String address, Double size, Long manager);
 
 }
