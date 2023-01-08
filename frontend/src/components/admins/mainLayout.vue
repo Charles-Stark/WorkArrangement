@@ -90,52 +90,53 @@
         </v-avatar>
       </v-list-item>
 
-      <v-list rounded class="mt-5 text-left">
+      <v-list shaped class="mt-5 text-left">
 
         <v-list-item-group v-model="selectedItem" color="primary" mandatory>
 
-          <v-list-item class="my-5" link>
+          <v-list-item link>
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
             <v-list-item-title>概览</v-list-item-title>
           </v-list-item>
 
-          <v-list-item class="my-5" link>
+          <v-list-item link>
             <v-list-item-icon>
               <v-icon>mdi-sitemap</v-icon>
             </v-list-item-icon>
             <v-list-item-title>智能排班</v-list-item-title>
           </v-list-item>
 
-          <v-list-item class="my-5" to="absences" link>
+
+          <v-list-item to="absences" link>
             <v-list-item-icon>
               <v-icon>mdi-shore</v-icon>
             </v-list-item-icon>
             <v-list-item-title>请假管理</v-list-item-title>
           </v-list-item>
-
-          <v-list-group prepend-icon="mdi-inbox" class="my-5" mandatory :value="expand">
-            <template v-slot:activator>
+          
+          <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand" >
+            <template v-slot:activator> 
               <v-list-item-title>信息管理</v-list-item-title>
             </template>
 
             <v-list-item to="branches" link>
               <v-list-item-icon>
-                <v-icon size="23">mdi-store</v-icon>
+                <v-icon>mdi-store</v-icon>
               </v-list-item-icon>
               <v-list-item-title>分店信息</v-list-item-title>
             </v-list-item>
 
             <v-list-item to="staff" link>
               <v-list-item-icon>
-                <v-icon size="23">mdi-account</v-icon>
+                <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
               <v-list-item-title>员工信息</v-list-item-title>
             </v-list-item>
           </v-list-group>
 
-          <v-list-item class="my-5" to="settings" link>
+          <v-list-item to="settings" link>
             <v-list-item-icon>
               <v-icon>mdi-cogs</v-icon>
             </v-list-item-icon>
@@ -222,3 +223,7 @@ export default {
 
 }
 </script>
+
+<style scoped>
+
+</style>

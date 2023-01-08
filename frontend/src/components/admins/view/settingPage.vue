@@ -27,19 +27,21 @@
           </v-expansion-panel-header>
 
           <v-expansion-panel-content>
-            <v-list flat rounded v-for="info in infos" :key="info.type">
+            <div v-for="info in infos" :key="info.type">
               <v-divider></v-divider>
-              <v-list-item-group>
-                <v-list-item @click="editInfo()">
+              <v-list flat rounded>
+                <v-list-item-group>
+                  <v-list-item @click="editInfo()">
 
-                  <v-list-item-icon>
-                    <v-icon color="accent">{{ info.icon }}</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-title>{{ info.type }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ info.data }}</v-list-item-subtitle>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
+                    <v-list-item-icon>
+                      <v-icon color="accent">{{ info.icon }}</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>{{ info.type }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ info.data }}</v-list-item-subtitle>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </div>
           </v-expansion-panel-content>
 
         </v-expansion-panel>
@@ -68,27 +70,34 @@
             <v-divider></v-divider>
             <v-list flat rounded>
               <v-list-item-group>
-                <v-list-item @click="darkMode()">
-                  <v-list-item-icon>
-                    <v-icon color="accent" size="30">mdi-theme-light-dark</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-title>深色模式</v-list-item-title>
-                  <v-switch v-model="dark" :disabled="autoDark"></v-switch>
+                <v-list-item @click="darkMode()" :disabled="autoDark">
+                  <template>
+                    <v-list-item-icon>
+                      <v-icon color="accent" size="30">mdi-theme-light-dark</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>深色模式</v-list-item-title>
+                    <v-switch v-model="dark" :disabled="autoDark" @click="darkMode()"></v-switch>
+                  </template>
                 </v-list-item>
               </v-list-item-group>
             </v-list>
+
             <v-divider></v-divider>
             <v-list flat rounded>
               <v-list-item-group>
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="accent" size="30">mdi-desktop-classic</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-title>跟随系统颜色模式</v-list-item-title>
-                  <v-switch v-model="autoDark" @change="autoDarkMode()"></v-switch>
+                <v-list-item @click="autoDarkMode()">
+                  <template>
+                    <v-list-item-icon>
+                      <v-icon color="accent" size="30">mdi-desktop-classic</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>跟随系统颜色模式</v-list-item-title>
+                    <v-switch v-model="autoDark" @click="autoDarkMode()"></v-switch>
+                  </template>
+
                 </v-list-item>
               </v-list-item-group>
             </v-list>
+
             <v-divider></v-divider>
             <v-list flat rounded>
               <v-list-item-group>
@@ -104,8 +113,8 @@
                 </v-list-item>
               </v-list-item-group>
             </v-list>
-          </v-expansion-panel-content>
 
+          </v-expansion-panel-content>
         </v-expansion-panel>
 
       </v-expansion-panels>
@@ -131,6 +140,13 @@ export default {
       email: 'abcdefg@xxx.com',
       psw: '1234567'
     },
+    items: [
+      'Dog Photos',
+      'Cat Photos',
+      'Potatoes',
+      'Carrots',
+    ],
+    model: ['Carrots'],
 
   }),
   computed: {
@@ -142,14 +158,14 @@ export default {
         { type: "密码", data: '点击修改', editable: true, icon: 'mdi-key' }
       ]
     },
-    colors(){
+    colors() {
       return [{ type: 'blue', theme: themes.blue },
       { type: 'green', theme: themes.green },
       { type: 'purple', theme: themes.purple },
       { type: 'orange', theme: themes.orange },
       { type: 'pink', theme: themes.pink }]
-    } 
-    
+    }
+
   },
 
   methods: {
@@ -161,15 +177,17 @@ export default {
     },
     changeTheme(color) {
       this.$vuetify.theme.themes = color.theme
-      this.$store.commit('theme',color.type)
+      this.$store.commit('theme', color.type)
     },
     darkMode() {
+      this.dark = !this.dark
       this.$store.commit('dark', this.dark)
       this.$vuetify.theme.dark = this.dark
     },
     autoDarkMode() {
+      this.autoDark = !this.autoDark
       this.$store.commit('auto_dark', this.autoDark)
-    }
+    },
 
   },
 
