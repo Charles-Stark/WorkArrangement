@@ -81,6 +81,43 @@ id: long 门店id
 }
 ```
 
+## 获取所有门店信息
+获取该管理员所有的门店信息时，发送请求如下。
+
+GET请求 /api/shop//getAll/{managerId}
+```yaml
+managerId: long 管理员id
+```
+```json
+{
+  "code": 0,
+  "message": "获取所有门店信息成功",
+  "data": [
+    {
+      "id": 1,
+      "name": "banana",
+      "address": "california",
+      "size": 123.4,
+      "manager": 1
+    },
+    {
+      "id": 2,
+      "name": "apple",
+      "address": "san jose",
+      "size": 12.34,
+      "manager": 1
+    }
+  ]
+}
+```
+```json
+{
+  "code": -1,
+  "message": "获取所有门店信息失败",
+  "data": null
+}
+```
+
 ## 修改门店信息
 修改门店信息时，发送请求如下。四个可选参数至少有其一。
 
