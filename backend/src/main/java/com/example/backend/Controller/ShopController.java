@@ -28,6 +28,11 @@ public class ShopController {
         return shopService.getShop(id);
     }
 
+    @GetMapping("/getAll/{managerId}")
+    public ResultVO<Object> getAllShop(@PathVariable Long managerId) {
+        return shopService.getAllShop(managerId);
+    }
+
     @PostMapping("/update")
     public ResultVO<Object> updateShop(@RequestParam("id") Long id,
                                        @RequestParam(value = "name", required = false) String name,
