@@ -73,7 +73,7 @@
                 <v-list-item @click="darkMode()" :disabled="autoDark">
                   <template>
                     <v-list-item-icon>
-                      <v-icon color="accent" size="30">mdi-theme-light-dark</v-icon>
+                      <v-icon color="blue" size="30">mdi-theme-light-dark</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title>深色模式</v-list-item-title>
                     <v-switch v-model="dark" :disabled="autoDark" @click="darkMode()"></v-switch>
@@ -88,7 +88,7 @@
                 <v-list-item @click="autoDarkMode()">
                   <template>
                     <v-list-item-icon>
-                      <v-icon color="accent" size="30">mdi-desktop-classic</v-icon>
+                      <v-icon color="green" size="30">mdi-desktop-classic</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title>跟随系统颜色模式</v-list-item-title>
                     <v-switch v-model="autoDark" @click="autoDarkMode()"></v-switch>
@@ -103,7 +103,7 @@
               <v-list-item-group>
                 <v-list-item>
                   <v-list-item-icon>
-                    <v-icon color="accent" size="30">mdi-palette</v-icon>
+                    <v-icon color="secondary" size="30">mdi-palette</v-icon>
                   </v-list-item-icon>
                   <v-list-item-title>主题颜色</v-list-item-title>
                   <v-btn-toggle v-model="toggle" mandatory>

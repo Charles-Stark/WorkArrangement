@@ -12,7 +12,7 @@ var RouterVer = function () {
     return [
       {
         path:'/',
-        component:()=>import('../components/admins/mainLayout'),
+        component:()=>import('../components/admins/appBars'),
         children:[
           {
             path: 'absences',
@@ -36,7 +36,6 @@ var RouterVer = function () {
             component: () => import('../components/admins/view/staffInfo'),
             meta: {
               title: '员工信息',
-
               selectedItem: 6
             }
           },
@@ -45,7 +44,6 @@ var RouterVer = function () {
             component: () => import('../components/admins/view/settingPage'),
             meta: {
               title: '用户设置',
-
               selectedItem: 4
             }
           },

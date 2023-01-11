@@ -7,8 +7,8 @@ Vue.use(Vuetify)
 
 
 export default new Vuetify({
-  icons:{
-    iconfont:'mdi'
+  icons: {
+    iconfont: 'mdi'
   },
   theme: {
     dark: false,
@@ -22,20 +22,22 @@ export default new Vuetify({
     },
     themes: {
       light: {
-        primary: '#1976D2',
-        secondary: '#4FC3F7',
-        accent: '#3949AB',
+        primary: '#3399CC',
+        secondary: '#99C0FF',
+        accent: '#009999',
         error: '#FF5252',
         success: '#4CAF50',
         warning: '#FB8C00',
+        strong: '#212121'
       },
       dark: {
-        primary: '#2196F3',
-        secondary: '#B3E5FC',
-        accent: '#00B0FF',
+        primary: '#66CCFF',
+        secondary: '#99CCFF',
+        accent: '#009999',
         error: '#FF5252',
         success: '#4CAF50',
         warning: '#FB8C00',
+        strong: '#F5F5F5'
       },
     }
   }

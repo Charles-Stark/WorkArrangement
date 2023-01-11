@@ -2,7 +2,7 @@
   <v-app id="inspire">
 
     <!-- 顶栏 -->
-    <v-app-bar app>
+    <v-app-bar app elevation="0" :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
       <v-app-bar-nav-icon @click="miniManual = !miniManual" class="hidden-sm-and-down"></v-app-bar-nav-icon>
       <v-toolbar-title>{{ $router.currentRoute.meta.title }}</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -22,22 +22,27 @@
             当前共有{{ noti }}条未读通知
           </v-subheader>
           <template v-for="(notice, index) in notices">
-          <v-divider :key="index+' '+notice.type"></v-divider>
-            
-              <v-list-item :key="index" @click="jumpToNoti()">
-                <v-list-item-avatar size="50" v-if="notice.type === 1">
-                  <v-img :src="notice.avatar"></v-img>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-subtitle class="mt-1 mx-2 text-subtitle-1" :class="notice.read === false ? 'black--text':'grey--text'" v-if="notice.type === 1">{{ notice.name
-                    }}申请了请假，点击查看详情</v-list-item-subtitle>
-                  <v-list-item-subtitle class="mt-1 mx-2 text-subtitle-1" :class="notice.read === false ? 'black--text':'grey--text'"
-                    v-else>有一个开放班次长时间无人认领，点击进行手动排班</v-list-item-subtitle>
-                  <v-list-item-subtitle class="text-caption mt-3">{{ notice.date}} {{ notice.time }}</v-list-item-subtitle>
-                </v-list-item-content>
-                                
-              </v-list-item>
-            
+            <v-divider :key="index + ' ' + notice.type"></v-divider>
+
+            <v-list-item :key="index" @click="jumpToNoti()">
+              <v-list-item-avatar size="50" v-if="notice.type === 1">
+                <v-img :src="notice.avatar"></v-img>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-subtitle class="mt-1 mx-2 text-subtitle-1"
+                  :class="notice.read === false ? 'strong--text' : 'grey--text'" v-if="notice.type === 1">{{
+                    notice.name
+                  }}申请了请假，点击查看详情</v-list-item-subtitle>
+                <v-list-item-subtitle class="mt-1 mx-2 text-subtitle-1"
+                  :class="notice.read === false ? 'strong--text' : 'grey--text'"
+                  v-else>有一个开放班次长时间无人认领，点击进行手动排班</v-list-item-subtitle>
+                <v-list-item-subtitle class="text-caption mt-3">{{ notice.date }} {{
+                  notice.time
+                }}</v-list-item-subtitle>
+              </v-list-item-content>
+
+            </v-list-item>
+
 
           </template>
         </v-list>
@@ -76,8 +81,9 @@
 
     </v-app-bar>
 
-    <!-- 导航栏 -->
-    <v-navigation-drawer v-model="drawer" permanent :mini-variant="mini" app mini-variant-width="60" width="220">
+    <!-- 抽屉 -->
+    <v-navigation-drawer v-model="drawer" permanent :mini-variant="mini" app mini-variant-width="60" width="220"
+      :color="$vuetify.theme.dark === false ? 'white' : '#151515'">
 
       <v-list-item class="px-2 mt-2">
         <v-list-item v-if="mini == false">
@@ -115,9 +121,9 @@
             </v-list-item-icon>
             <v-list-item-title>请假管理</v-list-item-title>
           </v-list-item>
-          
-          <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand" >
-            <template v-slot:activator> 
+
+          <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand">
+            <template v-slot:activator>
               <v-list-item-title>信息管理</v-list-item-title>
             </template>
 
@@ -147,16 +153,14 @@
 
       </v-list>
 
-      <v-footer absolute v-if="mini === false">
+      <v-footer absolute v-if="mini === false" :color="$vuetify.theme.dark === false ? '' : '#1b1b1b'">
         <v-subheader class="grey--text font-italic">©2023</v-subheader>
       </v-footer>
     </v-navigation-drawer>
 
     <!-- 内容显示区 -->
     <v-main>
-      <v-container fluid>
-        <router-view></router-view>
-      </v-container>
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
@@ -172,6 +176,7 @@ export default {
       fullName: 'John Doe',
       email: 'john.doe@doe.com',
     },
+
     notices: [
       { type: 1, avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg', name: 'aa', time: '10:24', date: '2022/10/24', read: true },
       { type: 2, time: '10:24', date: '2022/10/24', read: false },
@@ -201,12 +206,12 @@ export default {
       let path = this.$router.currentRoute.meta.selectedItem
       return path > 4 ? true : false
     },
-    noti(){
-      var num=0
-      for(var notice in this.notices){
-        if (this.notices[notice].read===false) {
-            num++ 
-          }
+    noti() {
+      var num = 0
+      for (var notice in this.notices) {
+        if (this.notices[notice].read === false) {
+          num++
+        }
       }
       return num
     }
@@ -219,7 +224,9 @@ export default {
     jumpToNoti() {
       alert("~~~")
     },
+
   },
+
 
 }
 </script>
