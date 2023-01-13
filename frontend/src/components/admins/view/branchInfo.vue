@@ -1,7 +1,7 @@
 <template>
   <v-data-iterator :items="items" :search="search" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
-      <v-toolbar class="mb-1" elevation="3" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
+      <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
         <v-btn large color="secondary" class="mr-5" outlined>
           <v-icon>mdi-plus</v-icon>
           新增分店
@@ -19,8 +19,8 @@
 
           <v-card elevation="10" max-width="400" class="mx-auto">
 
-            <v-carousel :continuous="false" show-arrows-on-hover hide-delimiters
-              delimiter-icon="mdi-minus" height="230">
+            <v-carousel :continuous="false" show-arrows-on-hover hide-delimiters delimiter-icon="mdi-minus"
+              height="230">
 
               <v-carousel-item>
                 <v-card class="mx-auto " color="secondary" max-width="600">
@@ -42,9 +42,10 @@
                 <v-card class="mx-auto " color="secondary" max-width="600">
                   <v-card-text>
                     <v-sheet color="rgba(0, 0, 0, .12)">
-                      <span class="text-h6 ml-1 mt-1 white--text">劳动力预测概览 <span class="text-subtitle-1 grey--text text--lighten-2">(/人)</span></span>
-                      <v-sparkline :value="item.value2" color="rgba(255, 255, 255, .7)" height="120" padding="24" stroke-linecap="round"
-                        smooth>
+                      <span class="text-h6 ml-1 mt-1 white--text">劳动力预测概览 <span
+                          class="text-subtitle-1 grey--text text--lighten-2">(/人)</span></span>
+                      <v-sparkline :value="item.value2" color="rgba(255, 255, 255, .7)" height="120" padding="24"
+                        stroke-linecap="round" smooth>
                         <template v-slot:label="item">
                           {{ item.value }}
                         </template>
@@ -88,17 +89,18 @@ export default {
       search: '',
       items: [
         {
-          id: '', name: '分店1', address: '浙江省杭州市钱塘区xxx路xxx号', size: 100, 
-          value1: [111, 446, 675, 754, 590, 610, 437], value2: [444, 446, 531, 510, 558, 425, 754],
+            id: '', name: '分店1', address: '浙江省杭州市钱塘区xxx路xxx号', size: 100,
+            value1: [111, 446, 675, 754, 590, 610, 437], value2: [444, 446, 531, 510, 558, 425, 754],
         },
-        { id: '', name: '分店2', address: '浙江省金华市婺城区xxx路xxx号', size: 100 ,
-          value1: [423, 735, 632, 326, 590, 782, 567], value2: [355, 446, 675, 477, 333, 572, 275],
-      },
-        { id: '', name: '分店3', address: '浙江省金华市金东区xxx路xxx号', size: 100 ,
-          value1: [572, 446, 752, 394, 590, 610, 325], value2: [448, 103, 675, 510, 114, 388, 787],
-      },
+        {
+            id: '', name: '分店2', address: '浙江省金华市婺城区xxx路xxx号', size: 100,
+            value1: [423, 735, 632, 326, 590, 782, 567], value2: [355, 446, 675, 477, 333, 572, 275],
+        },
+        {
+            id: '', name: '分店3', address: '浙江省金华市金东区xxx路xxx号', size: 100,
+            value1: [572, 446, 752, 394, 590, 610, 325], value2: [448, 103, 675, 510, 114, 388, 787],
+        },
       ],
-
 
     }
   },
