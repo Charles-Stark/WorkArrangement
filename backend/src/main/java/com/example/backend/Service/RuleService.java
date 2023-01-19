@@ -5,7 +5,7 @@ import com.example.backend.VO.ResultVO;
 public interface RuleService {
 
     ResultVO<Object> addRule(Long shop, Double prepareTime, Double prepareWorkloadPerPerson, String preparePosition,
-                             Double maxServiceNumber, String servicePosition, Integer numberOnDuty, Double losingTime,
+                             Double maxServiceNumber, String servicePosition, Integer numberOnDuty, Double closingTime,
                              Double closingWorkloadPerPersonU, Double closingWorkloadPerPersonV, String closingPosition);
 
     ResultVO<Object> deleteRule(Long id);
