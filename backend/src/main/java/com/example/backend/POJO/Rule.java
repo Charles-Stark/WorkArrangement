@@ -17,7 +17,7 @@ public class Rule {
     private Double maxServiceNumber;
     private String servicePosition;
     private Integer numberOnDuty;
-    private Double losingTime;
+    private Double closingTime;
     private Double closingWorkloadPerPersonU;
     private Double closingWorkloadPerPersonV;
     private String closingPosition;
