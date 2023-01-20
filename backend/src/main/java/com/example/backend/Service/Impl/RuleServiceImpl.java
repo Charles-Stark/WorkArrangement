@@ -24,7 +24,7 @@ public class RuleServiceImpl implements RuleService {
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加规则失败", null);
         }
-        return new ResultVO<>(0, "添加规则成功", rule);
+        return new ResultVO<>(0, "添加规则成功", ruleMapper.selectById(rule.getId()));
     }
 
     @Override
