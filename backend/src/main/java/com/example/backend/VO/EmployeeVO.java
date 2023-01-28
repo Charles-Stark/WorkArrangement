@@ -1,6 +1,7 @@
 package com.example.backend.VO;
 
 import com.example.backend.POJO.Employee;
+import com.example.backend.POJO.Preference;
 import com.example.backend.POJO.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +20,12 @@ public class EmployeeVO {
     private Long shop;
     private Double salary;
     private Integer time;
+    private String workingDay;
+    private String workingHours;
+    private Integer durationOfShift;
+    private Integer durationOfWeek;
 
-    public EmployeeVO(User user, Employee employee) {
+    public EmployeeVO(User user, Employee employee, Preference preference) {
         this.id = user.getId();
         this.uid = employee.getUid();
         this.email = user.getEmail();
@@ -29,6 +34,11 @@ public class EmployeeVO {
         this.shop = employee.getShop();
         this.salary = employee.getSalary();
         this.time = employee.getTime();
+
+        this.workingDay = preference.getWorkingDay();
+        this.workingHours = preference.getWorkingHours();
+        this.durationOfShift = preference.getDurationOfShift();
+        this.durationOfWeek = preference.getDurationOfWeek();
     }
 
 }
