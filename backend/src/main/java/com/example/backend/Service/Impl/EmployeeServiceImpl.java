@@ -1,6 +1,7 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Employee;
+import com.example.backend.POJO.Preference;
 import com.example.backend.POJO.Shop;
 import com.example.backend.POJO.User;
 import com.example.backend.Service.EmployeeService;
@@ -46,14 +47,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // TODO: Generate UID
         Employee employee = new Employee(user.getId(), "uid", position, shop, 0D, 0);
+        Preference preference = new Preference(user.getId(), null, null, null, null);
         try {
             employeeMapper.insert(employee);
+            preferenceMapper.insert(preference);
         } catch (Exception e) {
-            // TODO: Delete user if employee not inserted
             return new ResultVO<>(-1, "添加员工失败", null);
         }
 
-        return new ResultVO<>(0, "添加员工成功", new EmployeeVO(user, employee));
+        return new ResultVO<>(0, "添加员工成功", new EmployeeVO(user, employee, preference));
     }
 
     @Override
@@ -80,7 +82,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public ResultVO<Object> getEmployee(Long id) {
         try {
-            return new ResultVO<>(0, "获取员工成功", new EmployeeVO(userMapper.selectById(id), employeeMapper.selectById(id)));
+            return new ResultVO<>(0, "获取员工成功", new EmployeeVO(userMapper.selectById(id), employeeMapper.selectById(id), preferenceMapper.selectById(id)));
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取员工失败", null);
         }
@@ -119,7 +121,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         List<EmployeeVO> employeeVOs = new ArrayList<>();
         for (Employee employee : employees) {
-            employeeVOs.add(new EmployeeVO(userMapper.selectById(employee.getId()), employee));
+            employeeVOs.add(new EmployeeVO(userMapper.selectById(employee.getId()), employee, preferenceMapper.selectById(employee.getId())));
         }
         return employeeVOs;
     }
