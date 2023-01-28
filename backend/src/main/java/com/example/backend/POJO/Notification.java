@@ -15,7 +15,7 @@ public class Notification {
     private Boolean isRead;
     private Long fromUser;
     private Long toUser;
-    private int type;
+    private Integer type;
     private String text;
     private Date createAt;
 
