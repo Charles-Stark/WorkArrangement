@@ -1,5 +1,5 @@
 <template>
-  <v-data-iterator :items="items" :search="search" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
+  <v-data-iterator :items="items" :search="search" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据" disable-pagination>
     <template v-slot:header>
       <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
         <v-btn large color="secondary" class="mr-5" outlined>
@@ -11,9 +11,11 @@
             label="搜索"></v-text-field>
         </template>
       </v-toolbar>
+      
     </template>
 
     <template v-slot:default="props">
+      
       <v-row class="px-5 py-5">
         <v-col v-for="item in props.items" :key="item.address" cols="12" md="6" lg="4">
 

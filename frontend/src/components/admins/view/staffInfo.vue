@@ -53,22 +53,46 @@
             <v-spacer></v-spacer>
             <v-col cols="3">
 
-              <v-dialog max-width="470" :fullscreen="fullscreen" v-model="item.dialog">
+              <v-dialog max-width="470" :fullscreen="fullscreen" v-model="item.dialog1">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn outlined color="warning lighten-1" v-bind="attrs" v-on="on" class="mt-1"
-                    :value="item.approved">
+                  <v-btn outlined color="warning lighten-1" v-bind="attrs" v-on="on" class="mt-1 mx-1"
+                    :icon="$vuetify.breakpoint.mdAndDown" :value="item.approved">
                     <v-icon>mdi-pencil</v-icon>
-                    修改
+                    <span v-if="!$vuetify.breakpoint.mdAndDown">编辑</span>
                   </v-btn>
-
                 </template>
 
                 <v-card>
-                  <v-card-title class="text-h4">
+                  <v-card-title class="text-h5">
                     修改员工信息
                   </v-card-title>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="grey" text @click="close(item)" large>
+                      返回
+                    </v-btn>
+                    <v-btn color="success" text @click="submit()" large>
+                      确定
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
 
-                  <v-card-actions class="mt-4">
+
+              <v-dialog max-width="470" v-model="item.dialog2">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn outlined color="error lighten-1" v-bind="attrs" v-on="on" class="mt-1 mx-1"
+                    :value="item.approved" :icon="$vuetify.breakpoint.mdAndDown">
+                    <v-icon>mdi-delete</v-icon>
+                    <span v-if="!$vuetify.breakpoint.mdAndDown">删除</span>
+                  </v-btn>
+                </template>
+
+                <v-card>
+                  <v-card-title class="text-h6">
+                    确定删除？
+                  </v-card-title>
+                  <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="grey" text @click="close(item)" large>
                       返回
@@ -81,6 +105,7 @@
               </v-dialog>
 
             </v-col>
+
             <v-col cols="12"><v-divider></v-divider></v-col>
 
           </v-row>
@@ -110,185 +135,185 @@ export default {
       branch: 0,
       items: [
         {
-            id: '49794',
-            name: '分店1',
-            staff: [
-              {
-                  id: 'A1241',
-                  name: 'AA',
-                  position: '门店经理',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 2,
-                  
-                }
-              }, {
-                  id: 'A1947',
-                  name: 'BB',
-                  position: '副经理',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 3,
-                  }
-                
-              }, {
-                  id: 'A4941',
-                  name: 'CC',
-                  position: '小组长',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 1,
-                  }
-                
-              }, {
-                  id: 'A0146',
-                  name: 'DD',
-                  position: '店员',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 2,
-                  }
-                
-              }, {
-                  id: 'A3466',
-                  name: 'EE',
-                  position: '店员',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 4,
-                  }
-                
+          id: '49794',
+          name: '分店1',
+          staff: [
+            {
+              id: 'A1241',
+              name: 'AA',
+              position: '门店经理',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 2,
+
               }
-            ]
-          
+            }, {
+              id: 'A1947',
+              name: 'BB',
+              position: '副经理',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 3,
+              }
+
+            }, {
+              id: 'A4941',
+              name: 'CC',
+              position: '小组长',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 1,
+              }
+
+            }, {
+              id: 'A0146',
+              name: 'DD',
+              position: '店员',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 2,
+              }
+
+            }, {
+              id: 'A3466',
+              name: 'EE',
+              position: '店员',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 4,
+              }
+
+            },
+          ]
+
         },
         {
-            id: '97946',
-            name: '分店2',
-            staff: [
-              {
-                  id: 'B0349',
-                  name: 'FF',
-                  position: '门店经理',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 1,
-                  }
-                
-              }, {
-                  id: 'B0166',
-                  name: 'GG',
-                  position: '副经理',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 2,
-                  }
-                
-              }, {
-                  id: 'B4710',
-                  name: 'HH',
-                  position: '小组长',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 1,
-                  }
-                
-              }, {
-                  id: 'B3444',
-                  name: 'II',
-                  position: '店员',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 2,
-                  }
-                
-              }, {
-                  id: 'B5975',
-                  name: 'JJ',
-                  position: '店员',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 4,
-                  }
-                
+          id: '97946',
+          name: '分店2',
+          staff: [
+            {
+              id: 'B0349',
+              name: 'FF',
+              position: '门店经理',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 1,
               }
-            ]
-          
+
+            }, {
+              id: 'B0166',
+              name: 'GG',
+              position: '副经理',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 2,
+              }
+
+            }, {
+              id: 'B4710',
+              name: 'HH',
+              position: '小组长',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 1,
+              }
+
+            }, {
+              id: 'B3444',
+              name: 'II',
+              position: '店员',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 2,
+              }
+
+            }, {
+              id: 'B5975',
+              name: 'JJ',
+              position: '店员',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 4,
+              }
+
+            }
+          ]
+
         },
         {
-            id: '01346',
-            name: '分店3',
-            staff: [
-              {
-                  id: 'C9974',
-                  name: 'KK',
-                  position: '门店经理',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 3,
-                  }
-                
-              }, {
-                  id: 'C0133',
-                  name: 'LL',
-                  position: '副经理',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 1,
-                  }
-                
-              }, {
-                  id: 'C4410',
-                  name: 'MM',
-                  position: '小组长',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 2,
-                  }
-                
-              }, {
-                  id: 'C0012',
-                  name: 'NN',
-                  position: '店员',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 1,
-                  }
-                
-              }, {
-                  id: 'C0164',
-                  name: 'OO',
-                  position: '店员',
-                  preference: {
-                    workingDay: [],
-                    workingHour: [],
-                    duration: 3,
-                  }
-                
+          id: '01346',
+          name: '分店3',
+          staff: [
+            {
+              id: 'C9974',
+              name: 'KK',
+              position: '门店经理',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 3,
               }
-            ]
-          
+
+            }, {
+              id: 'C0133',
+              name: 'LL',
+              position: '副经理',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 1,
+              }
+
+            }, {
+              id: 'C4410',
+              name: 'MM',
+              position: '小组长',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 2,
+              }
+
+            }, {
+              id: 'C0012',
+              name: 'NN',
+              position: '店员',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 1,
+              }
+
+            }, {
+              id: 'C0164',
+              name: 'OO',
+              position: '店员',
+              preference: {
+                workingDay: [],
+                workingHour: [],
+                duration: 3,
+              }
+
+            }
+          ]
+
         }
       ],
     }
   },
   computed: {
     numberOfPages() {
-      return Math.ceil(this.items.length / 10)
+      return Math.ceil(this.filteredItems.length / 10)
     },
     filteredItems() {
       return this.items[this.branch].staff;
@@ -305,7 +330,8 @@ export default {
       if (this.page - 1 >= 1) this.page -= 1
     },
     close(item) {
-      item.dialog = false
+      if (item.dialog1) item.dialog1 = false
+      if (item.dialog2) item.dialog2 = false
     },
   },
 }

@@ -66,9 +66,8 @@
               <template v-slot:activator="{ on, attrs }">
 
                 <v-btn outlined color="secondary" :disabled="item.approved != null" v-bind="attrs" v-on="on"
-                  :value="item.approved">
-                  <v-icon v-if="item.approved === true">mdi-check</v-icon>
-                  <v-icon v-else-if="item.approved === false">mdi-close</v-icon>
+                  :value="item.approved" class="mt-1">
+                  <v-icon  v-text="item.approved ? 'mdi - check' :'mdi-close'"></v-icon>
                   <span v-if="item.approved === null">查看详情</span>
                   <span v-else-if="item.approved === true">已批准</span>
                   <span v-else>已拒绝</span>
@@ -76,7 +75,7 @@
 
               </template>
               <v-card>
-                <v-card-title class="text-h4">
+                <v-card-title class="text-h5">
                   请假条
                 </v-card-title>
                 <v-card-text class="text-h6 mt-4">
@@ -189,12 +188,13 @@ export default {
             approved: null,
             attachment: ''
         },
+        
       ],
     }
   },
   computed: {
     numberOfPages() {
-      return Math.ceil(this.items.length / 10)
+      return Math.ceil(this.filteredItems.length / 10)
     },
     fullscreen() {
       return this.$vuetify.breakpoint.xsOnly ? true : false

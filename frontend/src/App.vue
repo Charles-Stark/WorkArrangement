@@ -1,19 +1,21 @@
 <template>
   <v-app id="inspire">
-
-    <router-view></router-view>
+    <testAvatar></testAvatar>
+    <!-- <router-view></router-view> -->
   </v-app>
 </template>
 
 <script>
 import themes from './store/themes'
+import testAvatar from './components/testAvatar.vue';
 
 export default {
   name: 'App',
-  created(){
-    for(var theme in themes){
-      if(this.$store.state.currentTheme===theme){
-        switch(theme){
+  components: { testAvatar },
+  created() {
+    for (var theme in themes) {
+      if (this.$store.state.currentTheme === theme) {
+        switch (theme) {
           case 'blue':
             this.$vuetify.theme.themes = themes.blue;
             break;
@@ -37,10 +39,12 @@ export default {
       this.$vuetify.theme.dark = window.matchMedia("(prefers-color-scheme: dark)").matches
       window.localStorage.dark = window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : ''
     }
-    else{
-      this.$vuetify.theme.dark=this.$store.state.dark
+    else {
+      this.$vuetify.theme.dark = this.$store.state.dark
     }
-    
+    if (this.$vuetify.theme.dark === true) {
+      document.body.style.backgroundColor = '#121212'
+    }
   }
 }
 </script>

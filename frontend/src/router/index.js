@@ -11,9 +11,9 @@ var RouterVer = function () {
     //管理员身份的路由
     return [
       {
-        path:'/',
-        component:()=>import('../components/admins/appBars'),
-        children:[
+        path: '/',
+        component: () => import('../components/admins/appBars'),
+        children: [
           {
             path: 'absences',
             component: () => import('../components/admins/view/absenceArrange'),
@@ -22,24 +22,21 @@ var RouterVer = function () {
               //控制左侧导航栏选中
               selectedItem: 2
             }
-          },
-          {
+          },{
             path: 'branches',
             component: () => import('../components/admins/view/branchInfo'),
             meta: {
               title: '分店信息',
               selectedItem: 5
             }
-          },
-          {
+          },{
             path: 'staff',
             component: () => import('../components/admins/view/staffInfo'),
             meta: {
               title: '员工信息',
               selectedItem: 6
             }
-          },
-          {
+          },{
             path: '/settings',
             component: () => import('../components/admins/view/settingPage'),
             meta: {
@@ -77,7 +74,7 @@ router.beforeEach((to, from, next) => {
 //全局后置路由守卫
 router.afterEach((to, from) => {
   console.log(to, from)
-  document.title = to.meta.title || '汇博云通'
+  document.title = to.meta.title || '慧博云通'
 })
 
 export default router

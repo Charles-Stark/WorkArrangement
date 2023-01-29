@@ -1,15 +1,18 @@
 # API - 用户登陆/注册/账户设置相关
 
 ## 注册
+
 用户注册时，输入邮箱、密码（重复密码）、用户姓名，点击获取邮箱验证码。以上全部输入完毕，点击注册按钮，发送注册请求如下。
 
 POST请求 /api/user/register
+
 ```yaml
 email: string 邮箱地址
 password: string 密码
 username: string 用户姓名（不唯一）
 verify: string 用户接收到的验证码
 ```
+
 ```json
 {
   "code": 0,
@@ -20,6 +23,7 @@ verify: string 用户接收到的验证码
   }
 }
 ```
+
 ```json
 {
   "code": -1,
@@ -29,12 +33,15 @@ verify: string 用户接收到的验证码
 ```
 
 ## 获取邮箱验证码
+
 用户注册时，需获取邮箱验证码以验证邮箱为本人所有。
 
 POST请求 /api/user/email/sendCode
+
 ```yaml
 email: string 邮箱地址
 ```
+
 ```json
 {
   "code": 0,
@@ -42,6 +49,7 @@ email: string 邮箱地址
   "data": null
 }
 ```
+
 ```json
 {
   "code": -1,
@@ -51,13 +59,16 @@ email: string 邮箱地址
 ```
 
 ## 密码登陆
+
 用户使用密码登陆时，输入邮箱、密码，点击登录按钮，发送登陆请求。
 
-POST请求 /api/user/login/password
+POST请求
+
 ```yaml
 email: string 邮箱
 password: string 密码
 ```
+
 ```json
 {
   "code": 0,
@@ -69,6 +80,7 @@ password: string 密码
   }
 }
 ```
+
 ```json
 {
   "code": -1,
@@ -78,13 +90,16 @@ password: string 密码
 ```
 
 ## 邮箱验证码登陆
+
 用户使用邮箱验证码登陆时，输入邮箱、验证码，点击登录按钮，发送登陆请求。
 
 POST请求 /api/user/login/code
+
 ```yaml
 email: string 邮箱
 verify: string 用户接收到的验证码
 ```
+
 ```json
 {
   "code": 0,
@@ -96,6 +111,7 @@ verify: string 用户接收到的验证码
   }
 }
 ```
+
 ```json
 {
   "code": -1,
@@ -105,9 +121,11 @@ verify: string 用户接收到的验证码
 ```
 
 ## 获取用户信息
+
 在用户设置页面发送该请求获取用户信息(用户名、邮箱、id)以供显示。
 
 GET请求 /api/user/info/get/{id}
+
 ```yaml
 id: string 用户id
 ```
@@ -123,6 +141,7 @@ id: string 用户id
   }
 }
 ```
+
 ```json
 {
   "code": -1,
@@ -132,9 +151,11 @@ id: string 用户id
 ```
 
 ## 获取用户头像
+
 在用户设置页面等发送该请求获取用户头像以供显示。
 
 GET请求 /api/user/photo/get/{id}
+
 ```yaml
 id: string 用户id
 ```
@@ -144,9 +165,11 @@ id: string 用户id
 ```
 
 ## 修改用户头像
+
 在用户设置页面发送该请求以修改用户头像。
 
 POST请求 /api/user/photo/upload/{id}
+
 ```yaml
 photo: 头像图片(文件)
 ```
@@ -158,6 +181,7 @@ photo: 头像图片(文件)
   "data": null
 }
 ```
+
 ```json
 {
   "code": -1,
@@ -167,9 +191,11 @@ photo: 头像图片(文件)
 ```
 
 ## 修改用户名
+
 在用户设置页面发送该请求以修改用户名。
 
 POST请求 /api/user/info/username/update/{id}
+
 ```yaml
 username: string 用户姓名（不唯一）
 ```
@@ -181,6 +207,7 @@ username: string 用户姓名（不唯一）
   "data": null
 }
 ```
+
 ```json
 {
   "code": -1,
@@ -190,9 +217,11 @@ username: string 用户姓名（不唯一）
 ```
 
 ## 忘记密码
+
 在用户忘记密码时发送该请求以重置密码。
 
 POST请求 /api/user/password/reset
+
 ```yaml
 邮箱: string 邮箱
 password: string 密码
@@ -206,6 +235,7 @@ verify: string 用户接收到的验证码
   "data": null
 }
 ```
+
 ```json
 {
   "code": -1,
@@ -215,9 +245,11 @@ verify: string 用户接收到的验证码
 ```
 
 ## 退出登陆
+
 点击按钮退出登陆。
 
 POST请求 /api/user/logout
+
 ```yaml
 id: string 用户id
 ```
@@ -229,6 +261,7 @@ id: string 用户id
   "data": null
 }
 ```
+
 ```json
 {
   "code": -1,
