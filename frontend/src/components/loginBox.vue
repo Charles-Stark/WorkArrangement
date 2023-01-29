@@ -160,22 +160,44 @@ export default {
         })
       }
       else {
-        pswLogin({
-          email: this.email,
-          password: this.password,
-        }).then(res => {
-          if (res.data.code === 0) {
-            this.$emit('msg', '登录成功')
-            localStorage.setItem("token", res.data.data.token)
-            localStorage.setItem("userId", res.data.data.id)
-            this.$router.go(0)
-          }
-          else if (res.data.code === -1) {
-            this.$emit('msg', '密码错误')
-          }
-        }).catch(() => {
-          this.$emit('msg', '网络错误')
-        })
+        var validated=true
+
+        if(this.email===''){
+          validated=false
+          this.$emit('msg', '请输入邮箱')
+        }
+        else if (!/.+@.+/.test(this.email)){
+          validated = false
+          this.$emit('msg', '邮箱格式错误')
+        }
+        else if (this.password === '') {
+          validated = false
+          this.$emit('msg', '请输入密码')
+        }
+
+        if(validated){
+          pswLogin({
+            email: this.email,
+            password: this.password,
+          }).then(res => {
+            if (res.data.code === 0) {
+              this.$emit('msg', '登录成功')
+              localStorage.setItem("token", res.data.data.token)
+              localStorage.setItem("userId", res.data.data.id)
+              this.$router.go(0)
+            }
+            else if (res.data.code === -1) {
+              if (res.data.message === '用户不存在') {
+                this.$emit('msg', '用户未注册')
+              }
+              else if (res.data.message === '密码错误') {
+                this.$emit('msg', '密码错误')
+              }
+            }
+          }).catch(() => {
+            this.$emit('msg', '网络错误')
+          })
+        }
       }
       this.loading = false
     },
@@ -245,6 +267,7 @@ export default {
             else if (res.data.message === '验证失败') {
               this.$emit('msg', '验证码错误')
             }
+
           }
         }).catch(() => {
           this.$emit('msg', '网络错误')
@@ -271,12 +294,14 @@ export default {
           return false
         }
       }
+
       for (let v of this.rules.repswRules) {
         if (v(this.repsw) !== true) {
           this.$emit('msg', v(this.repsw))
           return false
         }
       }
+      
       return true
     }
   },

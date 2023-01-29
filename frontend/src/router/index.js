@@ -16,10 +16,10 @@ var RouterVer = function () {
         children: [
           {
             path: 'overview',
-            component: () => import('../components/admins/view/overview'),
+            component: () => import('../components/admins/view/frontPage'),
             meta: {
               title: '概览',
-              
+
               //控制左侧导航栏选中
               selectedItem: 0,
               isAuth: true
