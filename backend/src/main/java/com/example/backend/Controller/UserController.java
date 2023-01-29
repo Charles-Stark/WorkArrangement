@@ -28,12 +28,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private VerifyCodeUtil verifyCodeUtil;
-
     @PostMapping("/register")
     public ResultVO<Map<String, Object>> register(@RequestParam Map<String, Object> map) {
         if (map.containsKey("email") && map.containsKey("password") && map.containsKey("username") && map.containsKey("verify")) {
@@ -43,19 +37,14 @@ public class UserController {
         }
     }
 
-    @PostMapping("/email/sendCode")
-    public ResultVO<String> sendCode(@RequestParam Map<String, Object> map) {
-        if (map.containsKey("email")) {
-            String email = map.get("email").toString();
-            String code = verifyCodeUtil.getCode(email);
-            if (code != null) {
-                mailService.sendVerifyCode(email, code);
-                return new ResultVO<>(0, "获取验证码成功", null);
-            }
-            return new ResultVO<>(-1, "获取验证码失败", null);
-        } else {
-            return new ResultVO<>(-1, "未接收到参数", null);
-        }
+    @PostMapping("/register/sendCode")
+    public ResultVO<Object> sendCodeWhenRegister(@RequestParam("email") String email) {
+        return userService.sendCodeWhenRegister(email);
+    }
+
+    @PostMapping("/login/sendCode")
+    public ResultVO<Object> sendCodeWhenLogin(@RequestParam("email") String email) {
+        return userService.sendCodeWhenLogin(email);
     }
 
     @PostMapping("/login/password")

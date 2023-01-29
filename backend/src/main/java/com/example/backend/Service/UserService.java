@@ -16,4 +16,8 @@ public interface UserService {
 
     ResultVO<Map<String, Object>> resetPassword(String email, String password, String code);
 
+    ResultVO<Object> sendCodeWhenLogin(String email);
+
+    ResultVO<Object> sendCodeWhenRegister(String email);
+
 }

@@ -28,10 +28,36 @@ verify: string 用户接收到的验证码
 }
 ```
 
-## 获取邮箱验证码
+## 获取邮箱验证码（注册）
 用户注册时，需获取邮箱验证码以验证邮箱为本人所有。
 
-POST请求 /api/user/email/sendCode
+该请求不判断目标邮箱是否注册。
+
+POST请求 /api/user/register/sendCode
+```yaml
+email: string 邮箱地址
+```
+```json
+{
+  "code": 0,
+  "message": "获取验证码成功",
+  "data": null
+}
+```
+```json
+{
+  "code": -1,
+  "message": "获取验证码失败",
+  "data": null
+}
+```
+
+## 获取邮箱验证码（登陆）
+用户登陆时，需获取邮箱验证码。
+
+该请求仅向已注册用户的邮箱发送验证码。
+
+POST请求 /api/user/login/sendCode
 ```yaml
 email: string 邮箱地址
 ```
