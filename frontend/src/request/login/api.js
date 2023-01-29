@@ -7,9 +7,36 @@ import request from '../request'
 export const getOTP = email => {
   return request({
     method: 'post',
-    url: 'api/user/email/sendCode',
+    url: 'api/user/login/sendCode',
     params: {
       email: email
     }
+  })
+}
+
+//验证码登录
+export const otpLogin = data => {
+  return request({
+    method: 'post',
+    url: 'api/user/login/code',
+    params: data
+  })
+}
+
+//密码登录
+export const pswLogin = data => {
+  return request({
+    method: 'post',
+    url: 'api/user/login/password',
+    params: data
+  })
+}
+
+//重置密码
+export const pswReset = data => {
+  return request({
+    method: 'post',
+    url: 'api/user/password/reset',
+    params: data
   })
 }

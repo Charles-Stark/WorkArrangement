@@ -22,16 +22,16 @@
         </v-col>
 
         <v-col cols="12">
-          <v-text-field v-model="password" label="密码" required outlined :rules="rules.pswRules"></v-text-field>
+          <v-text-field v-model="password" label="密码" required outlined :rules="rules.pswRules" type="password"></v-text-field>
         </v-col>
 
         <v-col cols="12">
-          <v-text-field v-model="repsw" label="重复密码" required outlined :rules="rules.repswRules"></v-text-field>
+          <v-text-field v-model="repsw" label="重复密码" required outlined :rules="rules.repswRules" type="password"></v-text-field>
         </v-col>
 
 
         <v-col cols="12">
-          <v-btn color="primary " @click="submit()" class="mx-auto" block height="55">
+          <v-btn color="primary " @click="submit()" class="mx-auto" block height="55" :loading="loading">
             <span class="text-subtitle-1">注册</span>
           </v-btn>
         </v-col>
@@ -51,6 +51,7 @@ export default {
 
   data: () => ({
     counter: 0,
+    loading:false,
 
     name: '',
     email: '',
@@ -83,27 +84,32 @@ export default {
   methods: {
     submit() {
       if (this.validate()) {
+        this.loading=true
         register({
           email: this.email,
           password: this.password,
           username: this.name,
           verify: this.otp
         }).then(res=>{
-          if(res.code===0){
-            this.$emit('msg', '用户注册成功')
-            
+          if(res.data.code===0){
+            this.$emit('msg', '注册成功')
+            localStorage.setItem("token", res.data.data.token)
+            localStorage.setItem("userId", res.data.data.id)
+            this.$router.go(0)
           }
-          if(res.code===-1){
-            this.$emit('msg', '注册失败')
+          if(res.data.code===-1){
+            this.$emit('msg', '验证码错误')
           }
+        }).catch(() => {
+          this.$emit('msg', '网络错误')
         })
-        
+        this.loading = false
+
       }
     },
     getOTP() {
       if (this.email !== '') {
         if (/.+@.+/.test(this.email)) {
-          this.show2 = true;
           if (this.counter === 0) {
             this.counter = 60;
             var count = setInterval(() => {
@@ -118,7 +124,9 @@ export default {
               if (res.data.code === -1) {
                 this.$emit('msg', '获取验证码失败')
               }
-            }).catch(err => console.log(err))
+            }).catch(()=>{
+              this.$emit('msg', '网络错误')
+            })
 
           }
 

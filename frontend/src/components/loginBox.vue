@@ -1,120 +1,219 @@
 <template>
   <div>
-    <v-container v-if="!show2">
-      <div>
+    <div v-if="!show3">
+      <v-container v-if="!show2">
 
-      </div>
-      <v-img
-        :src="$vuetify.theme.dark === false ? require('../assets/logo-md.png') : require('../assets/logo-md-dark.png')"
-        :width="$vuetify.breakpoint.xsOnly ? 300 : 250" class="mx-auto">
-      </v-img>
-      <v-row>
-        <v-row class="mt-8">
-          <v-col cols="4">
-            <span class="text-h6 ml-3">欢迎回来</span>
-          </v-col>
-          <v-spacer></v-spacer>
-          <v-col cols="4">
-            <v-btn text class="text-subtitle-1" @click="loginMethod = loginMethod === 2 ? 1 : 2">
-              <span class="mb-1" v-text="loginMethod === 1 ? '密码登录' : '验证码登录'"></span> </v-btn>
-          </v-col>
+        <v-img
+          :src="$vuetify.theme.dark === false ? require('../assets/logo-md.png') : require('../assets/logo-md-dark.png')"
+          :width="$vuetify.breakpoint.xsOnly ? 300 : 250" class="mx-auto">
+        </v-img>
+        <v-row>
+          <v-row class="mt-8">
+            <v-col cols="4">
+              <span class="text-h6 ml-3">欢迎回来</span>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col cols="4">
+              <v-btn text class="text-subtitle-1" @click="loginMethod = loginMethod === 2 ? 1 : 2">
+                <span class="mb-1" v-text="loginMethod === 1 ? '密码登录' : '验证码登录'"></span> </v-btn>
+            </v-col>
+          </v-row>
+
+          <template v-if="loginMethod === 1">
+            <v-col cols="12" class="mt-4">
+              <v-text-field label="邮箱" outlined prepend-inner-icon="mdi-email" placeholder="hello@email.com"
+                v-model="email" @keyup.enter="getOTP()"></v-text-field>
+
+              <v-btn color="primary" @click="getOTP()" class="mx-auto mt-5" block height="55" :loading="loading">
+                <span class="text-subtitle-1">继续</span>
+              </v-btn>
+
+            </v-col>
+          </template>
+
+          <template v-if="loginMethod === 2">
+            <v-col cols="12">
+              <v-text-field label="邮箱" outlined prepend-inner-icon="mdi-email" placeholder="hello@email.com"
+                v-model="email"></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field v-model="password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                prepend-inner-icon="mdi-key" outlined :type="show1 ? 'text' : 'password'" name="input-10-1" label="密码"
+                @keyup.enter="submit()" @click:append="show1 = !show1">
+              </v-text-field>
+            </v-col>
+            <v-col cols="4">
+              <v-btn color="primary" block height="55" outlined @click="show3 = true">
+                <span class="text-subtitle-1">忘记密码</span>
+              </v-btn>
+            </v-col>
+            <v-col cols="8">
+              <v-btn color="primary" @click="submit()" class="mx-auto" block height="55">
+                <span class="text-subtitle-1">登录</span>
+              </v-btn>
+            </v-col>
+
+          </template>
         </v-row>
+      </v-container>
 
-        <template v-if="loginMethod === 1">
-          <v-col cols="12" class="mt-4">
-            <v-text-field label="邮箱" outlined prepend-inner-icon="mdi-email" placeholder="hello@email.com"
-              v-model="email" @keyup.enter="getOTP()"></v-text-field>
+      <template v-else>
+        <v-btn text @click="show2 = false">返回</v-btn>
+        <v-otp-input v-model="otp" @finish="submit()" class="my-10"></v-otp-input>
+        <v-btn block color="primary" height="55" class="mt-4" :disabled="counter !== 0"
+          v-text="counter !== 0 ? `在${counter}秒后重试` : '重新获取验证码'" @click="getOTP()"></v-btn>
+      </template>
+    </div>
 
-            <v-btn color="primary" @click="getOTP()" class="mx-auto mt-5" block height="55">
-              <span class="text-subtitle-1">继续</span>
-            </v-btn>
-
-          </v-col>
-        </template>
-
-        <template v-if="loginMethod === 2">
-          <v-col cols="12" class="mt-7">
-            <v-text-field label="邮箱" outlined prepend-inner-icon="mdi-email" placeholder="hello@email.com"
-              v-model="email"></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field v-model="password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-              prepend-inner-icon="mdi-key" outlined :type="show1 ? 'text' : 'password'" name="input-10-1" label="密码"
-              @keyup.enter="submit()" @click:append="show1 = !show1">
-            </v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-btn color="primary " @click="submit()" class="mx-auto" block height="55">
-              <span class="text-subtitle-1">登录</span>
-            </v-btn>
-          </v-col>
-
-        </template>
+    <div v-else>
+      <v-row>
+        <v-btn text @click="show3 = false">返回</v-btn>
       </v-row>
-    </v-container>
+      <v-row justify="center">
+        <v-col cols="8">
+          <v-text-field v-model="email" label="邮箱" required outlined :rules="rules.emailRules"></v-text-field>
+        </v-col>
 
-    <template v-else>
-      <v-btn text @click="show2 = false">返回</v-btn>
-      <v-otp-input v-model="otp" @finish="submit()" class="my-10"></v-otp-input>
-      <v-btn block color="primary" height="55" class="mt-4" :disabled="counter !== 0"
-        v-text="counter !== 0 ? `在${counter}秒后重试` : '重新获取验证码'" @click="getOTP()"></v-btn>
-    </template>
+        <v-col cols="4">
+          <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
+            v-text="counter === 0 ? '获取验证码' : `${counter}秒后重试`" :disabled="counter !== 0"></v-btn>
+        </v-col>
+
+        <v-col cols="12">
+          <v-text-field v-model="otp" label="验证码" required outlined></v-text-field>
+        </v-col>
+
+        <v-col cols="12">
+          <v-text-field v-model="resetPsw" label="密码" required outlined type="password" :rules="rules.pswRules"></v-text-field>
+        </v-col>
+
+        <v-col cols="12">
+          <v-text-field v-model="repsw" label="重复密码" required outlined type="password" :rules="rules.repswRules"></v-text-field>
+        </v-col>
+
+        <v-col cols="12">
+          <v-btn color="primary" class="mx-auto" block height="55" :loading="loading" @click="pswReset()">
+            <span class="text-subtitle-1">修改密码</span>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </div>
+
 
   </div>
 </template>
 
 <script>
-import {getOTP} from '../request/login/api'
+import { getOTP, otpLogin, pswLogin, pswReset } from '../request/login/api'
 export default {
 
   data: () => ({
+    loading: false,
     pswLogin: true,
     show1: false,
     show2: false,
-    emailRules: [
-      v => !!v || '请输入邮箱',
-      v => /.+@.+/.test(v) || '请输入正确的格式',
-    ],
+    show3: false,
     loginMethod: 1,
     email: '',
     password: '',
+    resetPsw:'',
+    repsw:'',
     otp: '',
     counter: 0,
   }),
+  computed: {
+    rules() {
+      return {
+        emailRules: [
+          v => !!v || '请输入邮箱',
+          v => /.+@.+/.test(v) || '请输入正确的格式',
+        ],
+        pswRules: [
+          v => !!v || '请输入密码',
+          v => v.length >= 8 || '密码长度需大于8',
+        ],
+        repswRules: [
+          v => this.resetPsw === v || '两次输入密码不匹配',
+        ],
+      }
+    },
+  },
   methods: {
     submit() {
-      // if(this.loginMethod===1){
-
-      // }
-      // else{
-
-      // }
+      this.loading = true
+      if (this.loginMethod === 1) {
+        otpLogin({
+          email: this.email,
+          verify: this.otp,
+        }).then(res => {
+          if (res.data.code === 0) {
+            this.$emit('msg', '登录成功')
+            localStorage.setItem("token", res.data.data.token)
+            localStorage.setItem("userId", res.data.data.id)
+            this.$router.go(0)
+          }
+          else if (res.data.code === -1) {
+            this.$emit('msg', '验证码错误')
+          }
+        }).catch(() => {
+          this.$emit('msg', '网络错误')
+        })
+      }
+      else {
+        pswLogin({
+          email: this.email,
+          password: this.password,
+        }).then(res => {
+          if (res.data.code === 0) {
+            this.$emit('msg', '登录成功')
+            localStorage.setItem("token", res.data.data.token)
+            localStorage.setItem("userId", res.data.data.id)
+            this.$router.go(0)
+          }
+          else if (res.data.code === -1) {
+            this.$emit('msg', '密码错误')
+          }
+        }).catch(() => {
+          this.$emit('msg', '网络错误')
+        })
+      }
+      this.loading = false
     },
     getOTP() {
       if (this.email !== '') {
         if (/.+@.+/.test(this.email)) {
-          
 
-          this.show2 = true;
-          if(this.counter===0){
-            this.counter = 60;
-          var count = setInterval(() => {
-            this.counter--
-            if (this.counter <= 0) {
-              clearInterval(count)
-              this.counter=0
-            }
-          }, 1000);
-
+          this.loading = true
+          if (this.counter === 0) {
             getOTP(this.email).then(res => {
-              console.log(res)
-              if (res.data.code === -1) {
-                console.log()
+              if (res.data.code === 0) {
+                this.$emit('msg', '验证码已发送')
+                this.show2 = true;
+                if (this.counter === 0) {
+                  this.counter = 60;
+                  var count = setInterval(() => {
+                    this.counter--
+                    if (this.counter <= 0) {
+                      clearInterval(count)
+                      this.counter = 0
+                    }
+                  }, 1000);
+                }
+
               }
-            }).catch(err => console.log(err))
-            
+              else if (res.data.code === -1) {
+                this.$emit('msg', '用户未注册')
+              }
+            }).catch(() => {
+              this.$emit('msg', '网络错误')
+            })
           }
-          
+          else {
+            this.show2 = true
+          }
+
+
+          this.loading = false
         }
         else {
           this.$emit('msg', '邮箱格式错误')
@@ -125,6 +224,60 @@ export default {
       }
 
 
+    },
+    pswReset() {
+      if (this.validate()) {
+        this.loading = true
+        pswReset({
+          email: this.email,
+          password: this.resetPsw,
+          verify: this.otp
+        }).then(res => {
+          if (res.data.code === 0) {
+            this.$emit('msg', '密码修改成功')
+            this.$router.go(0)
+          }
+          else if (res.data.code === -1) {
+
+            if (res.data.message === '用户不存在') {
+              this.$emit('msg', '用户未注册')
+            }
+            else if (res.data.message === '验证失败') {
+              this.$emit('msg', '验证码错误')
+            }
+          }
+        }).catch(() => {
+          this.$emit('msg', '网络错误')
+        })
+        this.loading = false
+      }
+    },
+    validate() {
+      for (let v of this.rules.emailRules) {
+        if (v(this.email) !== true) {
+          this.$emit('msg', v(this.email))
+          return false
+        }
+      }
+
+      if (!this.otp) {
+        this.$emit('msg', '请输入验证码')
+        return false
+      }
+
+      for (let v of this.rules.pswRules) {
+        if (v(this.resetPsw) !== true) {
+          this.$emit('msg', v(this.resetPsw))
+          return false
+        }
+      }
+      for (let v of this.rules.repswRules) {
+        if (v(this.repsw) !== true) {
+          this.$emit('msg', v(this.repsw))
+          return false
+        }
+      }
+      return true
     }
   },
 

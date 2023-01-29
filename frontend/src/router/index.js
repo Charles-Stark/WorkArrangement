@@ -15,33 +15,54 @@ var RouterVer = function () {
         component: () => import('../components/admins/appBars'),
         children: [
           {
+            path: 'overview',
+            component: () => import('../components/admins/view/overview'),
+            meta: {
+              title: '概览',
+              
+              //控制左侧导航栏选中
+              selectedItem: 0,
+              isAuth: true
+            }
+          }, {
+            path: 'arrange',
+            component: () => import('../components/admins/view/workArrange'),
+            meta: {
+              title: '智能排班',
+              selectedItem: 1,
+              isAuth: true
+            }
+          },{
             path: 'absences',
             component: () => import('../components/admins/view/absenceArrange'),
             meta: {
               title: '请假管理',
-              //控制左侧导航栏选中
-              selectedItem: 2
+              selectedItem: 2,
+              isAuth: true
             }
-          },{
+          }, {
             path: 'branches',
             component: () => import('../components/admins/view/branchInfo'),
             meta: {
               title: '分店信息',
-              selectedItem: 5
+              selectedItem: 5,
+              isAuth: true
             }
-          },{
+          }, {
             path: 'staff',
             component: () => import('../components/admins/view/staffInfo'),
             meta: {
               title: '员工信息',
-              selectedItem: 6
+              selectedItem: 6,
+              isAuth: true
             }
-          },{
+          }, {
             path: '/settings',
             component: () => import('../components/admins/view/settingPage'),
             meta: {
               title: '用户设置',
-              selectedItem: 4
+              selectedItem: 4,
+              isAuth: true
             }
           },
         ]
@@ -66,7 +87,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   console.log(to, from, next)
   if (to.meta.title) {
-    document.title = to.meta.title
+    document.title = to.meta.title || '慧博云通'
   }
   next()
 })

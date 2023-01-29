@@ -7,13 +7,14 @@ import request from '../request'
 export const getOTP = email => {
   return request({
     method: 'post',
-    url: 'api/user/email/sendCode',
+    url: 'api/user/register/sendCode',
     params: {
       email: email
     }
   })
 }
 
+//注册
 export const register = data => {
   return request({
     method: 'post',
