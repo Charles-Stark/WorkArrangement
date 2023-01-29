@@ -1,9 +1,7 @@
 package com.example.backend.Controller;
 
 import com.example.backend.POJO.User;
-import com.example.backend.Service.MailService;
 import com.example.backend.Service.UserService;
-import com.example.backend.Utils.VerifyCodeUtil;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
