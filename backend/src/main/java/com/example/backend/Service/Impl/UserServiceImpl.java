@@ -1,6 +1,7 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.User;
+import com.example.backend.Service.MailService;
 import com.example.backend.Service.UserService;
 import com.example.backend.Utils.HashUtil;
 import com.example.backend.Utils.JwtUtil;
@@ -22,6 +23,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private VerifyCodeUtil verifyCodeUtil;
+
+    @Autowired
+    private MailService mailService;
 
     private User searchUserByEmail(String email) {
         Map<String, Object> searchingMap = new HashMap<>();
@@ -127,6 +131,39 @@ public class UserServiceImpl implements UserService {
         }
 
         return new ResultVO<>(0, "修改密码成功", null);
+    }
+
+    @Override
+    public ResultVO<Object> sendCodeWhenLogin(String email) {
+        try {
+            User result = searchUserByEmail(email);
+            if (result == null) {
+                return new ResultVO<>(-1, "用户不存在", null);
+            }
+
+            String code = verifyCodeUtil.getCode(email);
+            if (code != null) {
+                mailService.sendVerifyCode(email, code);
+                return new ResultVO<>(0, "获取验证码成功", null);
+            }
+        } catch (Exception ignored) {
+
+        }
+        return new ResultVO<>(-1, "获取验证码失败", null);
+    }
+
+    @Override
+    public ResultVO<Object> sendCodeWhenRegister(String email) {
+        try {
+            String code = verifyCodeUtil.getCode(email);
+            if (code != null) {
+                mailService.sendVerifyCode(email, code);
+                return new ResultVO<>(0, "获取验证码成功", null);
+            }
+        } catch (Exception ignored) {
+
+        }
+        return new ResultVO<>(-1, "获取验证码失败", null);
     }
 
 }
