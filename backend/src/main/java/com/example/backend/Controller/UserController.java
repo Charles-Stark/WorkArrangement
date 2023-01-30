@@ -1,8 +1,10 @@
 package com.example.backend.Controller;
 
+import com.example.backend.POJO.Employee;
 import com.example.backend.POJO.User;
 import com.example.backend.Service.UserService;
 import com.example.backend.VO.ResultVO;
+import com.example.backend.mapper.EmployeeMapper;
 import com.example.backend.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,9 @@ public class UserController {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
 
     @Autowired
     private UserService userService;
@@ -66,12 +71,23 @@ public class UserController {
     @GetMapping("/info/get/{id}")
     public ResultVO<Map<String, Object>> getUserInfo(@PathVariable long id) {
         try {
-            Map<String, Object> searchingMap = new HashMap<>();
-            searchingMap.put("id", id);
-            User result = userMapper.selectByMap(searchingMap).get(0);
-            searchingMap.put("email", result.getEmail());
-            searchingMap.put("username", result.getUsername());
-            return new ResultVO<>(0, "用户信息获取成功", searchingMap);
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("id", id);
+
+            User user = userMapper.selectById(id);
+            resultMap.put("email", user.getEmail());
+            resultMap.put("username", user.getUsername());
+            resultMap.put("isManager", user.getIsManager());
+
+            if (!user.getIsManager()) {
+                Employee employee = employeeMapper.selectById(id);
+                if (employee.getPosition().contains("门店经理")) {
+                    resultMap.put("isShopManager", true);
+                } else {
+                    resultMap.put("isShopManager", false);
+                }
+            }
+            return new ResultVO<>(0, "用户信息获取成功", resultMap);
         } catch (Exception e) {
             return new ResultVO<>(-1, "用户信息获取失败", null);
         }

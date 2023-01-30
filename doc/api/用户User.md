@@ -148,6 +148,8 @@ verify: string 用户接收到的验证码
 
 在用户设置页面发送该请求获取用户信息(用户名、邮箱、id)以供显示。
 
+isManager 是否为管理员，isShopManager 是否为门店经理。
+
 GET请求 /api/user/info/get/{id}
 
 ```yaml
@@ -159,6 +161,8 @@ id: string 用户id
   "code": 0,
   "message": "用户信息获取成功",
   "data": {
+    "isShopManager": true,
+    "isManager": false,  
     "id": 1024,
     "email": "ouzhouren@example.com",
     "username": "王小明"
