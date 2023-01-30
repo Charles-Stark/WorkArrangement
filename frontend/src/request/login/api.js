@@ -9,7 +9,7 @@ export const getOTP = email => {
     method: 'post',
     url: 'api/user/login/sendCode',
     params: {
-      email: email
+      email
     }
   })
 }

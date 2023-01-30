@@ -100,7 +100,7 @@
 
         <v-list-item-group v-model="selectedItem" color="primary" mandatory>
 
-          <v-list-item link to="overview">
+          <v-list-item link to="/controlpanel/dashboard">
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
@@ -115,7 +115,7 @@
           </v-list-item>
 
 
-          <v-list-item to="absences" link>
+          <v-list-item to="/controlpanel/absences" link>
             <v-list-item-icon>
               <v-icon>mdi-shore</v-icon>
             </v-list-item-icon>
@@ -127,14 +127,14 @@
               <v-list-item-title>信息管理</v-list-item-title>
             </template>
 
-            <v-list-item to="branches" link>
+            <v-list-item to="/controlpanel/branches" link>
               <v-list-item-icon>
                 <v-icon>mdi-store</v-icon>
               </v-list-item-icon>
               <v-list-item-title>分店信息</v-list-item-title>
             </v-list-item>
 
-            <v-list-item to="staff" link>
+            <v-list-item to="/controlpanel/staff" link>
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
@@ -142,7 +142,7 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-item to="settings" link>
+          <v-list-item to="/controlpanel/settings" link>
             <v-list-item-icon>
               <v-icon>mdi-cogs</v-icon>
             </v-list-item-icon>
@@ -162,6 +162,7 @@
     <v-main>
       <router-view></router-view>
     </v-main>
+    
   </v-app>
 </template>
 

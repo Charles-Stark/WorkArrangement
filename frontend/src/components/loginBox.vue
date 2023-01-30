@@ -125,11 +125,11 @@ export default {
     rules() {
       return {
         emailRules: [
-          v => !!v || '请输入邮箱',
-          v => /.+@.+/.test(v) || '请输入正确的格式',
+          v => !!v || '邮箱不能为空',
+          v => /.+@.+/.test(v) || '邮箱格式错误',
         ],
         pswRules: [
-          v => !!v || '请输入密码',
+          v => !!v || '密码不能为空',
           v => v.length >= 8 || '密码长度需大于8',
         ],
         repswRules: [
@@ -164,7 +164,7 @@ export default {
 
         if(this.email===''){
           validated=false
-          this.$emit('msg', '请输入邮箱')
+          this.$emit('msg', '邮箱不能为空')
         }
         else if (!/.+@.+/.test(this.email)){
           validated = false
@@ -172,7 +172,7 @@ export default {
         }
         else if (this.password === '') {
           validated = false
-          this.$emit('msg', '请输入密码')
+          this.$emit('msg', '密码不能为空')
         }
 
         if(validated){
@@ -301,7 +301,7 @@ export default {
           return false
         }
       }
-      
+
       return true
     }
   },

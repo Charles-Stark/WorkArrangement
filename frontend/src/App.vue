@@ -1,7 +1,7 @@
 <template>
   <v-app id="inspire">
-    <testAvatar></testAvatar>
-    <!-- <router-view></router-view> -->
+    <!-- <testAvatar></testAvatar> -->
+    <router-view></router-view>
   </v-app>
 </template>
 

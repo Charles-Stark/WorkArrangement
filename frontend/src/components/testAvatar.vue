@@ -20,7 +20,6 @@
               <loginBox v-if="show === 1" @msg="getMsg"></loginBox>
               <registerBox v-if="show === 2" @msg="getMsg"></registerBox>
             </keep-alive>
-
           </v-container>
         </v-card-text>
       </v-card>
