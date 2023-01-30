@@ -3,6 +3,7 @@ package com.example.backend.Interceptor;
 import com.example.backend.Utils.JwtUtil;
 import com.example.backend.VO.ResultVO;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -22,8 +23,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         } catch (Exception ignored) {
 
         }
-        response.setCharacterEncoding("utf-8");
-        response.getWriter().append(new JSONObject(new ResultVO<>(-1, "请先注册或登陆", null)).toString());
+        response.getWriter().append(new JSONObject(new ResultVO<>(-1, "Please register or login", null)).toString());
+        response.setStatus(HttpStatus.FORBIDDEN.value());
         return false;
     }
 }
