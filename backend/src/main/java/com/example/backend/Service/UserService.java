@@ -12,8 +12,6 @@ public interface UserService {
 
     ResultVO<Map<String, Object>> loginByCode(String email, String code);
 
-    ResultVO<Map<String, Object>> updateUserInfo(long id, Map<String, Object> map);
-
     ResultVO<Map<String, Object>> resetPassword(String email, String password, String code);
 
     ResultVO<Object> sendCodeWhenLogin(String email);
