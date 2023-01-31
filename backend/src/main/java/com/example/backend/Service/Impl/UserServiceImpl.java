@@ -155,6 +155,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResultVO<Object> sendCodeWhenRegister(String email) {
         try {
+            User result = searchUserByEmail(email);
+            if (result != null) {
+                return new ResultVO<>(-1, "用户已注册", null);
+            }
+
             String code = verifyCodeUtil.getCode(email);
             if (code != null) {
                 mailService.sendVerifyCode(email, code);
