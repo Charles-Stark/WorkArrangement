@@ -19,6 +19,7 @@
             </v-col>
           </v-row>
 
+          <!-- 邮箱登录 -->
           <template v-if="loginMethod === 1">
             <v-col cols="12" class="mt-4">
               <v-text-field label="邮箱" outlined prepend-inner-icon="mdi-email" placeholder="hello@email.com"
@@ -31,6 +32,7 @@
             </v-col>
           </template>
 
+          <!-- 密码登录 -->
           <template v-if="loginMethod === 2">
             <v-col cols="12">
               <v-text-field label="邮箱" outlined prepend-inner-icon="mdi-email" placeholder="hello@email.com"
@@ -65,6 +67,7 @@
       </template>
     </div>
 
+    <!-- 忘记密码 -->
     <div v-else>
       <v-row>
         <v-btn text @click="show3 = false">返回</v-btn>
@@ -84,11 +87,13 @@
         </v-col>
 
         <v-col cols="12">
-          <v-text-field v-model="resetPsw" label="密码" required outlined type="password" :rules="rules.pswRules"></v-text-field>
+          <v-text-field v-model="resetPsw" label="密码" required outlined type="password"
+            :rules="rules.pswRules"></v-text-field>
         </v-col>
 
         <v-col cols="12">
-          <v-text-field v-model="repsw" label="重复密码" required outlined type="password" :rules="rules.repswRules"></v-text-field>
+          <v-text-field v-model="repsw" label="重复密码" required outlined type="password"
+            :rules="rules.repswRules"></v-text-field>
         </v-col>
 
         <v-col cols="12">
@@ -104,7 +109,7 @@
 </template>
 
 <script>
-import { getOTP, otpLogin, pswLogin, pswReset } from '../request/login/api'
+import { getOTP, otpLogin, pswLogin, pswReset } from '../request/api'
 export default {
 
   data: () => ({
@@ -116,8 +121,8 @@ export default {
     loginMethod: 1,
     email: '',
     password: '',
-    resetPsw:'',
-    repsw:'',
+    resetPsw: '',
+    repsw: '',
     otp: '',
     counter: 0,
   }),
@@ -148,8 +153,9 @@ export default {
         }).then(res => {
           if (res.data.code === 0) {
             this.$emit('msg', '登录成功')
-            localStorage.setItem("token", res.data.data.token)
-            localStorage.setItem("userId", res.data.data.id)
+
+            //将登录信息保存在vuex和localstorage中
+            this.$store.commit('setLoginInfo', { token: res.data.data.token, userId: res.data.data.id })
             this.$router.go(0)
           }
           else if (res.data.code === -1) {
@@ -160,13 +166,13 @@ export default {
         })
       }
       else {
-        var validated=true
+        var validated = true
 
-        if(this.email===''){
-          validated=false
+        if (this.email === '') {
+          validated = false
           this.$emit('msg', '邮箱不能为空')
         }
-        else if (!/.+@.+/.test(this.email)){
+        else if (!/.+@.+/.test(this.email)) {
           validated = false
           this.$emit('msg', '邮箱格式错误')
         }
@@ -175,15 +181,16 @@ export default {
           this.$emit('msg', '密码不能为空')
         }
 
-        if(validated){
+        if (validated) {
           pswLogin({
             email: this.email,
             password: this.password,
           }).then(res => {
             if (res.data.code === 0) {
               this.$emit('msg', '登录成功')
-              localStorage.setItem("token", res.data.data.token)
-              localStorage.setItem("userId", res.data.data.id)
+
+              //将登录信息保存在vuex和localstorage中
+              this.$store.commit('setLoginInfo', { token: res.data.data.token, userId: res.data.data.id })
               this.$router.go(0)
             }
             else if (res.data.code === -1) {

@@ -6,8 +6,8 @@ import { getUserInfo } from '../request/api'
 
 Vue.use(VueRouter)
 
-//管理员身份的路由
-var adminRoutes = [
+//无权限限制的路由
+var commonRoutes=[
   {
     path: '/',
     component: () => import('../components/testAvatar'),
@@ -18,7 +18,10 @@ var adminRoutes = [
       requireAuth: false
     }
   },
+]
 
+//管理员身份的路由
+var adminRoutes = [
   {
     path: '/controlpanel',
     redirect: '/controlpanel/dashBoard',
@@ -89,7 +92,7 @@ var employeeRoutes = []
 const router = new VueRouter({
   mode: 'hash',
   base: '',
-  routes: []
+  routes: commonRoutes
 })
 
 //全局前置路由守卫
@@ -109,7 +112,7 @@ router.beforeEach((to, from, next) => {
       for (let route of managerRoutes) {
         router.addRoute(route)
       }
-    }
+    } 
     else {
       for (var route of employeeRoutes) {
         router.addRoute(route)

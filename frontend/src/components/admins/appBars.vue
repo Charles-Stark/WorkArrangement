@@ -51,18 +51,18 @@
       <v-menu bottom min-width="170" rounded class="ma-6" offset-y>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" class="ma-8">
-            <v-avatar color="blue" size="44">
-              <span class="white--text text-h6">{{ user.initials }}</span>
+            <v-avatar size="44">
+              <v-img :src="user.avatar"></v-img>
             </v-avatar>
           </v-btn>
         </template>
         <v-card>
           <v-list-item-content class="justify-center">
             <div class="mx-auto text-center">
-              <v-avatar color="blue">
-                <span class="white--text text-h5">{{ user.initials }}</span>
+              <v-avatar>
+                <v-img :src="user.avatar"></v-img>
               </v-avatar>
-              <h3>{{ user.fullName }}</h3>
+              <h3>{{ user.userName }}</h3>
               <p class="text-caption mt-1">
                 {{ user.email }}
               </p>
@@ -160,22 +160,34 @@
 
     <!-- 内容显示区 -->
     <v-main>
-      <router-view></router-view>
+      <router-view @msg="getMsg"></router-view>
     </v-main>
-    
+
+    <v-snackbar v-model="snackBar">
+      {{ snackBarText }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="error" icon v-bind="attrs" @click="snackBar = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
+
   </v-app>
 </template>
 
 <script>
-
+import { getUserAvatar, getUserInfo } from '../../request/api'
 export default {
   data: () => ({
+    snackBar: false,
+    snackBarText: '',
     drawer: false,
     miniManual: false,
+
     user: {
-      initials: 'JD',
-      fullName: 'John Doe',
-      email: 'john.doe@doe.com',
+      avatar: '',
+      userName: '',
+      email: '',
     },
 
     notices: [
@@ -194,6 +206,7 @@ export default {
 
   }),
   computed: {
+
     mini() {
       return this.$vuetify.breakpoint.smAndDown ? true : this.miniManual
     },
@@ -226,8 +239,35 @@ export default {
       alert("~~~")
     },
 
+    getMsg(data) {
+      this.snackBarText = data
+      this.snackBar = true
+    }
+
   },
 
+  mounted() {
+    getUserInfo(this.$store.state.userId).then(res => {
+      if (res.data.code === 0) {
+        this.user.userName = res.data.data.username
+        this.user.email = res.data.data.email
+      }
+
+    }).catch(() => {
+      alert('网络错误')
+    })
+
+    getUserAvatar(this.$store.state.userId).then(res => {
+      if (res.status === 200) {
+        this.user.avatar = res.data
+      }
+      else if(res.status===204){
+        this.user.avatar = require('../../assets/defaultAvatar.png')
+      }
+    }).catch(() => {
+
+    })
+  }
 
 }
 </script>

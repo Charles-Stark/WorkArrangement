@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { getOTP,register } from '../request/register/api'
+import { getRegisterOTP,register } from '../request/api'
 
 export default {
 
@@ -72,7 +72,7 @@ export default {
         ],
         pswRules: [
           v => !!v || '密码不能为空',
-          v => v.length >= 8 || '密码长度需大于8',
+          v => v.length >= 8 || '密码长度不能小于8位',
         ],
         repswRules: [
           v => this.password === v || '两次输入密码不匹配',
@@ -93,8 +93,7 @@ export default {
         }).then(res=>{
           if(res.data.code===0){
             this.$emit('msg', '注册成功')
-            localStorage.setItem("token", res.data.data.token)
-            localStorage.setItem("userId", res.data.data.id)
+            this.$store.commit('setLoginInfo', { token: res.data.data.token, userId: res.data.data.id })
             this.$router.go(0)
           }
           if(res.data.code===-1){
@@ -111,18 +110,22 @@ export default {
       if (this.email !== '') {
         if (/.+@.+/.test(this.email)) {
           if (this.counter === 0) {
-            this.counter = 60;
-            var count = setInterval(() => {
-              this.counter--
-              if (this.counter <= 0) {
-                clearInterval(count)
-                this.counter = 0
+            getRegisterOTP(this.email).then(res => {
+              if(res.data.code===0){
+                this.counter = 60;
+                var count = setInterval(() => {
+                  this.counter--
+                  if (this.counter <= 0) {
+                    clearInterval(count)
+                    this.counter = 0
+                  }
+                }, 1000);
+                this.$emit('msg','验证码发送成功')
               }
-            }, 1000);
-
-            getOTP(this.email).then(res => {
               if (res.data.code === -1) {
-                this.$emit('msg', '获取验证码失败')
+                if(res.data.message==='用户已注册'){
+                  this.$emit('msg', '用户已注册')
+                }
               }
             }).catch(()=>{
               this.$emit('msg', '网络错误')

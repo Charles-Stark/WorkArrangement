@@ -1,19 +1,18 @@
 <template>
   <v-container fluid class="mt-9">
     <v-row justify="center">
-      <v-expansion-panels popout>
+      <v-expansion-panels popout multiple v-model="panel">
         <v-expansion-panel hide-actions>
           <v-expansion-panel-header>
             <v-row align="center" class="spacer" no-gutters>
               <v-col cols="4" sm="3" md="2">
                 <v-avatar size="80" @click="changeAvatar()">
-                  <img v-if="personal.avatar" alt="Avatar"
-                    src="https://avatars0.githubusercontent.com/u/9064066?v=4&s=460">
+                  <img :src="user.avatar">
                 </v-avatar>
               </v-col>
 
               <v-col sm="5" md="3">
-                <strong>{{ personal.name }}</strong>
+                <strong>{{ user.userName }}</strong>
               </v-col>
 
               <v-col class="text-no-wrap hidden-xs-only" cols="5" sm="2">
@@ -21,27 +20,240 @@
               </v-col>
 
               <v-col class="grey--text text-truncate hidden-sm-and-down">
-                手机号，邮箱，密码，工号
+                用户名，邮箱，密码
               </v-col>
             </v-row>
           </v-expansion-panel-header>
 
           <v-expansion-panel-content>
-            <div v-for="info in infos" :key="info.type">
-              <v-divider></v-divider>
-              <v-list flat rounded>
-                <v-list-item-group>
-                  <v-list-item @click="editInfo()">
+            <v-divider></v-divider>
+            <v-list flat rounded>
+              <v-list-item-group>
 
-                    <v-list-item-icon>
-                      <v-icon color="accent">{{ info.icon }}</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title>{{ info.type }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ info.data }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
-            </div>
+                <!-- 修改用户名 -->
+                <v-dialog v-model="dialog1" width="400" persistent height="500">
+                  <template v-slot:activator="{ on, attrs }">
+
+                    <v-list-item v-bind="attrs" v-on="on">
+                      <v-list-item-icon>
+                        <v-icon color="accent">mdi-account</v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-title>用户名</v-list-item-title>
+                      <v-list-item-subtitle>{{ user.userName }}</v-list-item-subtitle>
+                    </v-list-item>
+
+                  </template>
+
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      修改用户名
+                    </v-card-title>
+                    <v-card-text class="mt-5"><v-text-field v-model="newName" counter="10" label="输入新用户名" required
+                        outlined></v-text-field></v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn class="mb-5" @click="updateName()" color="primary" width="120" height="40">
+                        修改
+                      </v-btn>
+                      <v-btn class="mb-5" text @click="dialog1 = false" width="120" height="40">
+                        取消
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+
+                <v-divider></v-divider>
+
+                <!-- 修改邮箱 -->
+                <v-dialog v-model="dialog2" width="500" persistent>
+                  <template v-slot:activator="{ on, attrs }">
+
+                    <v-list-item v-bind="attrs" v-on="on">
+                      <v-list-item-icon>
+                        <v-icon color="accent">mdi-gmail</v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-title>邮箱</v-list-item-title>
+                      <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
+                    </v-list-item>
+
+                  </template>
+
+                  <v-card>
+
+                    <v-stepper v-model="step1">
+                      <v-stepper-header>
+                        <span class="text-h4 mt-4 ml-5">修改邮箱</span>
+                      </v-stepper-header>
+
+                      <v-stepper-items>
+                        <v-stepper-content step="1">
+
+                          <v-row class="mt-5">
+                            <v-col cols="12">
+                              <v-text-field label="邮箱" required outlined v-model="user.email" disabled></v-text-field>
+                            </v-col>
+                            <v-col cols="8">
+                              <v-text-field label="验证码" required outlined v-model="otp1"></v-text-field>
+                            </v-col>
+                            <v-col cols="4">
+                              <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
+                                v-text="counter === 0 ? '获取验证码' : `${counter}秒后重试`" :disabled="counter !== 0"></v-btn>
+                            </v-col>
+
+                          </v-row>
+
+                          <v-row>
+                            <v-spacer></v-spacer>
+                            <v-col cols="3">
+                              <v-btn color="primary" @click="nextStep1()" class="mr-3" block height="40">
+                                下一步
+                              </v-btn>
+                            </v-col>
+                            <v-col cols="3">
+                              <v-btn text @click="dialog2 = false" block height="40">
+                                取消
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+
+                        </v-stepper-content>
+
+                        <v-stepper-content step="2">
+
+                          <v-row class="mt-5">
+                            <v-col cols="12">
+                              <v-text-field label="新邮箱" required outlined v-model="newEmail"></v-text-field>
+                            </v-col>
+                            <v-col cols="8">
+                              <v-text-field label="验证码" required outlined v-model="otp2"></v-text-field>
+                            </v-col>
+                            <v-col cols="4">
+                              <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
+                                v-text="counter2 === 0 ? '获取验证码' : `${counter2}秒后重试`"
+                                :disabled="counter2 !== 0"></v-btn>
+                            </v-col>
+                          </v-row>
+
+                          <v-row>
+                            <v-spacer></v-spacer>
+                            <v-col cols="3">
+                              <v-btn color="primary" @click="pswReset()" class="mr-3" block height="40">
+                                完成
+                              </v-btn>
+                            </v-col>
+                            <v-col cols="3">
+                              <v-btn text @click="dialog2 = false; step1 = 1" block height="40">
+                                取消
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+
+                        </v-stepper-content>
+
+                      </v-stepper-items>
+                    </v-stepper>
+
+                  </v-card>
+
+                </v-dialog>
+
+                <v-divider></v-divider>
+
+                <!-- 修改密码 -->
+                <v-dialog v-model="dialog3" width="500" persistent>
+                  <template v-slot:activator="{ on, attrs }">
+
+                    <v-list-item v-bind="attrs" v-on="on">
+                      <v-list-item-icon>
+                        <v-icon color="accent">mdi-key</v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-title>密码</v-list-item-title>
+                      <v-list-item-subtitle>点击修改</v-list-item-subtitle>
+                    </v-list-item>
+
+                  </template>
+
+                  <v-card>
+
+                    <v-stepper v-model="step2">
+
+                      <v-stepper-header>
+                        <span class="text-h4 mt-4 ml-5">修改密码</span>
+                      </v-stepper-header>
+
+                      <v-stepper-items>
+                        <v-stepper-content step="1">
+
+                          <v-row class="mt-5">
+                            <v-col cols="12">
+                              <v-text-field label="邮箱" required outlined v-model="user.email" disabled></v-text-field>
+                            </v-col>
+                            <v-col cols="8">
+                              <v-text-field label="验证码" required outlined v-model="otp2"></v-text-field>
+                            </v-col>
+                            <v-col cols="4">
+                              <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
+                                v-text="counter === 0 ? '获取验证码' : `${counter}秒后重试`" :disabled="counter !== 0"></v-btn>
+                            </v-col>
+
+                          </v-row>
+
+                          <v-row>
+                            <v-spacer></v-spacer>
+                            <v-col cols="3">
+                              <v-btn color="primary" @click="nextStep2()" class="mr-3" block height="40">
+                                下一步
+                              </v-btn>
+                            </v-col>
+                            <v-col cols="3">
+                              <v-btn text @click="dialog3 = false" block height="40">
+                                取消
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+
+                        </v-stepper-content>
+
+                        <v-stepper-content step="2">
+
+                          <v-row class="mt-5">
+                            <v-col cols="12">
+                              <v-text-field label="密码" required outlined v-model="resetPsw"></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                              <v-text-field label="重复密码" required outlined v-model="repsw"></v-text-field>
+                            </v-col>
+                          </v-row>
+
+                          <v-row>
+                            <v-col cols="3">
+                              <v-btn text @click="step2 = 1" class="mr-3" block height="40">
+                                返回上一步
+                              </v-btn>
+                            </v-col>
+                            <v-spacer></v-spacer>
+                            <v-col cols="3">
+                              <v-btn color="primary" @click="pswReset()" class="mr-3" block height="40">
+                                完成
+                              </v-btn>
+                            </v-col>
+                            <v-col cols="3">
+                              <v-btn text @click="dialog3 = false" block height="40">
+                                取消
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+
+                        </v-stepper-content>
+
+                      </v-stepper-items>
+                    </v-stepper>
+
+                  </v-card>
+                </v-dialog>
+
+              </v-list-item-group>
+            </v-list>
           </v-expansion-panel-content>
 
         </v-expansion-panel>
@@ -127,37 +339,40 @@
 
 <script>
 import themes from '../../../store/themes'
+import { getUserAvatar, getUserInfo, pswReset, getOTP, otpLogin, updateName } from '../../../request/api'
+
 export default {
   data: () => ({
+    step1: 1,
+    step2: 1,
+    dialog1: false,
+    dialog2: false,
+    dialog3: false,
     dark: null,
     autoDark: null,
     toggle: [],
-    personal: {
-      avatar: 'https://avatars0.githubusercontent.com/u/9064066?v=4&s=460',
-      name: 'John Leider',
-      id: 2100303308,
-      phone: 15858926005,
-      email: 'abcdefg@xxx.com',
-      psw: '1234567'
+    panel: [0, 1],
+    counter: 0,
+    counter2: 0,
+    loading: false,
+
+    user: {
+      avatar: '',
+      userName: '',
+      email: '',
     },
-    items: [
-      'Dog Photos',
-      'Cat Photos',
-      'Potatoes',
-      'Carrots',
-    ],
-    model: ['Carrots'],
+
+    otp1: '',
+    otp2: '',
+    otp3: '',
+    newEmail: '',
+    resetPsw: '',
+    repsw: '',
+    newName:'',
 
   }),
   computed: {
-    infos() {
-      return [
-        { type: "工号", data: this.personal.id, editable: false, icon: 'mdi-card-account-details' },
-        { type: "手机号", data: this.personal.phone, editable: true, icon: 'mdi-phone' },
-        { type: "邮箱", data: this.personal.email, editable: true, icon: 'mdi-gmail' },
-        { type: "密码", data: '点击修改', editable: true, icon: 'mdi-key' }
-      ]
-    },
+
     colors() {
       return [{ type: 'blue', theme: themes.blue },
       { type: 'green', theme: themes.green },
@@ -175,6 +390,79 @@ export default {
     changeAvatar() {
       alert('更换头像')
     },
+    getOTP() {
+      this.loading = true
+      if (this.counter === 0) {
+        getOTP(this.user.email).then(res => {
+          if (res.data.code === 0) {
+            this.$emit('msg', '验证码已发送')
+            if (this.counter === 0) {
+              this.counter = 60;
+              var count = setInterval(() => {
+                this.counter--
+                if (this.counter <= 0) {
+                  clearInterval(count)
+                  this.counter = 0
+                }
+              }, 1000);
+            }
+
+          }
+        }).catch(() => {
+          this.$emit('msg', '网络错误')
+        })
+      }
+      this.loading = false
+
+    },
+    pswReset() {
+      if (this.resetPsw.length >= 8) {
+        if (this.resetPsw === this.repsw) {
+          this.loading = true
+          pswReset({
+            email: this.user.email,
+            password: this.resetPsw,
+            verify: this.otp3
+          }).then(res => {
+            if (res.data.code === 0) {
+              this.$emit('msg', '密码修改成功')
+            }
+            else if (res.data.code === -1) {
+              if (res.data.message === '验证失败') {
+                this.$emit('msg', '验证码错误')
+              }
+            }
+          }).catch(() => {
+            this.$emit('msg', '网络错误')
+          })
+          this.loading = false
+        }
+        else {
+          this.$emit('msg', '两次输入密码不匹配')
+        }
+      }
+      else {
+        this.$emit('msg', '密码长度不能小于8位')
+      }
+    },
+    updateName() {
+      if (this.newName !== '') {
+        if (this.newName.length <= 10) {
+          updateName(this.$store.state.userId, this.newName).then(res=>{
+            this.$emit('msg', '修改成功')
+            this.$router.go(0)
+          }).catch(()=>{
+            this.$emit('msg', '网络错误')
+          })
+        }
+        else {
+          this.$emit('msg', '姓名长度不能大于10')
+        }
+      }
+      else {
+        this.$emit('msg', '请输入姓名')
+      }
+    },
     changeTheme(color) {
       this.$vuetify.theme.themes = color.theme
       this.$store.commit('theme', color.type)
@@ -188,6 +476,48 @@ export default {
       this.autoDark = !this.autoDark
       this.$store.commit('auto_dark', this.autoDark)
     },
+    nextStep1() {
+
+      if (this.otp1 != '') {
+        otpLogin({
+          email: this.user.email,
+          verify: this.otp1
+        }).then(res => {
+          if (res.data.code === 0) {
+            this.step1 = 2
+          }
+          else if (res.data.code === -1) {
+            this.$emit('msg', '验证码错误')
+          }
+        }).catch(() => {
+          this.$emit('msg', '网络错误')
+        })
+      }
+      else {
+        this.$emit('msg', '请输入验证码')
+      }
+
+    },
+    nextStep2() {
+      if (this.otp3 != '') {
+        otpLogin({
+          email: this.user.email,
+          verify: this.otp3
+        }).then(res => {
+          if (res.data.code === 0) {
+            this.step2 = 2
+          }
+          else if (res.data.code === -1) {
+            this.$emit('msg', '验证码错误')
+          }
+        }).catch(() => {
+          this.$emit('msg', '网络错误')
+        })
+      }
+      else {
+        this.$emit('msg', '请输入验证码')
+      }
+    }
 
   },
 
@@ -199,6 +529,29 @@ export default {
         this.$store.commit('dark', window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : '')
       }
     }
+  },
+
+  mounted() {
+    getUserInfo(this.$store.state.userId).then(res => {
+      if (res.data.code === 0) {
+        this.user.userName = res.data.data.username
+        this.user.email = res.data.data.email
+      }
+
+    }).catch(() => {
+      alert('网络错误')
+    })
+
+    getUserAvatar(this.$store.state.userId).then(res => {
+      if (res.status === 200) {
+        this.user.avatar = res.data
+      }
+      else if (res.status === 204) {
+        this.user.avatar = require('../../../assets/defaultAvatar.png')
+      }
+    }).catch(() => {
+
+    })
   },
 
   created() {

@@ -22,7 +22,13 @@ const mutations = {
   theme(state, value) {
     state.currentTheme = value
     window.localStorage.theme = value
-  }
+  },
+  setLoginInfo(state, value) {
+    localStorage.setItem("token", value.token)
+    localStorage.setItem("userId", value.userId)
+    state.token=value.token
+    state.userId = value.userId
+  },
 
 }
 
@@ -32,7 +38,9 @@ const mutations = {
 const state = {
   dark: window.localStorage.dark === 'true',
   autoDark: window.localStorage.autoDark === 'true',
-  currentTheme: window.localStorage.theme
+  currentTheme: window.localStorage.theme,
+  token:localStorage.getItem('token'),
+  userId: localStorage.getItem('userId'),
 }
 
 
