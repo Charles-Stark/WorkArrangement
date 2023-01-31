@@ -128,7 +128,7 @@ public class UserController {
     }
 
     @PostMapping("/info/username/update/{id}")
-    public ResultVO<Map<String, Object>> updateUserInfo(@PathVariable long id, @RequestParam("username") String username) {
+    public ResultVO<Map<String, Object>> updateUsername(@PathVariable long id, @RequestParam("username") String username) {
         try {
             User user = new User(id, null, null, username, null, null, null);
             userMapper.updateById(user);
