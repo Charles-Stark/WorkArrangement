@@ -37,16 +37,20 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public ResultVO<Object> addEmployee(String email, String username, String uid, String position, Long shop) {
 
-        // TODO: Generate original password
-        User user = new User(null, email, "password", username, null, null, false);
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shop", shop);
+        String numberOfEmployee;
+
+        User user = new User(null, email, email.split("@")[0] + "123456", username, null, null, false);
         try {
             userMapper.insert(user);
+            numberOfEmployee = String.valueOf(employeeMapper.selectByMap(searchingMap).size() + 1);
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加员工失败", null);
         }
 
-        // TODO: Generate UID
-        Employee employee = new Employee(user.getId(), "uid", position, shop, 0D, 0);
+        // TODO: Generate UID in a better way
+        Employee employee = new Employee(user.getId(), shop.toString() + numberOfEmployee, position, shop, 0D, 0);
         Preference preference = new Preference(user.getId(), null, null, null, null);
         try {
             employeeMapper.insert(employee);
