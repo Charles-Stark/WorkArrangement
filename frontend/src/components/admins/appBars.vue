@@ -247,25 +247,28 @@ export default {
   },
 
   mounted() {
-    getUserInfo(this.$store.state.userId).then(res => {
+    getUserInfo().then(res => {
       if (res.data.code === 0) {
         this.user.userName = res.data.data.username
         this.user.email = res.data.data.email
       }
 
     }).catch(() => {
-      alert('网络错误')
+      this.snackBar = true
+      this.snackBarText, '网络错误'
     })
 
-    getUserAvatar(this.$store.state.userId).then(res => {
+    getUserAvatar().then(res => {
       if (res.status === 200) {
-        this.user.avatar = res.data
+        let url = window.URL.createObjectURL(res.data)
+        this.user.avatar = url
       }
-      else if(res.status===204){
+      else if (res.status === 204) {
         this.user.avatar = require('../../assets/defaultAvatar.png')
       }
     }).catch(() => {
-
+      this.snackBar = true
+      this.snackBarText, '网络错误'
     })
   }
 

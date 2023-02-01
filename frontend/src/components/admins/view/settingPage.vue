@@ -6,7 +6,9 @@
           <v-expansion-panel-header>
             <v-row align="center" class="spacer" no-gutters>
               <v-col cols="4" sm="3" md="2">
-                <v-avatar size="80" @click="changeAvatar()">
+
+
+                <v-avatar size="80">
                   <img :src="user.avatar">
                 </v-avatar>
               </v-col>
@@ -30,11 +32,19 @@
             <v-list flat rounded>
               <v-list-item-group>
 
+                <v-list-item @click="changeAvatar()">
+                  <v-list-item-title>修改头像</v-list-item-title>
+                  <input hidden type="file" id="avatarUploader" accept="image/png, image/jpg" @change="updateAvatar()">
+
+                </v-list-item>
+
+                <v-divider></v-divider>
+
                 <!-- 修改用户名 -->
                 <v-dialog v-model="dialog1" width="400" persistent height="500">
                   <template v-slot:activator="{ on, attrs }">
 
-                    <v-list-item v-bind="attrs" v-on="on">
+                    <v-list-item v-bind="attrs" v-on="on" class="mt-2">
                       <v-list-item-icon>
                         <v-icon color="accent">mdi-account</v-icon>
                       </v-list-item-icon>
@@ -68,7 +78,7 @@
                 <v-dialog v-model="dialog2" width="500" persistent>
                   <template v-slot:activator="{ on, attrs }">
 
-                    <v-list-item v-bind="attrs" v-on="on">
+                    <v-list-item v-bind="attrs" v-on="on" class="mt-2">
                       <v-list-item-icon>
                         <v-icon color="accent">mdi-gmail</v-icon>
                       </v-list-item-icon>
@@ -93,7 +103,8 @@
                               <v-text-field label="邮箱" required outlined v-model="user.email" disabled></v-text-field>
                             </v-col>
                             <v-col cols="8">
-                              <v-text-field label="验证码" required outlined v-model="otp1"></v-text-field>
+                              <v-text-field label="验证码" required outlined v-model="otp1"
+                                @keyup.enter="nextStep1()"></v-text-field>
                             </v-col>
                             <v-col cols="4">
                               <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
@@ -128,7 +139,7 @@
                               <v-text-field label="验证码" required outlined v-model="otp2"></v-text-field>
                             </v-col>
                             <v-col cols="4">
-                              <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
+                              <v-btn color="primary" @click="getEmailOTP()" class="mx-auto" block height="55" outlined
                                 v-text="counter2 === 0 ? '获取验证码' : `${counter2}秒后重试`"
                                 :disabled="counter2 !== 0"></v-btn>
                             </v-col>
@@ -137,7 +148,7 @@
                           <v-row>
                             <v-spacer></v-spacer>
                             <v-col cols="3">
-                              <v-btn color="primary" @click="pswReset()" class="mr-3" block height="40">
+                              <v-btn color="primary" @click="emailReset()" class="mr-3" block height="40">
                                 完成
                               </v-btn>
                             </v-col>
@@ -163,7 +174,7 @@
                 <v-dialog v-model="dialog3" width="500" persistent>
                   <template v-slot:activator="{ on, attrs }">
 
-                    <v-list-item v-bind="attrs" v-on="on">
+                    <v-list-item v-bind="attrs" v-on="on" class="mt-2">
                       <v-list-item-icon>
                         <v-icon color="accent">mdi-key</v-icon>
                       </v-list-item-icon>
@@ -189,7 +200,8 @@
                               <v-text-field label="邮箱" required outlined v-model="user.email" disabled></v-text-field>
                             </v-col>
                             <v-col cols="8">
-                              <v-text-field label="验证码" required outlined v-model="otp2"></v-text-field>
+                              <v-text-field label="验证码" required outlined v-model="otp3"
+                                @keyup.enter="nextStep2()"></v-text-field>
                             </v-col>
                             <v-col cols="4">
                               <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
@@ -339,7 +351,7 @@
 
 <script>
 import themes from '../../../store/themes'
-import { getUserAvatar, getUserInfo, pswReset, getOTP, otpLogin, updateName } from '../../../request/api'
+import { getUserAvatar, getUserInfo, pswReset, getOTP, otpLogin, updateName, updateAvatar, updateEmail, getEmailOTP } from '../../../request/api'
 
 export default {
   data: () => ({
@@ -368,7 +380,8 @@ export default {
     newEmail: '',
     resetPsw: '',
     repsw: '',
-    newName:'',
+    newName: '',
+    newAvatar: ''
 
   }),
   computed: {
@@ -384,11 +397,19 @@ export default {
   },
 
   methods: {
-    editInfo() {
-      alert('编辑信息')
+    updateAvatar() {
+      let file = document.getElementById('avatarUploader').files[0];
+      const formData = new FormData();
+      formData.append('photo', file)
+      updateAvatar(formData).then(() => {
+        this.$emit('msg', '更新头像成功')
+        this.$router.go(0)
+      }).catch(() => {
+        this.$emit('msg', '网络错误')
+      })
     },
     changeAvatar() {
-      alert('更换头像')
+      document.getElementById("avatarUploader").click()
     },
     getOTP() {
       this.loading = true
@@ -426,6 +447,7 @@ export default {
           }).then(res => {
             if (res.data.code === 0) {
               this.$emit('msg', '密码修改成功')
+              this.$router.go(0)
             }
             else if (res.data.code === -1) {
               if (res.data.message === '验证失败') {
@@ -445,13 +467,73 @@ export default {
         this.$emit('msg', '密码长度不能小于8位')
       }
     },
+    getEmailOTP() {
+      this.loading = true
+      if (this.newEmail !== '') {
+        if (/.+@.+/.test(this.newEmail)) {
+          if (this.counter2 === 0) {
+            getEmailOTP(this.newEmail).then(res => {
+              if (res.data.code === 0) {
+                this.$emit('msg', '验证码已发送')
+                if (this.counter2 === 0) {
+                  this.counter2 = 60;
+                  var count = setInterval(() => {
+                    this.counter2--
+                    if (this.counter2 <= 0) {
+                      clearInterval(count)
+                      this.counter2 = 0
+                    }
+                  }, 1000);
+                }
+              }
+            }).catch(() => {
+              this.$emit('msg', '网络错误')
+            })
+          }
+        }
+        else {
+          this.$emit('msg', '邮箱格式错误')
+        }
+      }
+      else {
+        this.$emit('msg', '邮箱不能为空')
+      }
+
+      this.loading = false
+    },
+    emailReset() {
+      if (this.otp2 !== '') {
+        updateEmail(this.newEmail, this.otp2).then(res => {
+          console.log(res)
+          if (res.data.code == 0) {
+            this.$emit('msg', '邮箱修改成功')
+            this.$store.commit('setLoginInfo', { token: res.data.data.token, userId: res.data.data.id })
+            this.$router.go(0)
+          }
+          else if (res.data.code === -1) {
+            if (res.data.message === '邮箱已占用') {
+              this.$emit('msg', '邮箱已占用')
+            }
+            else if (res.data.message === '验证失败') {
+              this.$emit('msg', '验证码错误')
+            }
+          }
+
+        }).catch(() => {
+          this.$emit('msg', '网络错误')
+        })
+      }
+      else {
+        this.$emit('msg', '请输入验证码')
+      }
+    },
     updateName() {
       if (this.newName !== '') {
         if (this.newName.length <= 10) {
-          updateName(this.$store.state.userId, this.newName).then(res=>{
+          updateName(this.newName).then(() => {
             this.$emit('msg', '修改成功')
             this.$router.go(0)
-          }).catch(()=>{
+          }).catch(() => {
             this.$emit('msg', '网络错误')
           })
         }
@@ -477,7 +559,6 @@ export default {
       this.$store.commit('auto_dark', this.autoDark)
     },
     nextStep1() {
-
       if (this.otp1 != '') {
         otpLogin({
           email: this.user.email,
@@ -532,25 +613,26 @@ export default {
   },
 
   mounted() {
-    getUserInfo(this.$store.state.userId).then(res => {
+    getUserInfo().then(res => {
       if (res.data.code === 0) {
         this.user.userName = res.data.data.username
         this.user.email = res.data.data.email
       }
 
     }).catch(() => {
-      alert('网络错误')
+      this.$emit('msg', '网络错误')
     })
 
-    getUserAvatar(this.$store.state.userId).then(res => {
+    getUserAvatar().then(res => {
       if (res.status === 200) {
-        this.user.avatar = res.data
+        let url = window.URL.createObjectURL(res.data)
+        this.user.avatar = url
       }
       else if (res.status === 204) {
         this.user.avatar = require('../../../assets/defaultAvatar.png')
       }
     }).catch(() => {
-
+      this.$emit('msg', '网络错误')
     })
   },
 
