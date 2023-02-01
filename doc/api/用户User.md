@@ -251,7 +251,7 @@ username: string 用户姓名（不唯一）
 POST请求 /api/user/password/reset
 
 ```yaml
-邮箱: string 邮箱
+email: string 邮箱
 password: string 密码
 verify: string 用户接收到的验证码
 ```
@@ -268,6 +268,63 @@ verify: string 用户接收到的验证码
 {
   "code": -1,
   "message": "修改密码失败",
+  "data": null
+}
+```
+
+## 修改邮箱
+
+发送该请求以修改邮箱。
+
+修改邮箱后，会返回新的token，注意及时更新。
+
+POST请求 /api/user/email/reset
+
+```yaml
+id: long 用户id
+email: string 新邮箱
+verify: string 用户接收到的验证码
+```
+
+```json
+{
+  "code": 0,
+  "message": "修改邮箱成功",
+  "data": {
+    "id": 2,
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsImV4cCI6MTY3NTI3MjcyMiwiZW1haWwiOiIxNjE0ODY5NDA5QHFxLmNvbSJ9.Wqh6ip_HKrxB-RFDiy0CwMngysGh5VoJYPxt4nKBeHw"
+  }
+}
+```
+
+```json
+{
+  "code": -1,
+  "message": "修改邮箱失败",
+  "data": null
+}
+```
+
+## 获取邮箱验证码（修改邮箱）
+用户修改邮箱时，需获取邮箱验证码以验证邮箱为本人所有。
+
+邮箱被占用时，json 中 message 为"邮箱已占用".
+
+POST请求 /api/user/email/reset/sendCode
+```yaml
+email: string 邮箱地址
+```
+```json
+{
+  "code": 0,
+  "message": "获取验证码成功",
+  "data": null
+}
+```
+```json
+{
+  "code": -1,
+  "message": "获取验证码失败",
   "data": null
 }
 ```

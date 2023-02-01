@@ -32,12 +32,11 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResultVO<Map<String, Object>> register(@RequestParam Map<String, Object> map) {
-        if (map.containsKey("email") && map.containsKey("password") && map.containsKey("username") && map.containsKey("verify")) {
-            return userService.register(map.get("email").toString(), map.get("password").toString(), map.get("username").toString(), map.get("verify").toString());
-        } else {
-            return new ResultVO<>(-1, "未接收到参数", null);
-        }
+    public ResultVO<Map<String, Object>> register(@RequestParam("email") String email,
+                                                  @RequestParam("password") String password,
+                                                  @RequestParam("username") String username,
+                                                  @RequestParam("verify") String verify) {
+        return userService.register(email, password, username, verify);
     }
 
     @PostMapping("/register/sendCode")
@@ -50,22 +49,21 @@ public class UserController {
         return userService.sendCodeWhenLogin(email);
     }
 
+    @PostMapping("/email/reset/sendCode")
+    public ResultVO<Object> sendCodeWhenChangingEmail(@RequestParam("email") String email) {
+        return userService.sendCodeWhenChangingEmail(email);
+    }
+
     @PostMapping("/login/password")
-    public ResultVO<Map<String, Object>> loginByPassword(@RequestParam Map<String, Object> map) {
-        if (map.containsKey("email") && map.containsKey("password")) {
-            return userService.loginByPassword(map.get("email").toString(), map.get("password").toString());
-        } else {
-            return new ResultVO<>(-1, "未接收到参数", null);
-        }
+    public ResultVO<Map<String, Object>> loginByPassword(@RequestParam("email") String email,
+                                                         @RequestParam("password") String password) {
+        return userService.loginByPassword(email, password);
     }
 
     @PostMapping("/login/code")
-    public ResultVO<Map<String, Object>> loginByCode(@RequestParam Map<String, Object> map) {
-        if (map.containsKey("email") && map.containsKey("verify")) {
-            return userService.loginByCode(map.get("email").toString(), map.get("verify").toString());
-        } else {
-            return new ResultVO<>(-1, "未接收到参数", null);
-        }
+    public ResultVO<Map<String, Object>> loginByCode(@RequestParam("email") String email,
+                                                     @RequestParam("verify") String verify) {
+        return userService.loginByCode(email, verify);
     }
 
     @GetMapping("/info/get/{id}")
@@ -139,12 +137,17 @@ public class UserController {
     }
 
     @PostMapping("/password/reset")
-    public ResultVO<Map<String, Object>> resetPassword(@RequestParam Map<String, Object> map) {
-        if (map.containsKey("email") && map.containsKey("password") && map.containsKey("verify")) {
-            return userService.resetPassword(map.get("email").toString(), map.get("password").toString(), map.get("verify").toString());
-        } else {
-            return new ResultVO<>(-1, "未接收到参数", null);
-        }
+    public ResultVO<Map<String, Object>> resetPassword(@RequestParam("email") String email,
+                                                       @RequestParam("password") String password,
+                                                       @RequestParam("verify") String verify) {
+        return userService.resetPassword(email, password, verify);
+    }
+
+    @PostMapping("/email/reset")
+    public ResultVO<Object> resetEmail(@RequestParam("id") Long id,
+                                       @RequestParam("email") String email,
+                                       @RequestParam("verify") String verify) {
+        return userService.resetEmail(id, email, verify);
     }
 
     @PostMapping("/logout")

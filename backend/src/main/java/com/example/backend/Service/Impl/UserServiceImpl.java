@@ -129,6 +129,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ResultVO<Object> resetEmail(Long id, String email, String code) {
+        if (!verifyCodeUtil.verifyCode(email, code)) {
+            return new ResultVO<>(-1, "验证失败", null);
+        }
+
+        try {
+            userMapper.updateById(new User(id, email, null, null, null, null, null));
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "修改邮箱失败", null);
+        }
+
+        String token = JwtUtil.sign(email);
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("id", id);
+        resultMap.put("token", token);
+        return new ResultVO<>(0, "修改邮箱成功", resultMap);
+    }
+
+    @Override
     public ResultVO<Object> sendCodeWhenLogin(String email) {
         try {
             User result = searchUserByEmail(email);
@@ -153,6 +172,25 @@ public class UserServiceImpl implements UserService {
             User result = searchUserByEmail(email);
             if (result != null) {
                 return new ResultVO<>(-1, "用户已注册", null);
+            }
+
+            String code = verifyCodeUtil.getCode(email);
+            if (code != null) {
+                mailService.sendVerifyCode(email, code);
+                return new ResultVO<>(0, "获取验证码成功", null);
+            }
+        } catch (Exception ignored) {
+
+        }
+        return new ResultVO<>(-1, "获取验证码失败", null);
+    }
+
+    @Override
+    public ResultVO<Object> sendCodeWhenChangingEmail(String email) {
+        try {
+            User result = searchUserByEmail(email);
+            if (result != null) {
+                return new ResultVO<>(-1, "邮箱已占用", null);
             }
 
             String code = verifyCodeUtil.getCode(email);
