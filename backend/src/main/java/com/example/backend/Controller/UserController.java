@@ -3,6 +3,7 @@ package com.example.backend.Controller;
 import com.example.backend.POJO.Employee;
 import com.example.backend.POJO.User;
 import com.example.backend.Service.UserService;
+import com.example.backend.Utils.MagicNumberUtil;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.EmployeeMapper;
 import com.example.backend.mapper.UserMapper;
@@ -21,6 +22,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+
+    private static final long MAX_PHOTO_SIZE = 2 * 1024 * 1024;  // 用户头像大小限制 2MB
+
+    private static final Map<String, String> ALLOWED_PHOTO_TYPES = new HashMap<>();
+    static {
+        ALLOWED_PHOTO_TYPES.put("FFD8FF", "image/jpeg");
+        ALLOWED_PHOTO_TYPES.put("89504E", "image/png");
+    }
 
     @Autowired
     private UserMapper userMapper;
@@ -117,7 +126,15 @@ public class UserController {
     @PostMapping("/photo/upload/{id}")
     public ResultVO<Object> uploadUserPhoto(@PathVariable long id, @RequestParam("photo") MultipartFile multipartFile) {
         try {
-            User user = new User(id, null, null, null, multipartFile.getBytes(), multipartFile.getContentType(), null);
+            if (multipartFile.getSize() > MAX_PHOTO_SIZE) {
+                return new ResultVO<>(-1, "图片过大", null);
+            }
+            String magicNumber = MagicNumberUtil.getMagicNumber(multipartFile.getBytes(), 6);
+            if (!ALLOWED_PHOTO_TYPES.containsKey(magicNumber)) {
+                return new ResultVO<>(-1, "类型不符", null);
+            }
+
+            User user = new User(id, null, null, null, multipartFile.getBytes(), ALLOWED_PHOTO_TYPES.get(magicNumber), null);
             userMapper.updateById(user);
             return new ResultVO<>(0, "修改头像成功", null);
         } catch (Exception e) {
