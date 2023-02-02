@@ -25,7 +25,7 @@
             <v-divider :key="index + ' ' + notice.type"></v-divider>
 
             <v-list-item :key="index" @click="jumpToNoti()">
-              <v-list-item-avatar size="50" v-if="notice.type === 1">
+              <v-list-item-avatar v-if="notice.type === 1">
                 <v-img :src="notice.avatar"></v-img>
               </v-list-item-avatar>
               <v-list-item-content>
@@ -48,7 +48,7 @@
         </v-list>
       </v-menu>
 
-      <v-menu bottom min-width="170" rounded class="ma-6" offset-y>
+      <v-menu bottom min-width="200" rounded class="ma-6" offset-y>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" class="ma-8">
             <v-avatar size="44">
@@ -59,10 +59,10 @@
         <v-card>
           <v-list-item-content class="justify-center">
             <div class="mx-auto text-center">
-              <v-avatar>
+              <v-avatar size="80">
                 <v-img :src="user.avatar"></v-img>
               </v-avatar>
-              <h3>{{ user.userName }}</h3>
+              <h3 class="mt-2">{{ user.userName }}</h3>
               <p class="text-caption mt-1">
                 {{ user.email }}
               </p>
@@ -232,9 +232,10 @@ export default {
   },
   methods: {
     darkMode() {
-      window.localStorage.dark = window.localStorage.dark === 'true' ? '' : 'true'
-      this.$vuetify.theme.dark = window.localStorage.dark
+      localStorage.dark = localStorage.dark === 'true' ? '' : 'true'
+      this.$vuetify.theme.dark = localStorage.dark
     },
+
     jumpToNoti() {
       alert("~~~")
     },
@@ -260,7 +261,7 @@ export default {
 
     getUserAvatar().then(res => {
       if (res.status === 200) {
-        let url = window.URL.createObjectURL(res.data)
+        let url = URL.createObjectURL(res.data)
         this.user.avatar = url
       }
       else if (res.status === 204) {

@@ -3,6 +3,10 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import '@mdi/font/css/materialdesignicons.css'
 
+import themes from './themes'
+import store from '../store'
+
+
 Vue.use(Vuetify)
 
 
@@ -11,7 +15,7 @@ export default new Vuetify({
     iconfont: 'mdi'
   },
   theme: {
-    dark: false,
+    dark: store.state.autoDark ? matchMedia("(prefers-color-scheme: dark)").matches : store.state.dark,
     default: 'light',
     disable: false,
     options: {
@@ -20,25 +24,6 @@ export default new Vuetify({
       minifyTheme: undefined,
       themeCache: undefined,
     },
-    themes: {
-      light: {
-        primary: '#3399CC',
-        secondary: '#99C0FF',
-        accent: '#009999',
-        error: '#FF5252',
-        success: '#4CAF50',
-        warning: '#FB8C00',
-        strong: '#212121'
-      },
-      dark: {
-        primary: '#66CCFF',
-        secondary: '#99CCFF',
-        accent: '#009999',
-        error: '#FF5252',
-        success: '#4CAF50',
-        warning: '#FB8C00',
-        strong: '#F5F5F5'
-      },
-    }
+    themes: themes[store.state.currentTheme]
   }
 })

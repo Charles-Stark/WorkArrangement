@@ -1,47 +1,35 @@
 <template>
   <v-app id="inspire">
-    <!-- <testAvatar></testAvatar> -->
     <router-view></router-view>
   </v-app>
 </template>
 
 <script>
-import themes from './store/themes'
-import testAvatar from './components/testAvatar.vue';
+import { adminRoutes, managerRoutes, employeeRoutes } from './router'
+import { getUserInfo } from './request/api'
+
 
 export default {
   name: 'App',
-  components: { testAvatar },
   created() {
-    for (var theme in themes) {
-      if (this.$store.state.currentTheme === theme) {
-        switch (theme) {
-          case 'blue':
-            this.$vuetify.theme.themes = themes.blue;
-            break;
-          case 'green':
-            this.$vuetify.theme.themes = themes.green;
-            break;
-          case 'purple':
-            this.$vuetify.theme.themes = themes.purple;
-            break;
-          case 'orange':
-            this.$vuetify.theme.themes = themes.orange;
-            break;
-          case 'pink':
-            this.$vuetify.theme.themes = themes.pink;
-            break;
+
+    //根据身份生成路由
+    if(localStorage.getItem('token')!==null){
+      getUserInfo().then(res => {
+        if (res.data.data.isManager) {
+          this.$router.addRoute(adminRoutes)
         }
-        break;
-      }
+        else if (res.data.data.isShopManager) {
+          this.$router.addRoute(managerRoutes)
+        }
+        else {
+          this.$router.addRoute(employeeRoutes)
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
     }
-    if (this.$store.state.autoDark === true) {
-      this.$vuetify.theme.dark = window.matchMedia("(prefers-color-scheme: dark)").matches
-      window.localStorage.dark = window.matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : ''
-    }
-    else {
-      this.$vuetify.theme.dark = this.$store.state.dark
-    }
+
     if (this.$vuetify.theme.dark === true) {
       document.body.style.backgroundColor = '#121212'
     }

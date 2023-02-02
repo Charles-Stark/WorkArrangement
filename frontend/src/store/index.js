@@ -13,22 +13,27 @@ const actions = {
 const mutations = {
   dark(state, value) {
     state.dark = value
-    window.localStorage.dark = value ? 'true' : ''
+    localStorage.dark = value ? 'true' : ''
   },
   auto_dark(state, value) {
     state.autoDark = value
-    window.localStorage.autoDark = value ? 'true' : ''
+    localStorage.autoDark = value ? 'true' : ''
   },
   theme(state, value) {
     state.currentTheme = value
-    window.localStorage.theme = value
+    localStorage.theme = value
   },
   setLoginInfo(state, value) {
     localStorage.setItem("token", value.token)
     localStorage.setItem("userId", value.userId)
-    state.token=value.token
+    state.token = value.token
     state.userId = value.userId
   },
+  deleteLoginInfo(state){
+    localStorage.clear();
+    state.token = ''
+    state.userId = ''
+  }
 
 }
 
@@ -36,10 +41,10 @@ const mutations = {
 
 //state用于存储数据
 const state = {
-  dark: window.localStorage.dark === 'true',
-  autoDark: window.localStorage.autoDark === 'true',
-  currentTheme: window.localStorage.theme,
-  token:localStorage.getItem('token'),
+  dark: localStorage.dark === 'true',
+  autoDark: localStorage.autoDark === 'true',
+  currentTheme: localStorage.theme || 'blue',
+  token: localStorage.getItem('token'),
   userId: localStorage.getItem('userId'),
 }
 

@@ -21,11 +21,15 @@ export const getUserAvatar = () => {
 }
 
 //重置密码
-export const pswReset = data => {
+export const pswReset = (email, password, verify) => {
   return request({
     method: 'post',
     url: 'api/user/password/reset',
-    params: data
+    params: {
+      email,
+      password,
+      verify
+    }
   })
 }
 
@@ -41,20 +45,26 @@ export const getOTP = email => {
 }
 
 //验证码登录
-export const otpLogin = data => {
+export const OTPLogin = (email, verify) => {
   return request({
     method: 'post',
     url: 'api/user/login/code',
-    params: data
+    params: {
+      email,
+      verify
+    }
   })
 }
 
 //密码登录
-export const pswLogin = data => {
+export const pswLogin = (email, password) => {
   return request({
     method: 'post',
     url: 'api/user/login/password',
-    params: data
+    params: {
+      email,
+      password
+    }
   })
 }
 
@@ -71,11 +81,16 @@ export const getRegisterOTP = email => {
 }
 
 //注册
-export const register = data => {
+export const register = (email, password, username, verify) => {
   return request({
     method: 'post',
     url: 'api/user/register',
-    params: data
+    params: {
+      email,
+      password,
+      username,
+      verify
+    }
   })
 }
 
@@ -100,12 +115,12 @@ export const updateAvatar = data => {
 }
 
 //修改邮箱
-export const updateEmail = (email,verify) => {
+export const updateEmail = (email, verify) => {
   return request({
     method: 'post',
     url: 'api/user/email/reset',
     params: {
-      id:store.state.userId,
+      id: store.state.userId,
       email,
       verify
     }
@@ -122,3 +137,15 @@ export const getEmailOTP = email => {
     }
   })
 }
+
+//退出登录
+export const logout = () => {
+  return request({
+    method: 'post',
+    url: 'api/user/logout',
+    params: {
+      id: store.state.userId
+    }
+  })
+}
+

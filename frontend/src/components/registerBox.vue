@@ -85,12 +85,7 @@ export default {
     submit() {
       if (this.validate()) {
         this.loading=true
-        register({
-          email: this.email,
-          password: this.password,
-          username: this.name,
-          verify: this.otp
-        }).then(res=>{
+        register(this.email,this.password,this.name,this.otp).then(res=>{
           if(res.data.code===0){
             this.$emit('msg', '注册成功')
             this.$store.commit('setLoginInfo', { token: res.data.data.token, userId: res.data.data.id })

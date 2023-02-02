@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import { getOTP, otpLogin, pswLogin, pswReset } from '../request/api'
+import { getOTP, OTPLogin, pswLogin, pswReset } from '../request/api'
 export default {
 
   data: () => ({
@@ -147,10 +147,7 @@ export default {
     submit() {
       this.loading = true
       if (this.loginMethod === 1) {
-        otpLogin({
-          email: this.email,
-          verify: this.otp,
-        }).then(res => {
+        OTPLogin(this.email,this.otp).then(res => {
           if (res.data.code === 0) {
             this.$emit('msg', '登录成功')
 
@@ -182,10 +179,7 @@ export default {
         }
 
         if (validated) {
-          pswLogin({
-            email: this.email,
-            password: this.password,
-          }).then(res => {
+          pswLogin(this.email,this.password).then(res => {
             if (res.data.code === 0) {
               this.$emit('msg', '登录成功')
 
@@ -257,11 +251,7 @@ export default {
     pswReset() {
       if (this.validate()) {
         this.loading = true
-        pswReset({
-          email: this.email,
-          password: this.resetPsw,
-          verify: this.otp
-        }).then(res => {
+        pswReset(this.email,this.resetPsw,this.otp).then(res => {
           if (res.data.code === 0) {
             this.$emit('msg', '密码修改成功')
             this.$router.go(0)
