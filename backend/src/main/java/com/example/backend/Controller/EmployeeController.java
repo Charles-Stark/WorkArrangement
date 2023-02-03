@@ -13,10 +13,17 @@ public class EmployeeController {
     EmployeeService employeeService;
 
     @PostMapping("/add")
-    public ResultVO<Object> addEmployee(@RequestParam("email") String email, @RequestParam("username") String username,
-                                        @RequestParam("uid") String uid, @RequestParam("position") String position,
-                                        @RequestParam("shop") Long shop) {
-        return employeeService.addEmployee(email, username, uid, position, shop);
+    public ResultVO<Object> addEmployee(@RequestParam("email") String email,
+                                        @RequestParam("username") String username,
+                                        @RequestParam("uid") String uid,
+                                        @RequestParam("position") String position,
+                                        @RequestParam("shop") Long shop,
+                                        @RequestParam("salary") Double salary,
+                                        @RequestParam(value = "workingDay", required = false) String workingDay,
+                                        @RequestParam(value = "workingHours", required = false) String workingHours,
+                                        @RequestParam(value = "durationOfShift", required = false) Integer durationOfShift,
+                                        @RequestParam(value = "durationOfWeek", required = false) Integer durationOfWeek) {
+        return employeeService.addEmployee(email, username, uid, position, shop, salary, workingDay, workingHours, durationOfShift, durationOfWeek);
     }
 
     @PostMapping("/delete")
@@ -41,7 +48,6 @@ public class EmployeeController {
 
     @PostMapping("/update")
     public ResultVO<Object> updateEmployee(@RequestParam("id") Long id) {
-        // TODO update employee
         return employeeService.updateEmployee(id);
     }
 

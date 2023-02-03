@@ -5,6 +5,7 @@ import com.example.backend.POJO.Preference;
 import com.example.backend.POJO.Shop;
 import com.example.backend.POJO.User;
 import com.example.backend.Service.EmployeeService;
+import com.example.backend.Utils.HashUtil;
 import com.example.backend.VO.EmployeeVO;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.EmployeeMapper;
@@ -35,23 +36,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     private ShopMapper shopMapper;
 
     @Override
-    public ResultVO<Object> addEmployee(String email, String username, String uid, String position, Long shop) {
+    public ResultVO<Object> addEmployee(String email, String username, String uid, String position, Long shop, Double salary, String workingDay, String workingHours, Integer durationOfShift, Integer durationOfWeek) {
 
-        Map<String, Object> searchingMap = new HashMap<>();
-        searchingMap.put("shop", shop);
-        String numberOfEmployee;
-
-        User user = new User(null, email, email.split("@")[0] + "123456", username, null, null, false);
+        User user = new User(null, email, HashUtil.getSHA256(email.split("@")[0] + "123456"), username, null, null, false);
         try {
             userMapper.insert(user);
-            numberOfEmployee = String.valueOf(employeeMapper.selectByMap(searchingMap).size() + 1);
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加员工失败", null);
         }
 
-        // TODO: Generate UID in a better way
-        Employee employee = new Employee(user.getId(), shop.toString() + numberOfEmployee, position, shop, 0D, 0);
-        Preference preference = new Preference(user.getId(), null, null, null, null);
+        Employee employee = new Employee(user.getId(), uid, position, shop, salary, 0);
+        Preference preference = new Preference(user.getId(), workingDay, workingHours, durationOfShift, durationOfWeek);
         try {
             employeeMapper.insert(employee);
             preferenceMapper.insert(preference);

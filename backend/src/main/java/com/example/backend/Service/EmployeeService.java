@@ -4,7 +4,7 @@ import com.example.backend.VO.ResultVO;
 
 public interface EmployeeService {
 
-    ResultVO<Object> addEmployee(String email, String username, String uid, String position, Long shop);
+    ResultVO<Object> addEmployee(String email, String username, String uid, String position, Long shop, Double salary, String workingDay, String workingHours, Integer durationOfShift, Integer durationOfWeek);
 
     ResultVO<Object> deleteEmployee(Long id);
 
