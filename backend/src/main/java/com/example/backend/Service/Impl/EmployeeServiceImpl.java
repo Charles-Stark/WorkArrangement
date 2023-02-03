@@ -51,6 +51,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeeMapper.insert(employee);
             preferenceMapper.insert(preference);
         } catch (Exception e) {
+            employeeMapper.deleteById(user.getId());
+            preferenceMapper.deleteById(user.getId());
             return new ResultVO<>(-1, "添加员工失败", null);
         }
 
