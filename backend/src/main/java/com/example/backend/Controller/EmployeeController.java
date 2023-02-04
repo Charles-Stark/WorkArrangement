@@ -46,8 +46,13 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
-    public ResultVO<Object> updateEmployee(@RequestParam("id") Long id) {
-        return employeeService.updateEmployee(id);
+    public ResultVO<Object> updateEmployee(@RequestParam("id") Long id,
+                                           @RequestParam(value = "uid", required = false) String uid,
+                                           @RequestParam(value = "position", required = false) String position,
+                                           @RequestParam(value = "shop", required = false) Long shop,
+                                           @RequestParam(value = "salary", required = false) Double salary,
+                                           @RequestParam(value = "time", required = false) Integer time) {
+        return employeeService.updateEmployee(id, uid, position, shop, salary, time);
     }
 
 }

@@ -279,11 +279,24 @@ managerId: Long 管理员id
 
 POST请求 /api/employee/update
 ```yaml
-managerId: Long 管理员id
+id: Long （必填）员工id
+uid: String （可选）员工工号
+position: String （可选）员工职位，可选值：门店经理，副经理，小组长，收银，导购，库房
+shop: Long （可选）所属门店id
+salary: Double （可选）薪资
+time: Integer （可选）工作时长
 ```
 ```json
-
+{
+  "code": 0,
+  "message": "更新员工成功",
+  "data": null
+}
 ```
 ```json
-
+{
+  "code": 0,
+  "message": "更新员工失败",
+  "data": null
+}
 ```

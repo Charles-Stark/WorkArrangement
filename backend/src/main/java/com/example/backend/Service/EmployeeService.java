@@ -8,7 +8,7 @@ public interface EmployeeService {
 
     ResultVO<Object> deleteEmployee(Long id);
 
-    ResultVO<Object> updateEmployee(Long id);
+    ResultVO<Object> updateEmployee(Long id, String uid, String position, Long shop, Double salary, Integer time);
 
     ResultVO<Object> getEmployee(Long id);
 

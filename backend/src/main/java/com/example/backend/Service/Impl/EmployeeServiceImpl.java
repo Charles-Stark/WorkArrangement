@@ -80,9 +80,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public ResultVO<Object> updateEmployee(Long id) {
-        // TODO update employee
-        return null;
+    public ResultVO<Object> updateEmployee(Long id, String uid, String position, Long shop, Double salary, Integer time) {
+
+        // TODO update schedule
+
+        Employee employee = new Employee(id, uid, position, shop, salary, time);
+        try {
+            employeeMapper.updateById(employee);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "更新员工失败", null);
+        }
+        return new ResultVO<>(0, "更新员工成功", null);
     }
 
     @Override
