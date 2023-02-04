@@ -42,7 +42,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         User user = new User(null, email, HashUtil.getSHA256(email.split("@")[0] + "123456"), username, null, null, false);
         try {
-            uid = uid.substring(uid.length() - 3) + (getEmployeeNumberByShop(shop) + 1);
+            uid = uid.substring(uid.length() - 3) + String.format("%04d", getEmployeeNumberByShop(shop) + 1);
 
             userMapper.insert(user);
         } catch (Exception e) {
