@@ -36,10 +36,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     private ShopMapper shopMapper;
 
     @Override
-    public ResultVO<Object> addEmployee(String email, String username, String uid, String position, Long shop, Double salary, String workingDay, String workingHours, Integer durationOfShift, Integer durationOfWeek) {
+    public ResultVO<Object> addEmployee(String email, String username, String position, Long shop, Double salary, String workingDay, String workingHours, Integer durationOfShift, Integer durationOfWeek) {
+
+        String uid = String.format("%03d", shop);
 
         User user = new User(null, email, HashUtil.getSHA256(email.split("@")[0] + "123456"), username, null, null, false);
         try {
+            uid = uid.substring(uid.length() - 3) + (getEmployeeNumberByShop(shop) + 1);
+
             userMapper.insert(user);
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加员工失败", null);
@@ -51,6 +55,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeeMapper.insert(employee);
             preferenceMapper.insert(preference);
         } catch (Exception e) {
+            userMapper.deleteById(user.getId());
             employeeMapper.deleteById(user.getId());
             preferenceMapper.deleteById(user.getId());
             return new ResultVO<>(-1, "添加员工失败", null);
@@ -125,6 +130,12 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeeVOs.add(new EmployeeVO(userMapper.selectById(employee.getId()), employee, preferenceMapper.selectById(employee.getId())));
         }
         return employeeVOs;
+    }
+
+    private int getEmployeeNumberByShop(Long shop) {
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shop", shop);
+        return employeeMapper.selectByMap(searchingMap).size();
     }
 
 }

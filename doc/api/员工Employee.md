@@ -11,7 +11,6 @@ POST请求 /api/employee/add
 ```yaml
 email: String 邮箱
 username: String 用户名
-uid: String 工号
 position: String 员工职位，可选值：门店经理，副经理，小组长，收银，导购，库房
 shop: Long 店铺id
 salary: Double 员工薪资

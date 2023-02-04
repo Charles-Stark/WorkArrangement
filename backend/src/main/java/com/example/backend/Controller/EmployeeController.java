@@ -15,7 +15,6 @@ public class EmployeeController {
     @PostMapping("/add")
     public ResultVO<Object> addEmployee(@RequestParam("email") String email,
                                         @RequestParam("username") String username,
-                                        @RequestParam("uid") String uid,
                                         @RequestParam("position") String position,
                                         @RequestParam("shop") Long shop,
                                         @RequestParam("salary") Double salary,
@@ -23,7 +22,7 @@ public class EmployeeController {
                                         @RequestParam(value = "workingHours", required = false) String workingHours,
                                         @RequestParam(value = "durationOfShift", required = false) Integer durationOfShift,
                                         @RequestParam(value = "durationOfWeek", required = false) Integer durationOfWeek) {
-        return employeeService.addEmployee(email, username, uid, position, shop, salary, workingDay, workingHours, durationOfShift, durationOfWeek);
+        return employeeService.addEmployee(email, username, position, shop, salary, workingDay, workingHours, durationOfShift, durationOfWeek);
     }
 
     @PostMapping("/delete")
