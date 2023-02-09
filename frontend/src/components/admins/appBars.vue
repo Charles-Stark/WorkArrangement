@@ -67,11 +67,11 @@
                 {{ user.email }}
               </p>
               <v-divider class="my-3"></v-divider>
-              <v-btn depressed rounded text>
+              <v-btn depressed rounded text to="/admin/settings">
                 账户设置
               </v-btn>
               <v-divider class="my-3"></v-divider>
-              <v-btn depressed rounded text color="warning">
+              <v-btn depressed rounded text color="warning" @click="logout()">
                 退出登录
               </v-btn>
             </div>
@@ -100,7 +100,7 @@
 
         <v-list-item-group v-model="selectedItem" color="primary" mandatory>
 
-          <v-list-item link to="/controlpanel/dashboard">
+          <v-list-item link to="/admin/dashboard">
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
@@ -115,7 +115,7 @@
           </v-list-item>
 
 
-          <v-list-item to="/controlpanel/absences" link>
+          <v-list-item to="/admin/absences" link>
             <v-list-item-icon>
               <v-icon>mdi-shore</v-icon>
             </v-list-item-icon>
@@ -127,14 +127,14 @@
               <v-list-item-title>信息管理</v-list-item-title>
             </template>
 
-            <v-list-item to="/controlpanel/branches" link>
+            <v-list-item to="/admin/branches" link>
               <v-list-item-icon>
                 <v-icon>mdi-store</v-icon>
               </v-list-item-icon>
               <v-list-item-title>分店信息</v-list-item-title>
             </v-list-item>
 
-            <v-list-item to="/controlpanel/staff" link>
+            <v-list-item to="/admin/staff" link>
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
@@ -142,7 +142,7 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-item to="/controlpanel/settings" link>
+          <v-list-item to="/admin/settings" link>
             <v-list-item-icon>
               <v-icon>mdi-cogs</v-icon>
             </v-list-item-icon>
@@ -176,7 +176,7 @@
 </template>
 
 <script>
-import { getUserAvatar, getUserInfo } from '../../request/api'
+import { getUserAvatar, getUserInfo, logout } from '../../request/user'
 export default {
   data: () => ({
     snackBar: false,
@@ -240,6 +240,21 @@ export default {
       alert("~~~")
     },
 
+    logout() {
+      logout().then(res => {
+        if (res.data.code === 0) {
+          this.$store.commit('deleteLoginInfo')
+          this.getMsg('退出登录成功，正在重定向...')
+          this.$router.push('/')
+        }
+        else {
+          this.getMsg('退出登录失败')
+        }
+      }).catch(
+        this.getMsg('网络错误')
+      )
+    },
+
     getMsg(data) {
       this.snackBarText = data
       this.snackBar = true
@@ -255,8 +270,7 @@ export default {
       }
 
     }).catch(() => {
-      this.snackBar = true
-      this.snackBarText, '网络错误'
+      this.getMsg('网络错误')
     })
 
     getUserAvatar().then(res => {
@@ -268,8 +282,7 @@ export default {
         this.user.avatar = require('../../assets/defaultAvatar.png')
       }
     }).catch(() => {
-      this.snackBar = true
-      this.snackBarText, '网络错误'
+      this.getMsg('网络错误')
     })
   }
 

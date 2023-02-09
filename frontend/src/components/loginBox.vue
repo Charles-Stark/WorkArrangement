@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import { getOTP, OTPLogin, pswLogin, pswReset } from '../request/api'
+import { getOTP, OTPLogin, pswLogin, pswReset } from '../request/user'
 export default {
 
   data: () => ({

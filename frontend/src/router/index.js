@@ -12,9 +12,6 @@ var commonRoutes = [
     component: () => import('../components/testAvatar'),
     meta: {
       title: '慧博云通智能排班',
-
-      //控制是否需要登陆验证
-      requireAuth: false
     }
   },
   {
@@ -22,72 +19,64 @@ var commonRoutes = [
     component: () => import('../components/404Page'),
     meta: {
       title: '404',
-      //控制是否需要登陆验证
-      requireAuth: false
     }
   },
 ]
 
-//管理员身份的路由
+//总管理员身份的路由
 export var adminRoutes = {
-  path: '/controlpanel',
-  redirect: '/controlpanel/dashBoard',
+  path: '/admin',
+  redirect: '/admin/dashBoard',
   component: () => import('../components/admins/appBars'),
   children: [
     {
       path: 'dashboard',
-      component: () => import('../components/admins/view/dashBoard'),
+      component: () => import('../components/admins/dashBoard'),
       meta: {
         title: '概览',
         //控制左侧导航栏选中
         selectedItem: 0,
-        requireAuth: true
       }
     }, {
       path: 'arrange',
-      component: () => import('../components/admins/view/workArrange'),
+      component: () => import('../components/admins/workArrange'),
       meta: {
         title: '智能排班',
         selectedItem: 1,
-        requireAuth: true
       }
     }, {
       path: 'absences',
-      component: () => import('../components/admins/view/absenceArrange'),
+      component: () => import('../components/admins/absenceArrange'),
       meta: {
         title: '请假管理',
         selectedItem: 2,
-        requireAuth: true
       }
     }, {
       path: 'branches',
-      component: () => import('../components/admins/view/branchInfo'),
+      component: () => import('../components/admins/branchInfo'),
       meta: {
         title: '分店信息',
         selectedItem: 5,
-        requireAuth: true
       }
     }, {
       path: 'staff',
-      component: () => import('../components/admins/view/staffInfo'),
+      component: () => import('../components/admins/staffInfo'),
       meta: {
         title: '员工信息',
         selectedItem: 6,
-        requireAuth: true
       }
     }, {
       path: 'settings',
-      component: () => import('../components/admins/view/settingPage'),
+      component: () => import('../components/admins/settingPage'),
       meta: {
         title: '用户设置',
         selectedItem: 4,
-        requireAuth: true
       }
     },
   ]
 }
 
-//经理身份的路由
+//门店管理员身份的路由
 export var managerRoutes = {}
 
 //普通员工身份的路由
@@ -106,21 +95,14 @@ router.beforeEach((to, from, next) => {
   if (to.meta.title) {
     document.title = to.meta.title || '慧博云通'
   }
-
   next()
-
 })
 
 //全局后置路由守卫
 router.afterEach((to, from) => {
-  if (to.matched.length === 0) {
+  if (!localStorage.token && to.matched.length === 0) {
     router.push('/404')
   }
-  else if(from.meta.requireAuth && !localStorage.token) {
-    router.push('/')
-  }
-
-
 })
 
 export default router

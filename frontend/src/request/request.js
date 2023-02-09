@@ -1,5 +1,5 @@
 import axios from 'axios'
-
+import router from '../router'
 const instance = axios.create({
   baseURL: 'http://localhost:8080',
   timeout: 4000
@@ -21,6 +21,9 @@ instance.interceptors.request.use(config => {
 
 //拦截器 响应拦截
 instance.interceptors.request.use(res => {
+  if (res.status === 403) {
+    router.push('/')
+  }
   return res
 }, err => {
   return Promise.reject(err)

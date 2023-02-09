@@ -341,7 +341,7 @@
       </v-expansion-panel>
 
       <v-expansion-panel>
-        <v-btn v-bind="attrs" v-on="on" block height="50" color="warning" text @click="logout()">
+        <v-btn block height="50" color="warning" text @click="logout()">
           退出登录
         </v-btn>
       </v-expansion-panel>
@@ -354,8 +354,8 @@
 </template>
 
 <script>
-import themes from '../../../plugins/themes'
-import { getUserAvatar, getUserInfo, pswReset, getOTP, OTPLogin, updateName, updateAvatar, updateEmail, getEmailOTP, logout } from '../../../request/api'
+import themes from '../../plugins/themes'
+import { getUserAvatar, getUserInfo, pswReset, getOTP, OTPLogin, updateName, updateAvatar, updateEmail, getEmailOTP, logout } from '../../request/user'
 
 export default {
   data: () => ({
@@ -640,7 +640,7 @@ export default {
         this.user.avatar = url
       }
       else if (res.status === 204) {
-        this.user.avatar = require('../../../assets/defaultAvatar.png')
+        this.user.avatar = require('../../assets/defaultAvatar.png')
       }
     }).catch(() => {
       this.$emit('msg', '网络错误')

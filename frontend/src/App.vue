@@ -6,7 +6,7 @@
 
 <script>
 import { adminRoutes, managerRoutes, employeeRoutes } from './router'
-import { getUserInfo } from './request/api'
+import { getUserInfo } from './request/user'
 
 
 export default {
@@ -14,19 +14,26 @@ export default {
   created() {
 
     //根据身份生成路由
-    if(localStorage.getItem('token')!==null){
+    if (localStorage.getItem('token')) {
+      var blank = {
+        path: '*',
+        redirect: '/404'
+      }
       getUserInfo().then(res => {
         if (res.data.data.isManager) {
           this.$router.addRoute(adminRoutes)
+          this.$router.addRoute(blank)
         }
         else if (res.data.data.isShopManager) {
           this.$router.addRoute(managerRoutes)
+          this.$router.addRoute(blank)
         }
         else {
           this.$router.addRoute(employeeRoutes)
+          this.$router.addRoute(blank)
         }
-      }).catch((err) => {
-        console.log(err)
+      }).catch(() => {
+        console.log('网络错误')
       })
     }
 
