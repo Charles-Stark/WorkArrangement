@@ -80,11 +80,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public ResultVO<Object> updateEmployee(Long id, String position, Long shop, Double salary, Integer time) {
+    public ResultVO<Object> updateEmployee(Long id, String position, Long shop, Double salary) {
 
         // TODO update schedule
 
-        Employee employee = new Employee(id, null, position, shop, salary, time);
+        Employee employee = new Employee(id, null, position, shop, salary, null);
         try {
             employeeMapper.updateById(employee);
         } catch (Exception e) {
