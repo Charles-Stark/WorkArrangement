@@ -97,10 +97,10 @@
           </v-row>
 
           <v-row v-for="(item, index) in props.items" :key="item.uid">
-            <v-col cols=" 3">
-            <v-list-item-content>
-              {{ item.uid }}
-            </v-list-item-content>
+            <v-col cols="3">
+              <v-list-item-content>
+                {{ item.uid }}
+              </v-list-item-content>
             </v-col>
             <v-col cols="3">
               <v-list-item-content>
@@ -168,7 +168,6 @@
                 </v-card>
               </v-dialog>
 
-
               <v-dialog max-width="470" v-model="item.dialog2">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn outlined color="error lighten-1" v-bind="attrs" v-on="on" class="mt-1 mx-1"
@@ -204,7 +203,7 @@
 
         <v-row v-else>
           <v-col cols="12" v-for="index of 6" :key="index">
-            <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line"></v-skeleton-loader>
+            <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line,divider"></v-skeleton-loader>
           </v-col>
         </v-row>
 
@@ -305,7 +304,11 @@ export default {
           salary: this.newEmployee.salary,
         }).then(res => {
           if (res.data.code === 0) {
+            this.$emit('msg', '添加成功')
             this.$router.go(0)
+          }
+          if(res.data.code===-1){
+            this.$emit('msg', '邮箱重复')
           }
         }).catch(() => {
           this.$emit('msg', '网络错误')
@@ -341,7 +344,7 @@ export default {
     getStaff(shopId) {
       getEmployee(shopId).then(res => {
         this.items = res.data.data
-        this.ready=true
+        this.ready = true
       }).catch(() => {
         this.$emit('msg', '网络错误')
       })
