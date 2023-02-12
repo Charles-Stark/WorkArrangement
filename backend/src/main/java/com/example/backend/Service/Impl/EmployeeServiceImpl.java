@@ -15,10 +15,7 @@ import com.example.backend.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -35,21 +32,33 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private ShopMapper shopMapper;
 
+    private static final String[] CHARS_FOR_GENERATING_UID = new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i",
+            "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3",
+            "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+            "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+
+    private String generateEmployeeUID() {
+        StringBuilder uidBuffer = new StringBuilder();
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+
+        for (int i = 0; i < 8; i++) {
+            uidBuffer.append(CHARS_FOR_GENERATING_UID[Integer.parseInt(uuid.substring(i * 4, i * 4 + 4), 16) % 0x3E]);
+        }
+
+        return uidBuffer.toString().toUpperCase();
+    }
+
     @Override
     public ResultVO<Object> addEmployee(String email, String username, String position, Long shop, Double salary, String workingDay, String workingHours, Integer durationOfShift, Integer durationOfWeek) {
 
-        String uid = String.format("%03d", shop);
-
         User user = new User(null, email, HashUtil.getSHA256(email.split("@")[0] + "123456"), username, null, null, false);
         try {
-            uid = uid.substring(uid.length() - 3) + String.format("%04d", getEmployeeNumberByShop(shop) + 1);
-
             userMapper.insert(user);
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加员工失败", null);
         }
 
-        Employee employee = new Employee(user.getId(), uid, position, shop, salary, 0);
+        Employee employee = new Employee(user.getId(), generateEmployeeUID(), position, shop, salary, 0);
         Preference preference = new Preference(user.getId(), workingDay, workingHours, durationOfShift, durationOfWeek);
         try {
             employeeMapper.insert(employee);
