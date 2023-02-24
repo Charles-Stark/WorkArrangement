@@ -12,13 +12,14 @@ export const getUserInfo = () => {
 }
 
 //获取用户头像
-export const getUserAvatar = () => {
+export const getUserAvatar = userId => {
   return request({
     method: 'get',
-    url: `/api/user/photo/get/${store.state.userId}`,
+    url: `/api/user/photo/get/${userId}`,
     responseType: 'blob'
   })
 }
+
 
 //重置密码
 export const pswReset = (email, password, verify) => {

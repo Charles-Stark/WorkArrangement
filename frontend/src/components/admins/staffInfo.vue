@@ -1,13 +1,12 @@
 <template>
   <div>
 
-    <v-data-iterator :items="items" :search="search" :page.sync="page" hide-default-footer no-results-text="没有搜索结果"
+    <v-data-iterator :items="items" :search="search" :page.sync="page" hide-default-footer no-results-text="没有搜索结果" :sort-by="keys[sortBy]" :sort-desc="sortDesc"
       no-data-text="没有数据">
       <template v-slot:header>
-        <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
+        <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
-          <v-dialog v-model="dialog1" persistent max-width="600"
-            :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
+          <v-dialog v-model="dialog1" persistent max-width="600" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
             <template v-slot:activator="{ on, attrs }">
               <v-btn large color="secondary" class="mr-5" outlined v-bind="attrs" v-on="on"
                 @click="newEmployee.shop = branches[branch].id">
@@ -36,8 +35,8 @@
                       </v-col>
 
                       <v-col cols="12" sm="6">
-                        <v-text-field label="薪资*" type="number" v-model="newEmployee.salary"
-                          :rules="rules.noneEmptyRules" prepend-icon="mdi-cash" required></v-text-field>
+                        <v-text-field label="薪资*" type="number" v-model="newEmployee.salary" :rules="rules.noneEmptyRules"
+                          prepend-icon="mdi-cash" required></v-text-field>
                       </v-col>
 
                       <v-col cols="12" sm="6">
@@ -72,7 +71,29 @@
           <template>
             <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
               label="搜索"></v-text-field>
+            <v-spacer></v-spacer>
+
+            <template v-if="$vuetify.breakpoint.mdAndUp">
+              <v-select v-model="sortBy" clearable flat solo-inverted hide-details :items="Object.keys(keys)"
+                prepend-inner-icon="mdi-magnify" label="排序"></v-select>
+            </template>
+
+            <v-spacer></v-spacer>
+
+            <template v-if="$vuetify.breakpoint.mdAndUp">
+              <v-btn-toggle v-model="sortDesc" mandatory>
+                <v-btn large depressed color="secondary" :value="false" :disabled="!sortBy">
+                  <v-icon>mdi-arrow-up</v-icon>
+                </v-btn>
+                <v-btn large depressed color="secondary" :value="true" :disabled="!sortBy">
+                  <v-icon>mdi-arrow-down</v-icon>
+                </v-btn>
+              </v-btn-toggle>
+            </template>
+
           </template>
+
+
 
 
         </v-toolbar>
@@ -215,8 +236,6 @@
 
     </v-data-iterator>
   </div>
-
-
 </template>
 
 <script>
@@ -230,6 +249,12 @@ export default {
       branch: 0,
       dialog1: false,
       ready: false,
+      sortBy: null,
+      keys: {
+        '工号':'id',
+        '姓名':'username',
+      },
+      sortDesc:true,
 
       items: [{}],
       branches: [],
@@ -307,7 +332,7 @@ export default {
             this.$emit('msg', '添加成功')
             this.$router.go(0)
           }
-          if(res.data.code===-1){
+          if (res.data.code === -1) {
             this.$emit('msg', '邮箱重复')
           }
         }).catch(() => {

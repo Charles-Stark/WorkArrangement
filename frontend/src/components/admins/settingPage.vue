@@ -559,6 +559,7 @@ export default {
     changeTheme(color) {
       this.$vuetify.theme.themes = color.theme
       this.$store.commit('theme', color.type)
+      this.$router.go(0)
     },
     darkMode() {
       this.dark = !this.dark
@@ -601,6 +602,7 @@ export default {
           this.$store.commit('deleteLoginInfo')
           this.$emit('msg', '退出登录成功，正在重定向...')
           this.$router.push('/')
+          this.$router.go(0)
         }
         else{
           this.$emit('msg', '退出登录失败')
@@ -634,7 +636,7 @@ export default {
       this.$emit('msg', '网络错误')
     })
 
-    getUserAvatar().then(res => {
+    getUserAvatar(this.$store.state.userId).then(res => {
       if (res.status === 200) {
         let url = URL.createObjectURL(res.data)
         this.user.avatar = url

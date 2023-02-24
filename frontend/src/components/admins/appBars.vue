@@ -246,6 +246,7 @@ export default {
           this.$store.commit('deleteLoginInfo')
           this.getMsg('退出登录成功，正在重定向...')
           this.$router.push('/')
+          this.$router.go(0)
         }
         else {
           this.getMsg('退出登录失败')
@@ -273,7 +274,7 @@ export default {
       this.getMsg('网络错误')
     })
 
-    getUserAvatar().then(res => {
+    getUserAvatar(this.$store.state.userId).then(res => {
       if (res.status === 200) {
         let url = URL.createObjectURL(res.data)
         this.user.avatar = url

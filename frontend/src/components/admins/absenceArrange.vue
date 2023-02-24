@@ -2,7 +2,7 @@
   <v-data-iterator :items="filteredItems" :page.sync="page" :search="search" :sort-by="keys[sortBy]"
     :sort-desc="sortDesc" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
-      <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
+      <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
         <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
           label="搜索"></v-text-field>
         <template v-if="$vuetify.breakpoint.mdAndUp">
@@ -15,10 +15,10 @@
         <v-btn v-else class="mx-3" large color="secondary" depressed @click="checkUnread()">全部显示</v-btn>
         <template v-if="$vuetify.breakpoint.mdAndUp">
           <v-btn-toggle v-model="sortDesc" mandatory>
-            <v-btn large depressed color="secondary" :value="false">
+            <v-btn large depressed color="secondary" :value="false"  :disabled="!sortBy">
               <v-icon>mdi-arrow-up</v-icon>
             </v-btn>
-            <v-btn large depressed color="secondary" :value="true">
+            <v-btn large depressed color="secondary" :value="true"  :disabled="!sortBy">
               <v-icon>mdi-arrow-down</v-icon>
             </v-btn>
           </v-btn-toggle>
@@ -132,7 +132,7 @@ export default {
       sortDesc: false,
       page: 1,
       itemsPerPage: 10,
-      sortBy: '',
+      sortBy: null,
       keys: {
         '工号': 'id',
         '姓名': 'name'

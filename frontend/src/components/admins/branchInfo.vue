@@ -2,7 +2,7 @@
   <v-data-iterator :items="items" :search="search" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据"
     disable-pagination>
     <template v-slot:header>
-      <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
+      <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
         <v-dialog v-model="dialog1" persistent max-width="550px"
           :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
