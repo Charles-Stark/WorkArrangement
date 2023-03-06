@@ -4,7 +4,7 @@ import com.example.backend.VO.ResultVO;
 
 public interface NotificationService {
 
-    ResultVO<Object> createNotification();
+    Boolean createNotification(int type, String text, long from, long to);
 
     ResultVO<Object> getNotificationList(Long userId);
 

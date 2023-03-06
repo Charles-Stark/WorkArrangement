@@ -18,8 +18,14 @@ public class NotificationImpl implements NotificationService {
     private NotificationMapper notificationMapper;
 
     @Override
-    public ResultVO<Object> createNotification() {
-        return null;
+    public Boolean createNotification(int type, String text, long from, long to) {
+        Notification notification = new Notification(null, false, from, to, type, text, null);
+        try {
+            notificationMapper.insert(notification);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -34,7 +40,11 @@ public class NotificationImpl implements NotificationService {
 
     @Override
     public ResultVO<Object> getNotification(Long id) {
-        return null;
+        try {
+            return new ResultVO<>(0, "获取通知成功", notificationMapper.selectById(id));
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取通知失败", null);
+        }
     }
 
     @Override
