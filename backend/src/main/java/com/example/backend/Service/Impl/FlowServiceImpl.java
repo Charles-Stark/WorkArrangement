@@ -31,7 +31,7 @@ public class FlowServiceImpl implements FlowService {
                 searchingMap.put("date", new Date(timestamp));
                 flows.add(flowMapper.selectByMap(searchingMap).get(0));
                 lastingDays--;
-                timestamp += 86400000;
+                timestamp += 86400000;  // 时间加上一天
             }
             sortFlowsByTimeOrder(flows);
             return new ResultVO<>(0, "获取客流量成功", flows);
