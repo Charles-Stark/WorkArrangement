@@ -4,7 +4,9 @@ import com.example.backend.VO.ResultVO;
 
 public interface NotificationService {
 
-    Boolean createNotification(int type, String text, long from, long to);
+    Boolean notifyWhenNewScheduleCreated(long newScheduleId, long from, long to);
+
+    Boolean notifyWhenScheduleChanged(long changedScheduleId, long from, long to);
 
     ResultVO<Object> getNotificationList(Long userId);
 
