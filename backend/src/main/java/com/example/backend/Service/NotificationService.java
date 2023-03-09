@@ -18,4 +18,6 @@ public interface NotificationService {
 
     ResultVO<Object> setAllNotificationRead(Long userId);
 
+    ResultVO<Object> countUnreadNotification(long userId);
+
 }

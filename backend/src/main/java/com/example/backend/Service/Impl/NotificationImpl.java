@@ -106,4 +106,16 @@ public class NotificationImpl implements NotificationService {
         return new ResultVO<>(0, "消息已读成功", null);
     }
 
+    @Override
+    public ResultVO<Object> countUnreadNotification(long userId) {
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("toUser", userId);
+        searchingMap.put("isRead", false);
+        try {
+            return new ResultVO<>(0, "获取未读消息数量成功", notificationMapper.selectByMap(searchingMap).size());
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取未读消息数量失败", null);
+        }
+    }
+
 }

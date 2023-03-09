@@ -37,4 +37,9 @@ public class NotificationController {
         return notificationService.setAllNotificationRead(id);
     }
 
+    @GetMapping("/unread/count/{id}")
+    public ResultVO<Object> countUnreadNotification(@PathVariable long id) {
+        return notificationService.countUnreadNotification(id);
+    }
+
 }

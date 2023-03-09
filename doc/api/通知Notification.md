@@ -193,3 +193,25 @@ id: long 用户id
   "data": null
 }
 ```
+
+## 获取未读消息数量
+获取未读消息数量。
+
+GET请求 /api/notification/unread/count/{id}
+```yaml
+id: long 用户id
+```
+```json
+{
+  "code": 0,
+  "message": "获取未读消息数量成功",
+  "data": 3
+}
+```
+```json
+{
+  "code": -1,
+  "message": "获取未读消息数量失败",
+  "data": null
+}
+```
