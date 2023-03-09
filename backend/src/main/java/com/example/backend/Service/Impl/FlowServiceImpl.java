@@ -61,7 +61,7 @@ public class FlowServiceImpl implements FlowService {
             for (int j = 0; j < 26; j++) {
                 flowUnits.add(new Flow.FlowUnit(new Date(timestamp),
                         new Date(timestamp + 1800000),
-                        Double.parseDouble(String.format("%.2f", OriginalFlowData.data[i] * (random.nextDouble(0.95, 1.05))))));
+                        Double.parseDouble(String.format("%.2f", OriginalFlowData.data[j] * (random.nextDouble(0.95, 1.05))))));
                 timestamp += 1800000;  // 增加0.5小时
             }
 
