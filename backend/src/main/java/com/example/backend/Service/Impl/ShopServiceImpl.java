@@ -1,12 +1,14 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Shop;
+import com.example.backend.Service.FlowService;
 import com.example.backend.Service.ShopService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +19,16 @@ public class ShopServiceImpl implements ShopService {
     @Autowired
     private ShopMapper shopMapper;
 
+    @Autowired
+    private FlowService flowService;
+
     @Override
     public ResultVO<Object> addShop(String name, String address, double size, long manager) {
 
         Shop shop = new Shop(null, name, address, size, manager);
         try {
             shopMapper.insert(shop);
+            flowService.generateFlow(shop.getId(), new Date(), 30);
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加门店失败", null);
         }
