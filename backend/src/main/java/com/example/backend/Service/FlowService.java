@@ -8,4 +8,6 @@ public interface FlowService {
 
     ResultVO<Object> getFlowByShop(long shopId, Date startDate, int lastingDays);
 
+    void generateFlow(long shopId, Date startDate, int lastingDays);
+
 }
