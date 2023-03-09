@@ -42,10 +42,10 @@
               </v-list-item-content>
 
             </v-list-item>
-
-
           </template>
+          <v-subheader><v-icon>mdi-menu-right</v-icon> <router-link to="/admin/notifications" style="text-decoration:none">进入通知中心查看全部消息</router-link></v-subheader>
         </v-list>
+        
       </v-menu>
 
       <v-menu bottom min-width="200" rounded class="ma-6" offset-y>
@@ -121,6 +121,13 @@
             </v-list-item-icon>
             <v-list-item-title>请假管理</v-list-item-title>
           </v-list-item>
+
+          <v-list-item to="/admin/notifications" link>
+              <v-list-item-icon>
+                <v-icon>{{ noti===0? 'mdi-bell':'mdi-bell-badge' }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>通知中心</v-list-item-title>
+            </v-list-item>
 
           <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand">
             <template v-slot:activator>

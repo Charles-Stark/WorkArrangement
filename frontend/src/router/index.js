@@ -27,7 +27,7 @@ var commonRoutes = [
 export var adminRoutes = {
   path: '/admin',
   redirect: '/admin/dashBoard',
-  component: () => import('../components/admins/appBars'),
+  component: () => import('../components/admins/naviBar'),
   children: [
     {
       path: 'dashboard',
@@ -46,31 +46,38 @@ export var adminRoutes = {
       }
     }, {
       path: 'absences',
-      component: () => import('../components/admins/absenceArrange'),
+      component: () => import('../components/admins/absenceNotis'),
       meta: {
         title: '请假管理',
         selectedItem: 2,
+      }
+    }, {
+      path: 'notifications',
+      component: () => import('../components/admins/notifications'),
+      meta: {
+        title: '通知中心',
+        selectedItem: 3,
       }
     }, {
       path: 'branches',
       component: () => import('../components/admins/branchInfo'),
       meta: {
         title: '分店信息',
-        selectedItem: 5,
+        selectedItem: 4,
       }
     }, {
       path: 'staff',
       component: () => import('../components/admins/staffInfo'),
       meta: {
         title: '员工信息',
-        selectedItem: 6,
+        selectedItem: 5,
       }
     }, {
       path: 'settings',
       component: () => import('../components/admins/settingPage'),
       meta: {
         title: '用户设置',
-        selectedItem: 4,
+        selectedItem: 6,
       }
     },
   ]

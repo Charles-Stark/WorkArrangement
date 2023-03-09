@@ -1,20 +1,26 @@
 <template>
-
   <div>
 
     <v-sheet>
       <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
-        <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted
-          interval-minutes="60" dense flat hide-details style="max-width:140px;min-width:120px"
-          @change="getStaff()"></v-select>
+        <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60"
+          dense flat hide-details style="max-width:140px;min-width:120px" @change="getStaff()"></v-select>
         <v-spacer></v-spacer>
 
         <v-text-field v-model="search" clearable dense flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
           v-if="$vuetify.breakpoint.mdAndUp" class="mx-2" label="姓名/工号"></v-text-field>
         <v-spacer></v-spacer>
-        <v-btn color="primary" class="mr-2" outlined depressed>
-          智能排班
-        </v-btn>
+
+        <v-dialog offset-y width="800" persistent v-model="newArr">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="primary" dark v-bind="attrs" v-on="on" class="mr-2" outlined depressed>
+              智能排班
+            </v-btn>
+          </template>
+          <newArrangement @close="newArr = false" :size="size" :branch=" branch"/>
+
+        </v-dialog>
+
         <v-btn depressed class="mr-2">
           暂存
         </v-btn>
@@ -52,7 +58,7 @@
             <v-card-title class="white--text accent">
               本店员工
               <v-spacer></v-spacer>
-              
+
             </v-card-title>
 
             <v-virtual-scroll :items="filteredStaff" :item-height="63" min-height="650">
@@ -116,8 +122,8 @@
           </v-sheet>
           <v-sheet>
             <v-calendar ref="calendar" v-model="focus" color="primary" :events="events" :event-color="getEventColor"
-              locale="zh-cn" :type="type" @click:event="showEvent" @click:more="viewDay" @click:date="viewDay"
-              event-overlap-mode="column" @change="updateRange">
+              first-interval="6" interval-count="18" locale="zh-cn" :type="type" @click:event="showEvent"
+              @click:more="viewDay" @click:date="viewDay" event-overlap-mode="column" @change="updateRange">
             </v-calendar>
 
             <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
@@ -152,19 +158,22 @@
 
 
   </div>
-
-
 </template>
 
 <script>
 import { getAllShop } from '../../request/shop'
 import { getEmployee } from '../../request/staff'
 import { getUserAvatar } from '../../request/user'
+import newArrangement from './newArrangement.vue'
 
 export default {
+  components: {
+    newArrangement
+  },
   data() {
     return {
       focus: '',
+      newArr: false,
       type: 'month',
       search: '',
       typeToLabel: {
@@ -181,16 +190,16 @@ export default {
 
       branch: ' ',
       branches: [],
-
+      size:null,
       staff: []
     }
   },
   computed: {
-    filteredStaff(){
-      return this.staff.filter(p=>{
-        return p.uid.indexOf(this.search)!==-1||p.username.indexOf(this.search)!==-1
+    filteredStaff() {
+      return this.staff.filter(p => {
+        return p.uid.indexOf(this.search) !== -1 || p.username.indexOf(this.search) !== -1
       })
-    }
+    },
   },
   methods: {
     viewDay({ date }) {
@@ -254,11 +263,17 @@ export default {
       return Math.floor((b - a + 1) * Math.random()) + a
     },
     async getStaff() {
+      for(var b of this.branches){
+        if(b.id===this.branch){
+          
+          this.size=b.size
+        }
+      }
       var staff = await (await getEmployee(this.branch)).data.data
-      for (var s of staff){
+      for (var s of staff) {
         s.avatar = await getUserAvatar(s.id).data || require('../../assets/defaultAvatar.png')
       }
-      this.staff=staff
+      this.staff = staff
     }
   },
   mounted() {

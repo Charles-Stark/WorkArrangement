@@ -30,6 +30,7 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+    date-format: yyyy-MM-dd HH:mm:ss
   servlet:
     multipart:
       max-file-size: -1  # 请求中文件大小不受限

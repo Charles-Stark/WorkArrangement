@@ -46,7 +46,7 @@
               <v-btn color="primary" text @click="dialog1 = false; $refs.addShopForm.reset()">
                 关闭
               </v-btn>
-              <v-btn color="primary" @click="addShop()">
+              <v-btn color="primary" @click="dialog1 = false;addShop()">
                 提交
               </v-btn>
             </v-card-actions>
@@ -158,7 +158,7 @@
                           @click="item.dialog = false; $refs[`editShopForm${index}`][0].reset()">
                           关闭
                         </v-btn>
-                        <v-btn color="primary" @click="editShop(index, item)" large>
+                        <v-btn color="primary" @click="item.dialog = false;editShop(index, item)" large>
                           提交
                         </v-btn>
                       </v-card-actions>

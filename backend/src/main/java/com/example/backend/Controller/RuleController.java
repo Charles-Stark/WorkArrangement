@@ -24,6 +24,7 @@ public class RuleController {
                                     @RequestParam(value = "closingWorkloadPerPersonU", required = false) Double closingWorkloadPerPersonU,
                                     @RequestParam(value = "closingWorkloadPerPersonV", required = false) Double closingWorkloadPerPersonV,
                                     @RequestParam(value = "closingPosition", required = false) String closingPosition) {
+        // TODO add date to scheduling rule
         return ruleService.addRule(shop, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition);
     }
 
