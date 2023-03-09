@@ -29,16 +29,167 @@ type: 3
 text: 
 ```
 
-## 获取消息列表
-管理员添加门店时，发送请求如下。
+## 获取该用户所有消息
+获取该用户所有消息。
 
-POST请求 /api/
+GET请求 /api/notification/all/{id}
 ```yaml
-
+id: long 用户id
 ```
 ```json
-
+{
+  "code": 0,
+  "message": "获取通知成功",
+  "data": [
+    {
+      "id": 3,
+      "isRead": true,
+      "fromUser": 1034,
+      "toUser": 1046,
+      "type": 2,
+      "text": "1986",
+      "createAt": "2023-05-01 15:39:20"
+    },
+    {
+      "id": 2,
+      "isRead": true,
+      "fromUser": 1034,
+      "toUser": 1046,
+      "type": 2,
+      "text": "1986",
+      "createAt": "2023-04-19 15:33:20"
+    },
+    {
+      "id": 1,
+      "isRead": true,
+      "fromUser": 1034,
+      "toUser": 1046,
+      "type": 1,
+      "text": "1896",
+      "createAt": "2023-03-09 15:30:20"
+    }
+  ]
+}
 ```
 ```json
+{
+  "code": -1,
+  "message": "获取通知失败",
+  "data": null
+}
+```
 
+## 获取该用户所有未读消息
+获取该用户所有未读消息。
+
+GET请求 /api/notification/unread/{id}
+```yaml
+id: long 用户id
+```
+```json
+{
+  "code": 0,
+  "message": "获取未读通知成功",
+  "data": [
+    {
+      "id": 5,
+      "isRead": false,
+      "fromUser": 1034,
+      "toUser": 1046,
+      "type": 2,
+      "text": "1986",
+      "createAt": "2023-05-01 15:43:20"
+    },
+    {
+      "id": 3,
+      "isRead": false,
+      "fromUser": 1034,
+      "toUser": 1046,
+      "type": 2,
+      "text": "1986",
+      "createAt": "2023-05-01 15:39:20"
+    }
+  ]
+}
+```
+```json
+{
+  "code": -1,
+  "message": "获取未读通知失败",
+  "data": null
+}
+```
+
+## 获取指定消息
+获取指定消息。
+
+GET请求 /api/notification/{id}
+```yaml
+id: long 消息id
+```
+```json
+{
+  "code": 0,
+  "message": "获取通知成功",
+  "data": {
+    "id": 1,
+    "isRead": true,
+    "fromUser": 1034,
+    "toUser": 1046,
+    "type": 1,
+    "text": "1896",
+    "createAt": "2023-03-09 15:30:20"
+  }
+}
+```
+```json
+{
+  "code": 0,
+  "message": "获取通知失败",
+  "data": null
+}
+```
+
+## 已读指定消息
+将指定消息设为已读。
+
+POST请求 /api/notification/read
+```yaml
+id: long 消息id
+```
+```json
+{
+  "code": 0,
+  "message": "消息已读成功",
+  "data": null
+}
+```
+```json
+{
+  "code": -1,
+  "message": "消息已读失败",
+  "data": null
+}
+```
+
+## 已读全部消息
+将该用户收到的所有消息设为已读。
+
+POST请求 /api/notification/read/all
+```yaml
+id: long 用户id
+```
+```json
+{
+  "code": 0,
+  "message": "消息已读成功",
+  "data": null
+}
+```
+```json
+{
+  "code": -1,
+  "message": "消息已读失败",
+  "data": null
+}
 ```

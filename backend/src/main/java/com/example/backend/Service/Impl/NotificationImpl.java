@@ -39,12 +39,7 @@ public class NotificationImpl implements NotificationService {
     }
 
     private void sortNotificationListByTimeOrder(List<Notification> notifications) {
-        Comparator<Notification> notificationComparator = new Comparator<Notification>() {
-            @Override
-            public int compare(Notification o1, Notification o2) {
-                return o1.getCreateAt().compareTo(o2.getCreateAt());
-            }
-        };
+        Comparator<Notification> notificationComparator = (o1, o2) -> o2.getCreateAt().compareTo(o1.getCreateAt());
         notifications.sort(notificationComparator);
     }
 
