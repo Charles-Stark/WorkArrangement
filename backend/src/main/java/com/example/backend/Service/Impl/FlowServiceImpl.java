@@ -1,7 +1,6 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Flow;
-import com.example.backend.POJO.Notification;
 import com.example.backend.Service.FlowService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.FlowMapper;
