@@ -11,20 +11,22 @@ import { getUserInfo } from './request/user'
 
 export default {
   name: 'App',
-  created() {
+  async created() {
 
     //根据身份生成路由
     if (localStorage.getItem('token')) {
+      var user=(await getUserInfo()).data.data
+      var isManager=user.isManager
+      var isShopManager=user.isShopManager
       var blank = {
         path: '*',
         redirect: '/404'
       }
-      getUserInfo().then(res => {
-        if (res.data.data.isManager) {
+        if (isManager) {
           this.$router.addRoute(adminRoutes)
           this.$router.addRoute(blank)
         }
-        else if (res.data.data.isShopManager) {
+        else if (isShopManager) {
           this.$router.addRoute(managerRoutes)
           this.$router.addRoute(blank)
         }
@@ -32,9 +34,6 @@ export default {
           this.$router.addRoute(employeeRoutes)
           this.$router.addRoute(blank)
         }
-      }).catch(() => {
-        console.log('网络错误')
-      })
     }
 
     if (this.$vuetify.theme.dark === true) {

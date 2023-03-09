@@ -147,7 +147,7 @@ export default {
     submit() {
       this.loading = true
       if (this.loginMethod === 1) {
-        OTPLogin(this.email,this.otp).then(res => {
+        OTPLogin(this.email, this.otp).then(res => {
           if (res.data.code === 0) {
             this.$emit('msg', '登录成功')
 
@@ -179,7 +179,7 @@ export default {
         }
 
         if (validated) {
-          pswLogin(this.email,this.password).then(res => {
+          pswLogin(this.email, this.password).then(res => {
             if (res.data.code === 0) {
               this.$emit('msg', '登录成功')
 
@@ -206,11 +206,13 @@ export default {
       if (this.email !== '') {
         if (/.+@.+/.test(this.email)) {
 
-          this.loading = true
           if (this.counter === 0) {
+            this.loading = true
+
             getOTP(this.email).then(res => {
               if (res.data.code === 0) {
                 this.$emit('msg', '验证码已发送')
+                this.loading = false
                 this.show2 = true;
                 if (this.counter === 0) {
                   this.counter = 60;
@@ -236,7 +238,6 @@ export default {
           }
 
 
-          this.loading = false
         }
         else {
           this.$emit('msg', '邮箱格式错误')
@@ -251,7 +252,7 @@ export default {
     pswReset() {
       if (this.validate()) {
         this.loading = true
-        pswReset(this.email,this.resetPsw,this.otp).then(res => {
+        pswReset(this.email, this.resetPsw, this.otp).then(res => {
           if (res.data.code === 0) {
             this.$emit('msg', '密码修改成功')
             this.$router.go(0)
