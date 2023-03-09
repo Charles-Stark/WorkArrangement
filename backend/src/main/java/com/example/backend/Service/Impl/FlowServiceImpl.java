@@ -1,6 +1,7 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Flow;
+import com.example.backend.POJO.Notification;
 import com.example.backend.Service.FlowService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.FlowMapper;
@@ -15,6 +16,11 @@ public class FlowServiceImpl implements FlowService {
     @Autowired
     private FlowMapper flowMapper;
 
+    private void sortFlowsByTimeOrder(List<Flow> flows) {
+        Comparator<Flow> flowComparator = Comparator.comparing(Flow::getDate);
+        flows.sort(flowComparator);
+    }
+
     @Override
     public ResultVO<Object> getFlowByShop(long shopId, Date startDate, int lastingDays) {
         Map<String, Object> searchingMap = new HashMap<>();
@@ -28,6 +34,7 @@ public class FlowServiceImpl implements FlowService {
                 lastingDays--;
                 timestamp += 86400000;
             }
+            sortFlowsByTimeOrder(flows);
             return new ResultVO<>(0, "获取客流量成功", flows);
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取客流量失败", null);
