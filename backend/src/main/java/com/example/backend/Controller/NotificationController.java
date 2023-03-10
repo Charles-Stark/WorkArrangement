@@ -14,7 +14,12 @@ public class NotificationController {
 
     @GetMapping("/all/{id}")
     public ResultVO<Object> getAllNotification(@PathVariable long id) {
-        return notificationService.getNotificationList(id);
+        return notificationService.getNotificationList(id, -1);
+    }
+
+    @PostMapping("/count")
+    public ResultVO<Object> getCountedNotification(@RequestParam("id") long id, @RequestParam("count") int count) {
+        return notificationService.getNotificationList(id, count);
     }
 
     @GetMapping("/unread/{id}")

@@ -44,12 +44,13 @@ public class NotificationImpl implements NotificationService {
     }
 
     @Override
-    public ResultVO<Object> getNotificationList(Long userId) {
+    public ResultVO<Object> getNotificationList(Long userId, int count) {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("toUser", userId);
         try {
             List<Notification> notifications = notificationMapper.selectByMap(searchingMap);
             sortNotificationListByTimeOrder(notifications);
+            notifications = count > 0 ? notifications.subList(0, count) : notifications;
             return new ResultVO<>(0, "获取通知成功", notifications);
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取通知失败", null);

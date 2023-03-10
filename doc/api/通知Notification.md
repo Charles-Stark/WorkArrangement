@@ -79,6 +79,57 @@ id: long 用户id
 }
 ```
 
+## 获取该用户指定数量的最新消息
+获取该用户指定数量的最新消息。
+
+POST请求 /api/notification/count
+```yaml
+id: long 用户id
+count: int 消息数量
+```
+```json
+{
+  "code": 0,
+  "message": "获取通知成功",
+  "data": [
+    {
+      "id": 3,
+      "isRead": true,
+      "fromUser": 1034,
+      "toUser": 1046,
+      "type": 2,
+      "text": "1986",
+      "createAt": "2023-05-01 15:39:20"
+    },
+    {
+      "id": 2,
+      "isRead": true,
+      "fromUser": 1034,
+      "toUser": 1046,
+      "type": 2,
+      "text": "1986",
+      "createAt": "2023-04-19 15:33:20"
+    },
+    {
+      "id": 1,
+      "isRead": true,
+      "fromUser": 1034,
+      "toUser": 1046,
+      "type": 1,
+      "text": "1896",
+      "createAt": "2023-03-09 15:30:20"
+    }
+  ]
+}
+```
+```json
+{
+  "code": -1,
+  "message": "获取通知失败",
+  "data": null
+}
+```
+
 ## 获取该用户所有未读消息
 获取该用户所有未读消息。
 

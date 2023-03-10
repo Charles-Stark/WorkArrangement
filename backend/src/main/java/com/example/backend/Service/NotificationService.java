@@ -8,7 +8,7 @@ public interface NotificationService {
 
     Boolean notifyWhenScheduleChanged(long changedScheduleId, long from, long to);
 
-    ResultVO<Object> getNotificationList(Long userId);
+    ResultVO<Object> getNotificationList(Long userId, int count);
 
     ResultVO<Object> getUnreadNotificationList(Long userId);
 
