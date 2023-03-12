@@ -38,7 +38,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public ResultVO<Object> deleteShop(long id) {
-
+        // TODO delete employees
         try {
             shopMapper.deleteById(id);
         } catch (Exception e) {
