@@ -44,6 +44,7 @@ public class FlowServiceImpl implements FlowService {
     @Override
     public void generateFlow(long shopId, Date startDate, int lastingDays) {
         Random random = new Random();
+        OriginalFlowData originalFlowData = new OriginalFlowData();
 
         for (int i = 0; i < lastingDays; i++) {
 
