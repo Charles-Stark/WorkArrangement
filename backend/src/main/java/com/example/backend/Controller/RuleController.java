@@ -3,6 +3,7 @@ package com.example.backend.Controller;
 import com.example.backend.Service.RuleService;
 import com.example.backend.VO.ResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -27,7 +28,7 @@ public class RuleController {
                                     @RequestParam(value = "closingWorkloadPerPersonU", required = false) double closingWorkloadPerPersonU,
                                     @RequestParam(value = "closingWorkloadPerPersonV", required = false) double closingWorkloadPerPersonV,
                                     @RequestParam(value = "closingPosition", required = false) String closingPosition,
-                                    @RequestParam("startDate") Date startDate,
+                                    @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
                                     @RequestParam("lastingDays") int lastingDays) {
         return ruleService.addRule(shop, manager, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition, startDate, lastingDays);
     }
