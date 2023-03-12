@@ -5,6 +5,8 @@ import com.example.backend.VO.ResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+
 @RestController
 @RequestMapping("/api/rule")
 public class RuleController {
@@ -13,19 +15,21 @@ public class RuleController {
     private RuleService ruleService;
 
     @PostMapping("/add")
-    public ResultVO<Object> addRule(@RequestParam("shop") Long shop,
-                                    @RequestParam(value = "prepareTime", required = false) Double prepareTime,
-                                    @RequestParam(value = "prepareWorkloadPerPerson", required = false) Double prepareWorkloadPerPerson,
+    public ResultVO<Object> addRule(@RequestParam("shop") long shop,
+                                    @RequestParam("manager") long manager,
+                                    @RequestParam(value = "prepareTime", required = false) double prepareTime,
+                                    @RequestParam(value = "prepareWorkloadPerPerson", required = false) double prepareWorkloadPerPerson,
                                     @RequestParam(value = "preparePosition", required = false) String preparePosition,
-                                    @RequestParam(value = "maxServiceNumber", required = false) Double maxServiceNumber,
+                                    @RequestParam(value = "maxServiceNumber", required = false) double maxServiceNumber,
                                     @RequestParam(value = "servicePosition", required = false) String servicePosition,
-                                    @RequestParam(value = "numberOnDuty", required = false) Integer numberOnDuty,
-                                    @RequestParam(value = "closingTime", required = false) Double closingTime,
-                                    @RequestParam(value = "closingWorkloadPerPersonU", required = false) Double closingWorkloadPerPersonU,
-                                    @RequestParam(value = "closingWorkloadPerPersonV", required = false) Double closingWorkloadPerPersonV,
-                                    @RequestParam(value = "closingPosition", required = false) String closingPosition) {
-        // TODO add date to scheduling rule
-        return ruleService.addRule(shop, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition);
+                                    @RequestParam(value = "numberOnDuty", required = false) int numberOnDuty,
+                                    @RequestParam(value = "closingTime", required = false) double closingTime,
+                                    @RequestParam(value = "closingWorkloadPerPersonU", required = false) double closingWorkloadPerPersonU,
+                                    @RequestParam(value = "closingWorkloadPerPersonV", required = false) double closingWorkloadPerPersonV,
+                                    @RequestParam(value = "closingPosition", required = false) String closingPosition,
+                                    @RequestParam("startDate") Date startDate,
+                                    @RequestParam("lastingDays") int lastingDays) {
+        return ruleService.addRule(shop, manager, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition, startDate, lastingDays);
     }
 
     @PostMapping("/delete")

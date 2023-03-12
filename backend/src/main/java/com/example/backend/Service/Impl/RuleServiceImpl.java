@@ -2,11 +2,13 @@ package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Rule;
 import com.example.backend.Service.RuleService;
+import com.example.backend.Service.ScheduleService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.RuleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,15 +18,23 @@ public class RuleServiceImpl implements RuleService {
     @Autowired
     private RuleMapper ruleMapper;
 
+    @Autowired
+    private ScheduleService scheduleService;
+
     @Override
-    public ResultVO<Object> addRule(Long shop, Double prepareTime, Double prepareWorkloadPerPerson, String preparePosition, Double maxServiceNumber, String servicePosition, Integer numberOnDuty, Double closingTime, Double closingWorkloadPerPersonU, Double closingWorkloadPerPersonV, String closingPosition) {
+    public ResultVO<Object> addRule(Long shop, long manager, Double prepareTime, Double prepareWorkloadPerPerson, String preparePosition, Double maxServiceNumber, String servicePosition, Integer numberOnDuty, Double closingTime, Double closingWorkloadPerPersonU, Double closingWorkloadPerPersonV, String closingPosition, Date startingDate, int lastingDays) {
         Rule rule = new Rule(null, shop, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition);
         try {
             ruleMapper.insert(rule);
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加规则失败", null);
         }
-        return new ResultVO<>(0, "添加规则成功", ruleMapper.selectById(rule.getId()));
+        long scheduleId = scheduleService.createSchedule(shop, manager, rule.getId(), startingDate, new Date(startingDate.getTime() + (lastingDays - 1) * 86400000L));
+        if (scheduleId != -1) {
+            return new ResultVO<>(0, "创建排班成功", scheduleId);
+        } else {
+            return new ResultVO<>(-1, "创建排班失败", null);
+        }
     }
 
     @Override

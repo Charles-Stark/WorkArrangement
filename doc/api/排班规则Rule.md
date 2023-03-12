@@ -1,13 +1,14 @@
 # API - 排班规则相关
 
-## 添加排班规则
-管理员用户在排班前，为门店设置排班规则，这将会在```排班规则Rule数据表```生成一条记录。
+## 添加排班规则并创建排班
+管理员用户在排班<del>前</del>时，为门店设置排班规则，这将会在```排班规则Rule数据表```生成一条记录，同时在```排班Schedule数据表```依此规则新建排班。
 
 请求参数可参考思维导图。
 
 POST请求 /api/rule/add
 ```yaml
-shop: long 门店id 
+shop: long 门店id
+manager: long 管理员id
 prepareTime: double 准备时间
 prepareWorkloadPerPerson: double 人均单位工作量
 preparePosition: string 准备时限制职位
@@ -18,6 +19,8 @@ closingTime: double 收尾时间
 closingWorkloadPerPersonU: double 人均收尾工作量u
 closingWorkloadPerPersonV: double 人均收尾工作量v
 closingPosition: string 收尾时限制职位
+startDate: Date 开始日期 格式：yyyy-MM-dd HH:mm:ss, 例：2023-03-12 00:00:00
+lastingDays: int 排班表持续时间
 ```
 ```json
 {
