@@ -688,7 +688,7 @@ public class Arranger {
                 int halfHourNum=timeStaffNumList.get(i+j).size()*unitNum-unitNum+timeStaffNumList.get(i+j).get(timeStaffNumList.get(i+j).size()-1).workUnits.size();
                 for(int k=0;k<halfHourNum;k++){
                     workUnits[j][k]=new Schedule.WorkUnit();
-                    workUnits[j][k].setBeginTime(timeStaffNumList.get(7*i+j).get(k/unitNum).startTime);
+                    workUnits[j][k].setBeginTime(timeStaffNumList.get(7*i+j).get(k/unitNum).workUnits.get(k%unitNum).beginTime);
                     workUnits[j][k].setEmployees(transBack(timeStaffNumList.get(7*i+j).get(k/unitNum).workUnits.get(k%unitNum).staffs));
                 }
             }

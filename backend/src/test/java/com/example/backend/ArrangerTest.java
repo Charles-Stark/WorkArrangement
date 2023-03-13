@@ -112,7 +112,7 @@ public class ArrangerTest {
         List<Flow> flows=new ArrayList<>();
         flows.add(flow);
         timeStaffNumList.addAll(arranger.arrangeWeek(1l,flows));
-        //arranger.outPut(timeStaffNumList,1,1,1);
+        arranger.outPut(timeStaffNumList,1,1,1);
     }
     @Autowired
     RuleService ruleService;
