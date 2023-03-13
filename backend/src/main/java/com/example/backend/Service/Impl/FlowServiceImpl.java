@@ -8,6 +8,7 @@ import com.example.backend.mapper.FlowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -26,10 +27,12 @@ public class FlowServiceImpl implements FlowService {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("shop", shopId);
         List<Flow> flows = new ArrayList<>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             long timestamp = startDate.getTime();
             while (lastingDays > 0) {
-                searchingMap.put("date", new Date(timestamp));
+                String sDate = simpleDateFormat.format(new Date(timestamp));
+                searchingMap.put("date", simpleDateFormat.parse(sDate));
                 flows.add(flowMapper.selectByMap(searchingMap).get(0));
                 lastingDays--;
                 timestamp += 86400000;  // 时间加上一天
@@ -37,6 +40,7 @@ public class FlowServiceImpl implements FlowService {
             sortFlowsByTimeOrder(flows);
             return new ResultVO<>(0, "获取客流量成功", flows);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResultVO<>(-1, "获取客流量失败", null);
         }
     }

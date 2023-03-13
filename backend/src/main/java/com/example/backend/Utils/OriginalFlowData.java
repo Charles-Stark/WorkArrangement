@@ -5,7 +5,7 @@ public class OriginalFlowData {
     static public double[] data = new double[26];
 
     public OriginalFlowData() {
-        data[0] = 0;
+        data[0] = 0.1;
         data[1] = 0.1;
         data[2] = 1.3;
         data[3] = 5.7;
