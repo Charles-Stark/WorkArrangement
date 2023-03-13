@@ -1,21 +1,27 @@
 package com.example.backend.Service.Impl;
 
-import com.example.backend.POJO.Schedule;
+import com.example.backend.POJO.Flow;
+import com.example.backend.Service.Arranger;
+import com.example.backend.Service.FlowService;
 import com.example.backend.Service.ScheduleService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.ScheduleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private ScheduleMapper scheduleMapper;
+
+    @Autowired
+    private Arranger arranger;
+
+    @Autowired
+    private FlowService flowService;
 
     @Override
     public ResultVO<Object> getScheduleById(long id) {
@@ -38,14 +44,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt) {
-        Schedule schedule = new Schedule(null, shop, manager, null, true, rule, startAt, endAt, null);
+    public long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt, int lastingDays) {
         try {
-            scheduleMapper.insert(schedule);
-
-            // TODO 调用排班算法，排班并存入schedule
-
-            return schedule.getId();
+            // 调用排班算法，排班并存入schedule
+            List<Flow> flows = flowService.getFlowByShop(shop, startAt, lastingDays).getData().subList(0, 1);
+            List<List<Arranger.TimeStaffNum>> timeStaffNumList = new ArrayList<>();
+            timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows));
+            return arranger.outPut(timeStaffNumList, shop, rule, manager);
         } catch (Exception e) {
             return -1;
         }
