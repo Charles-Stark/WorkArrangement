@@ -20,6 +20,8 @@ public class Arranger {
     PreferenceService preferenceService;
     @Autowired
     ScheduleMapper scheduleMapper;
+    @Autowired
+    ScheduleService scheduleService;
     int unitNum=4;//一个为半小时
     double maxServiceNumber=3.8;
     int numberOnDuty=1;
@@ -367,7 +369,7 @@ public class Arranger {
     }
     public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek){
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
-//        rule=(Rule)ruleService.getRuleByShop(shopId).getData();
+        //rule=(Rule)ruleService.getRuleByShop(shopId).getData();
         employeeVoList= (List<EmployeeVO>) employeeService.getEmployeeByShop(shopId).getData();
         employeeList=transTo(employeeVoList);
         if(employeeList==null) return null;
@@ -673,7 +675,7 @@ public class Arranger {
         return timeStaffNumList;
     }
     //将排班信息转格式并存入数据库
-    public void outPut(List<List<TimeStaffNum>> timeStaffNumList,long shopId,long ruleId){
+    public long outPut(List<List<TimeStaffNum>> timeStaffNumList,long shopId,long ruleId,long managerId){
         ArrayList<Schedule.Week> weeks=new ArrayList<>();
         for(int i=0 ;i<(timeStaffNumList.size()-1)/7+1;i++){
             Schedule.Week week=new Schedule.Week();
@@ -693,7 +695,8 @@ public class Arranger {
             week.setData(workUnits);
             weeks.add(week);
         }
-        Schedule schedule=new Schedule(null,shopId, 1L,new Date(),true,ruleId,timeStaffNumList.get(0).get(0).startTime,timeStaffNumList.get(timeStaffNumList.size()-1).get(0).startTime,weeks);
+        Schedule schedule=new Schedule(null,shopId, managerId,new Date(),true,ruleId,timeStaffNumList.get(0).get(0).startTime,timeStaffNumList.get(timeStaffNumList.size()-1).get(0).startTime,weeks);
         scheduleMapper.insert(schedule);
+        return schedule.getId();
     }
 }

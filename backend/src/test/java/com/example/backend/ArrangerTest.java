@@ -1,6 +1,7 @@
 package com.example.backend;
 
 import com.example.backend.POJO.Flow;
+import com.example.backend.POJO.Rule;
 import com.example.backend.POJO.Schedule;
 import com.example.backend.Service.*;
 import com.example.backend.VO.ResultVO;
@@ -41,7 +42,7 @@ public class ArrangerTest {
         List<List<Tool.Flowtest>> flows=new ArrayList<>();
         flows.add(tool.getFlowTest());
         timeStaffNumList.addAll(arranger.arrangeWeekTest(1l,flows));
-        arranger.outPut(timeStaffNumList,1,1);
+        arranger.outPut(timeStaffNumList,1,1,1);
     }
     @Autowired
     EmployeeService employeeService;
@@ -64,6 +65,8 @@ public class ArrangerTest {
     }
     @Autowired
     FlowMapper flowMapper;
+    @Autowired
+    FlowService flowService;
     @Test//flow相关测试
     void test5(){
         //添加Flow
@@ -73,7 +76,6 @@ public class ArrangerTest {
 //        List<Tool.Flowtest> flows=tool.getFlowTest();
 //        int i=flowMapper.insert(tool.getFlow(2022,10,5,1l,1l,flows));
 //        System.out.println(i);
-
         Flow flow=flowMapper.selectById(1l);
         ArrayList<Flow.FlowUnit> flowUnits=flow.getFlowUnits();
         System.out.println(flowUnits.get(1));
@@ -83,15 +85,17 @@ public class ArrangerTest {
         System.out.println(flowUnit.getEndAt());
     }
     @Test
+    //arrangeWeekTest测试
     void test6(){
         List<List<Arranger.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
         timeStaffNumList.addAll(arranger.arrangeWeekTest(1,tool.getMoreFLowTest()));
-        arranger.outPut(timeStaffNumList,1,1);
+        arranger.outPut(timeStaffNumList,1,1,1);
     }
 
     @Autowired
     ScheduleMapper scheduleMapper;
     @Test
+    //schedule相关测试
     void test7(){
         Schedule schedule=scheduleMapper.selectById(1);
         System.out.println(schedule);
@@ -100,15 +104,24 @@ public class ArrangerTest {
         Long employee=workUnit.getEmployees().get(0);
         System.out.println(employee);
     }
-    @Autowired
-    FlowService flowService;
     @Test
+    //arrangeWeek相关测试
     void test8(){
         List<List<Arranger.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
         Flow flow=tool.getFlow(2023,3,13,123l,1l,tool.getFlowTest());
         List<Flow> flows=new ArrayList<>();
         flows.add(flow);
         timeStaffNumList.addAll(arranger.arrangeWeek(1l,flows));
-        //arranger.outPut(timeStaffNumList,1,1);
+        //arranger.outPut(timeStaffNumList,1,1,1);
+    }
+    @Autowired
+    RuleService ruleService;
+    @Test
+    //rule相关测试
+    void test9(){
+        //ruleService.addRule(1l,1l,1d,1d,"abc",8d,"ab",1,1d,1d,1d,"a",new Date(),7);
+        List<Rule> rules=(ArrayList<Rule>)ruleService.getRuleByShop(1l).getData();
+        Rule rule=rules.get(0);
+        System.out.println(rule);
     }
 }
