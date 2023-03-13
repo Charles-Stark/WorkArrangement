@@ -73,19 +73,42 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new ResultVO<>(0, "添加员工成功", new EmployeeVO(user, employee, preference));
     }
 
-    @Override
-    public ResultVO<Object> deleteEmployee(Long id) {
+    private boolean deleteOneEmployee(long id) {
 
-        // TODO update schedule
+        // TODO update or delete schedule
 
         try {
             preferenceMapper.deleteById(id);
             employeeMapper.deleteById(id);
             userMapper.deleteById(id);
         } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public ResultVO<Object> deleteEmployee(Long id) {
+        if (deleteOneEmployee(id)) {
+            return new ResultVO<>(0, "删除员工成功", null);
+        } else {
             return new ResultVO<>(-1, "删除员工失败", null);
         }
-        return new ResultVO<>(0, "删除员工成功", null);
+    }
+
+    @Override
+    public boolean deleteEmployeeByShop(long shopId) {
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shop", shopId);
+        try {
+            List<Employee> employees = employeeMapper.selectByMap(searchingMap);
+            for (Employee employee : employees) {
+                deleteOneEmployee(employee.getId());
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
     @Override

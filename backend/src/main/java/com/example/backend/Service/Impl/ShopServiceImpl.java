@@ -1,6 +1,7 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Shop;
+import com.example.backend.Service.EmployeeService;
 import com.example.backend.Service.FlowService;
 import com.example.backend.Service.ShopService;
 import com.example.backend.VO.ResultVO;
@@ -22,6 +23,9 @@ public class ShopServiceImpl implements ShopService {
     @Autowired
     private FlowService flowService;
 
+    @Autowired
+    private EmployeeService employeeService;
+
     @Override
     public ResultVO<Object> addShop(String name, String address, double size, long manager) {
 
@@ -38,14 +42,15 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public ResultVO<Object> deleteShop(long id) {
-        // TODO delete employees
+        if (!employeeService.deleteEmployeeByShop(id)) {
+            return new ResultVO<>(-1, "删除门店失败", null);
+        }
         try {
             shopMapper.deleteById(id);
         } catch (Exception e) {
             return new ResultVO<>(-1, "删除门店失败", null);
         }
         return new ResultVO<>(0, "删除门店成功", null);
-
     }
 
     @Override
