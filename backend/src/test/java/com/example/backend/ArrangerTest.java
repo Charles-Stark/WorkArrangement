@@ -2,10 +2,7 @@ package com.example.backend;
 
 import com.example.backend.POJO.Flow;
 import com.example.backend.POJO.Schedule;
-import com.example.backend.Service.Arranger;
-import com.example.backend.Service.EmployeeService;
-import com.example.backend.Service.PreferenceService;
-import com.example.backend.Service.Tool;
+import com.example.backend.Service.*;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.FlowMapper;
 import com.example.backend.mapper.ScheduleMapper;
@@ -51,21 +48,11 @@ public class ArrangerTest {
     @Test//employee相关测试
     void test3(){
         ResultVO<Object> resultVO;
-//        resultVO=employeeService.addEmployee("xxx@qq.com","A","1",1l,1d,null,"08:00-10:00,10:00-12:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx1@qq.com","B","1",1l,1d,null,"08:00-10:00,10:00-12:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx2@qq.com","C","1",1l,1d,null,"09:00-12:00,13:00-15:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx3@qq.com","D","1",1l,1d,null,null,null,null);
-//        resultVO=employeeService.addEmployee("xxx4@qq.com","E","1",1l,1d,null,"14:00-18:00,18:00-21:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx5@qq.com","F","1",1l,1d,null,"08:00-11:00,16:00-20:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx6@qq.com","G","1",1l,1d,null,"08:00-13:00,15:00-19:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx7@qq.com","H","1",1l,1d,null,"09:00-13:00,14:00-19:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx8@qq.com","I","1",1l,1d,null,null,null,null);
-//        resultVO=employeeService.addEmployee("xxx9@qq.com","J","1",1l,1d,null,"13:00-18:00,10:00-12:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx10@qq.com","K","1",1l,1d,null,"12:00-15:00,16:00-19:00",null,null);
-//        resultVO=employeeService.addEmployee("xxx11@qq.com","L","1",1l,1d,null,null,null,null);
-        resultVO=employeeService.getEmployeeByShop(1l);
-        System.out.println(resultVO.getMessage());
-        System.out.println(resultVO.getData());
+
+
+//        resultVO=employeeService.getEmployeeByShop(1l);
+//        System.out.println(resultVO.getMessage());
+//        System.out.println(resultVO.getData());
     }
     @Autowired
     PreferenceService preferenceService;
@@ -112,5 +99,16 @@ public class ArrangerTest {
         Schedule.WorkUnit workUnit=week.getData()[0][0];
         Long employee=workUnit.getEmployees().get(0);
         System.out.println(employee);
+    }
+    @Autowired
+    FlowService flowService;
+    @Test
+    void test8(){
+        List<List<Arranger.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
+        Flow flow=tool.getFlow(2023,3,13,123l,1l,tool.getFlowTest());
+        List<Flow> flows=new ArrayList<>();
+        flows.add(flow);
+        timeStaffNumList.addAll(arranger.arrangeWeek(1l,flows));
+        //arranger.outPut(timeStaffNumList,1,1);
     }
 }

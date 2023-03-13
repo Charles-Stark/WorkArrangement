@@ -341,7 +341,7 @@ public class Arranger {
         double max;
         max= flow.getFlowUnits().get(index).getFlow();
         if(index<=flow.getFlowUnits().size()-unitNum){
-            for(int i=index;i<i+unitNum;i++){
+            for(int i=index;i<index+unitNum;i++){
                 if(flow.getFlowUnits().get(i).getFlow()>max) max=flow.getFlowUnits().get(i).getFlow();
             }
         }
@@ -367,7 +367,7 @@ public class Arranger {
     }
     public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek){
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
-        rule=(Rule)ruleService.getRuleByShop(shopId).getData();
+//        rule=(Rule)ruleService.getRuleByShop(shopId).getData();
         employeeVoList= (List<EmployeeVO>) employeeService.getEmployeeByShop(shopId).getData();
         employeeList=transTo(employeeVoList);
         if(employeeList==null) return null;
@@ -402,6 +402,7 @@ public class Arranger {
                 String regEx = "\\d+\\d+:+\\d+\\d+:+\\d+\\d";
                 Pattern p = Pattern.compile(regEx);
                 Matcher m = p.matcher(start);
+                if(!m.find()) System.out.println("not match");
                 start = m.group().substring(0, 5);
                 String end = getEndTime(start);
 
@@ -671,7 +672,7 @@ public class Arranger {
             timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrangeTest(shopId,flows));
         return timeStaffNumList;
     }
-
+    //将排班信息转格式并存入数据库
     public void outPut(List<List<TimeStaffNum>> timeStaffNumList,long shopId,long ruleId){
         ArrayList<Schedule.Week> weeks=new ArrayList<>();
         for(int i=0 ;i<(timeStaffNumList.size()-1)/7+1;i++){
