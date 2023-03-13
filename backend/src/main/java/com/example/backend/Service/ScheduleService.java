@@ -10,6 +10,6 @@ public interface ScheduleService {
 
     ResultVO<Object> getScheduleByShop(long id);
 
-    long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt);
+    long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt, int lastingDays);
 
 }

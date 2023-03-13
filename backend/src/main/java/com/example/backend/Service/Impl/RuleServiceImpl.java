@@ -29,7 +29,7 @@ public class RuleServiceImpl implements RuleService {
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加规则失败", null);
         }
-        long scheduleId = scheduleService.createSchedule(shop, manager, rule.getId(), startingDate, new Date(startingDate.getTime() + (lastingDays - 1) * 86400000L));
+        long scheduleId = scheduleService.createSchedule(shop, manager, rule.getId(), startingDate, new Date(startingDate.getTime() + (lastingDays - 1) * 86400000L), lastingDays);
         if (scheduleId != -1) {
             return new ResultVO<>(0, "创建排班成功", scheduleId);
         } else {
@@ -66,7 +66,8 @@ public class RuleServiceImpl implements RuleService {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("shop", shopId);
         try {
-            return new ResultVO<>(0, "获取排班规则成功", ruleMapper.selectByMap(searchingMap));
+            // TODO which rule to use ???
+            return new ResultVO<>(0, "获取排班规则成功", ruleMapper.selectByMap(searchingMap).get(0));
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取排班规则失败", null);
         }
