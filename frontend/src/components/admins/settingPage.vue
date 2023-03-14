@@ -9,7 +9,7 @@
 
 
               <v-avatar size="80">
-                <img :src="user.avatar">
+                <v-img :src="user.avatar"></v-img>
               </v-avatar>
             </v-col>
 

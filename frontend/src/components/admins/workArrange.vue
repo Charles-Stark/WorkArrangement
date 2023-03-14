@@ -3,7 +3,7 @@
 
     <v-sheet>
       <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
-        <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60"
+        <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60" no-data-text="没有数据"
           dense flat hide-details style="max-width:140px;min-width:120px" @change="getStaff()"></v-select>
         <v-spacer></v-spacer>
 
@@ -11,13 +11,13 @@
           v-if="$vuetify.breakpoint.mdAndUp" class="mx-2" label="姓名/工号"></v-text-field>
         <v-spacer></v-spacer>
 
-        <v-dialog offset-y width="800" persistent v-model="newArr">
+        <v-dialog offset-y width="650" persistent v-model="newArr">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark v-bind="attrs" v-on="on" class="mr-2" outlined depressed>
               智能排班
             </v-btn>
           </template>
-          <newArrangement @close="newArr = false" :size="size" :branch=" branch"/>
+          <newArrangement @close="newArr = false" :size="size" :branch="branch" />
 
         </v-dialog>
 
@@ -190,7 +190,7 @@ export default {
 
       branch: ' ',
       branches: [],
-      size:null,
+      size: null,
       staff: []
     }
   },
@@ -263,10 +263,10 @@ export default {
       return Math.floor((b - a + 1) * Math.random()) + a
     },
     async getStaff() {
-      for(var b of this.branches){
-        if(b.id===this.branch){
-          
-          this.size=b.size
+      for (var b of this.branches) {
+        if (b.id === this.branch) {
+
+          this.size = b.size
         }
       }
       var staff = await (await getEmployee(this.branch)).data.data
@@ -279,11 +279,19 @@ export default {
   mounted() {
     this.$refs.calendar.checkChange()
 
+    
+
     getAllShop().then(res => {
       this.branches = res.data.data
-      this.branch = this.branches[0].id
-      this.getStaff()
-    }).catch(() => {
+      if (this.branches .length!==0) {
+        this.branch = this.branches[0].id
+        this.getStaff()
+      }
+      else {
+        this.$emit('msg', '没有店铺信息')
+      }
+    }).catch((err) => {
+      console.log(err)
       this.$emit('msg', '网络错误')
     })
   }

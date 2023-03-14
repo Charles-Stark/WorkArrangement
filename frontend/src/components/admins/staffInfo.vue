@@ -1,8 +1,8 @@
 <template>
   <div>
 
-    <v-data-iterator :items="items" :search="search" :page.sync="page" hide-default-footer no-results-text="没有搜索结果" :sort-by="keys[sortBy]" :sort-desc="sortDesc"
-      no-data-text="没有数据">
+    <v-data-iterator :items="items" :search="search" :page.sync="page" hide-default-footer no-results-text="没有搜索结果"
+      :sort-by="keys[sortBy]" :sort-desc="sortDesc" no-data-text="没有数据">
       <template v-slot:header>
         <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
@@ -46,7 +46,7 @@
                       </v-col>
 
                       <v-col cols="12" sm="6">
-                        <v-select :items="branches" item-text="name" item-value="id" label="所属分店*"
+                        <v-select :items="branches" item-text="name" item-value="id" label="所属分店*" no-data-text="没有数据"
                           v-model="newEmployee.shop" :rules="rules.noneEmptyRules" prepend-icon="mdi-store"
                           required></v-select>
                       </v-col>
@@ -251,10 +251,10 @@ export default {
       ready: false,
       sortBy: null,
       keys: {
-        '工号':'id',
-        '姓名':'username',
+        '工号': 'id',
+        '姓名': 'username',
       },
-      sortDesc:true,
+      sortDesc: true,
 
       items: [{}],
       branches: [],
@@ -366,6 +366,7 @@ export default {
         this.$emit('msg', '网络错误')
       })
     },
+
     getStaff(shopId) {
       getEmployee(shopId).then(res => {
         this.items = res.data.data
@@ -381,7 +382,15 @@ export default {
     getAllShop().then(res => {
       if (res.data.code === 0) {
         this.branches = res.data.data
-        this.getStaff(this.branches[this.branch].id)
+        if (this.branches.length !== 0) {
+          this.getStaff(this.branches[this.branch].id)
+        }
+        else {
+          this.ready=true,
+          this.items=[]
+          this.$emit('msg', '没有店铺信息')
+        }
+
       }
     }).catch(() => {
       this.$emit('msg', '网络错误')

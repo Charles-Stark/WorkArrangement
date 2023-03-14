@@ -53,7 +53,7 @@ export var adminRoutes = {
       }
     }, {
       path: 'notifications',
-      component: () => import('../components/admins/notifications'),
+      component: () => import('../components/admins/notisCenter'),
       meta: {
         title: '通知中心',
         selectedItem: 3,

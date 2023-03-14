@@ -57,6 +57,20 @@ export const editShopInfo = params => {
   })
 }
 
+//获取门店客流量
+// params:{
+// shop: long 店铺id
+// start: date 数据开始日期 格式：yyyy - MM - dd HH: mm: ss, 例：2023 - 03 - 09 00: 00: 00
+// lasting: int 持续天数
+// }
+export const getFlow = params => {
+  return request({
+    method: 'get',
+    url: `api/flow/shop`,
+    params
+  })
+}
+
 //删除门店
 export const deleteShop = id => {
   return request({

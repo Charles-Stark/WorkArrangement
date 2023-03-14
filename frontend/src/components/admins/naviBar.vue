@@ -1,6 +1,5 @@
 <template>
-  <v-app id="inspire">
-
+  <div>
     <!-- 顶栏 -->
     <v-app-bar app elevation="0" :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
       <v-app-bar-nav-icon @click="miniManual = !miniManual" class="hidden-sm-and-down"></v-app-bar-nav-icon>
@@ -43,9 +42,10 @@
 
             </v-list-item>
           </template>
-          <v-subheader><v-icon>mdi-menu-right</v-icon> <router-link to="/admin/notifications" style="text-decoration:none">进入通知中心查看全部消息</router-link></v-subheader>
+          <v-subheader><v-icon>mdi-menu-right</v-icon> <router-link to="/admin/notifications"
+              style="text-decoration:none">进入通知中心查看全部消息</router-link></v-subheader>
         </v-list>
-        
+
       </v-menu>
 
       <v-menu bottom min-width="200" rounded class="ma-6" offset-y>
@@ -123,11 +123,11 @@
           </v-list-item>
 
           <v-list-item to="/admin/notifications" link>
-              <v-list-item-icon>
-                <v-icon>{{ noti===0? 'mdi-bell':'mdi-bell-badge' }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>通知中心</v-list-item-title>
-            </v-list-item>
+            <v-list-item-icon>
+              <v-icon>{{ noti === 0 ? 'mdi-bell' : 'mdi-bell-badge' }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>通知中心</v-list-item-title>
+          </v-list-item>
 
           <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand">
             <template v-slot:activator>
@@ -178,8 +178,7 @@
         </v-btn>
       </template>
     </v-snackbar>
-
-  </v-app>
+  </div>
 </template>
 
 <script>
