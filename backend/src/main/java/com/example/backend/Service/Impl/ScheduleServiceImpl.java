@@ -54,6 +54,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows));
             return arranger.outPut(timeStaffNumList, shop, rule, manager);
         } catch (Exception e) {
+            e.printStackTrace();
             return -1;
         }
     }

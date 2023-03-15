@@ -87,7 +87,64 @@ export var adminRoutes = {
 export var managerRoutes = {}
 
 //普通员工身份的路由
-export var employeeRoutes = {}
+export var employeeRoutes = {
+  path: '/employee',
+  redirect: '/employee/dashBoard',
+  component: () => import('../components/employee/naviBar'),
+  children: [
+    {
+      path: 'dashboard',
+      component: () => import('../components/employee/dashBoard'),
+      meta: {
+        title: '概览',
+        //控制左侧导航栏选中
+        selectedItem: 0,
+      }
+    }, {
+      path: 'arrange',
+      component: () => import('../components/employee/workArrange'),
+      meta: {
+        title: '智能排班',
+        selectedItem: 1,
+      }
+    }, {
+      path: 'absences',
+      component: () => import('../components/employee/absenceNotis'),
+      meta: {
+        title: '请假管理',
+        selectedItem: 2,
+      }
+    }, {
+      path: 'notifications',
+      component: () => import('../components/employee/notisCenter'),
+      meta: {
+        title: '通知中心',
+        selectedItem: 3,
+      }
+    }, {
+      path: 'branches',
+      component: () => import('../components/employee/branchInfo'),
+      meta: {
+        title: '分店信息',
+        selectedItem: 4,
+      }
+    }, {
+      path: 'staff',
+      component: () => import('../components/employee/staffInfo'),
+      meta: {
+        title: '员工信息',
+        selectedItem: 5,
+      }
+    }, {
+      path: 'settings',
+      component: () => import('../components/employee/settingPage'),
+      meta: {
+        title: '用户设置',
+        selectedItem: 6,
+      }
+    },
+  ]
+}
 
 
 //导出 router
