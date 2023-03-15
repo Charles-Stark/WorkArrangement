@@ -49,6 +49,26 @@ public class ArrangerTest {
     @Test//employee相关测试
     void test3(){
         ResultVO<Object> resultVO;
+        resultVO=employeeService.addEmployee("pNtod@qq.com","pibduMHNNN","1",6l,1d,null,null,7,36);
+        resultVO=employeeService.addEmployee("isvCz@qq.com","OggFeJOILM","1",6l,1d,null,"14:00-18:00,14:00-16:00",7,39);
+        resultVO=employeeService.addEmployee("JFKpL@qq.com","hkiazHHHOO","1",6l,1d,null,"10:00-14:00,09:00-11:00,08:00-12:00",null,null);
+        resultVO=employeeService.addEmployee("gmDqx@qq.com","qNALGHMJML","1",6l,1d,null,"11:00-14:00,09:00-13:00,11:00-13:00",7,40);
+        resultVO=employeeService.addEmployee("gCnPu@qq.com","ppIBvILGOK","1",6l,1d,"6,6,4",null,8,39);
+        resultVO=employeeService.addEmployee("OinEG@qq.com","aBPlxINHLO","1",6l,1d,null,"10:00-12:00,16:00-20:00",6,39);
+        resultVO=employeeService.addEmployee("Oklkw@qq.com","lsCPsMGIGP","1",6l,1d,"7,2,7","14:00-16:00,13:00-15:00,14:00-18:00",null,36);
+        resultVO=employeeService.addEmployee("cMiAe@qq.com","lMKpqHLLGM","1",6l,1d,"3,6,7","15:00-20:00,17:00-20:00",7,36);
+        resultVO=employeeService.addEmployee("oMkfF@qq.com","FeBENHPLNO","1",6l,1d,null,null,5,34);
+        resultVO=employeeService.addEmployee("vrMrO@qq.com","agKcHMKOHJ","1",6l,1d,"4,6,2",null,4,39);
+        resultVO=employeeService.addEmployee("cbweb@qq.com","NCtvIGOMHO","1",6l,1d,"6,3,5","09:00-13:00,16:00-18:00,12:00-14:00",5,35);
+        resultVO=employeeService.addEmployee("BukkL@qq.com","LFrigKKOKP","1",6l,1d,"2,4,1","16:00-21:00,16:00-21:00",5,31);
+        resultVO=employeeService.addEmployee("OrswG@qq.com","ALomEMIOOL","1",6l,1d,null,"16:00-19:00,08:00-10:00,16:00-20:00",4,34);
+        resultVO=employeeService.addEmployee("KEdNG@qq.com","yzJDtINHHJ","1",6l,1d,"4,7,6",null,null,35);
+        resultVO=employeeService.addEmployee("DOvFh@qq.com","MIkvHGGLGH","1",6l,1d,"4,5,7","11:00-14:00",null,30);
+        resultVO=employeeService.addEmployee("BlaCk@qq.com","nkqimNPPHG","1",6l,1d,"5,6,7","13:00-18:00,16:00-20:00,15:00-20:00",5,31);
+        resultVO=employeeService.addEmployee("npkdF@qq.com","bLsGzOOMHP","1",6l,1d,"3,1,4",null,4,40);
+        resultVO=employeeService.addEmployee("ynvda@qq.com","DkeiPPMHNM","1",6l,1d,"3,7,2",null,8,39);
+        resultVO=employeeService.addEmployee("JBNOG@qq.com","yFlnpNLHNH","1",6l,1d,null,null,6,32);
+        resultVO=employeeService.addEmployee("LsOGv@qq.com","MHDxnNPONN","1",6l,1d,null,"08:00-11:00,16:00-19:00,17:00-19:00",8,38);
 
 
 //        resultVO=employeeService.getEmployeeByShop(1l);
@@ -88,8 +108,8 @@ public class ArrangerTest {
     //arrangeWeekTest测试
     void test6(){
         List<List<Arranger.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
-        timeStaffNumList.addAll(arranger.arrangeWeekTest(1,tool.getMoreFLowTest()));
-        arranger.outPut(timeStaffNumList,1,1,1);
+        timeStaffNumList.addAll(arranger.arrangeWeekTest(6,tool.getMoreFLowTest()));
+        arranger.outPut(timeStaffNumList,6,1,1);
     }
 
     @Autowired
@@ -108,11 +128,11 @@ public class ArrangerTest {
     //arrangeWeek相关测试
     void test8(){
         List<List<Arranger.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
-        Flow flow=tool.getFlow(2023,3,13,123l,1l,tool.getFlowTest());
+        Flow flow=tool.getFlow(2023,3,13,123l,6l,tool.getFlowTest());
         List<Flow> flows=new ArrayList<>();
         flows.add(flow);
-        timeStaffNumList.addAll(arranger.arrangeWeek(1l,flows));
-        arranger.outPut(timeStaffNumList,1,1,1);
+        timeStaffNumList.addAll(arranger.arrangeWeek(6l,flows));
+        arranger.outPut(timeStaffNumList,6,1,1);
     }
     @Autowired
     RuleService ruleService;

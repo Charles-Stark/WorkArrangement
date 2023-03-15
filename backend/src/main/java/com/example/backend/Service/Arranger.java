@@ -1,5 +1,6 @@
 package com.example.backend.Service;
 
+import java.sql.Time;
 import java.util.*;
 
 import com.example.backend.POJO.*;
@@ -33,12 +34,29 @@ public class Arranger {
     List<Prefer> preference;
     List<Staff> staffList;
     Rule rule;
+    public void changeRule(Rule rule){
+        if (rule==null) return;
+        if(rule.getPrepareTime()==null) return;
+        this.prepareTime=rule.getPrepareTime();
+        if(rule.getClosingTime()==null) return;
+        this.closingTime=rule.getClosingTime();
+        if(rule.getNumberOnDuty()==null) return;
+        this.numberOnDuty=rule.getNumberOnDuty();
+        if(rule.getMaxServiceNumber()==null) return;
+        this.maxServiceNumber=rule.getMaxServiceNumber();
+    }
     private Staff findStaff(Long id,List<Staff> staffList){
         if(staffList.get(0).getClass()==Staff.class)
             for(Staff s:staffList)
-                if(s.id==id)
+                if(id.equals(s.id))
                     return s;
         return null;
+    }
+    public boolean hasSelected(Staff staff,List<TimeStaffNum> timeStaffNums){
+        for(TimeStaffNum timeStaffNum:timeStaffNums){
+            if(timeStaffNum.contains(staff)) return true;
+        }
+        return false;
     }
     public class TimeStaffNum {     //记录时间段中员工数量
         private int minStaffNum;   // 最少员工数
@@ -315,7 +333,7 @@ public class Arranger {
             return false;
         }
         public boolean mateTime(String start,String end){
-            if(this.workingHours==null) return false;
+            if(this.workingHours==null) return true;
             String regEx=start+"-"+end;
             Pattern pattern = Pattern.compile(regEx);
             for(String a:workingHours){
@@ -367,9 +385,10 @@ public class Arranger {
         if(dayOfWeek<1) dayOfWeek=7;
         return dayOfWeek;
     }
-    public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek){
+    public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek,long ruleId){
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
-        //rule=(Rule)ruleService.getRuleByShop(shopId).getData();
+        rule=(Rule)ruleService.getRule(ruleId).getData();
+        changeRule(rule);
         employeeVoList= (List<EmployeeVO>) employeeService.getEmployeeByShop(shopId).getData();
         employeeList=transTo(employeeVoList);
         if(employeeList==null) return null;
@@ -377,10 +396,11 @@ public class Arranger {
         preference=new Prefer().toPrefer(preferenceList);
         staffList=new Staff().toStaff(employeeList);
         for(Flow flow:flowsOfWeek)
-            timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(shopId,flow));
+            timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
         return timeStaffNumList;
     }
-    public List<TimeStaffNum> newArrange(long shopId,Flow flow){
+    //完全按照所给的客流量排班
+    public List<TimeStaffNum> newArrange(Flow flow){
         int dayOfWeek=getDayOfWeek(flow.getDate());
 
         List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
@@ -392,13 +412,14 @@ public class Arranger {
 
         //准备加入循环
         for(int i=0;i<timeStaffNumList.size();i++) index.add(i);
-        int t=0;
-        while(t<timeStaffNumList.size()) {
+        int t=0,last1=0;
+        while(!timeStaffNumList.get(last1).isFull()) {
             index.sort((a, b) -> {
                 if (timeStaffNumList.get(a).isFull()) return 1;
                 if (timeStaffNumList.get(b).isFull()) return -1;
                 return timeStaffNumList.get(a).minStaffNum - timeStaffNumList.get(b).minStaffNum;
             });
+            if(t==0) last1=index.get(index.size()-1);
             for (Prefer prefer : preference) {
                 String start = timeStaffNumList.get(0).startTime.toString();
                 String regEx = "\\d+\\d+:+\\d+\\d+:+\\d+\\d";
@@ -410,15 +431,20 @@ public class Arranger {
 
                 if (prefer.mateDay(dayOfWeek)&&prefer.mateTime(start, end)){
                     Staff staff=findStaff(prefer.id, staffList);
-                    if(!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
+                    if(staff!=null&&!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
                 }
                 if (timeStaffNumList.get(index.get(0)).isFull()) break;
             }
+            //抓壮丁
             if (!timeStaffNumList.get(index.get(0)).isFull()) {
                 for (Prefer prefer : preference) {
-                    if (prefer.workingHours == null) {
-                        Staff staff=findStaff(prefer.id, staffList);
-                        if(!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
+                    Staff staff=findStaff(prefer.id, staffList);
+                    if (prefer.workingDay==null || prefer.workingDay!=null&&prefer.workingDay.equals(dayOfWeek)) {
+                        if(staff!=null&&!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
+                    }
+                    //强抓壮丁
+                    if(t>7) {
+                        if(staff!=null&&!hasSelected(staff,timeStaffNumList)&&!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
                     }
                     if (timeStaffNumList.get(index.get(0)).isFull()) break;
                 }
@@ -564,7 +590,7 @@ public class Arranger {
 
                 if (prefer.mateTime(start, end)&&prefer.mateDay(dayOfWeek)){
                     Staff staff=findStaff(prefer.id, staffList);
-                    if(!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
+                    if(staff!=null&&!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
                 }
                 if (timeStaffNumList.get(index.get(0)).isFull()) break;
             }
@@ -572,7 +598,7 @@ public class Arranger {
                 for (Prefer prefer : preference) {
                     if (prefer.workingHours == null) {
                         Staff staff=findStaff(prefer.id, staffList);
-                        if(!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
+                        if(staff!=null&&!staff.isTired()) timeStaffNumList.get(index.get(0)).add(staff);
                     }
                     if (timeStaffNumList.get(index.get(0)).isFull()) break;
                 }
