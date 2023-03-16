@@ -2,6 +2,7 @@ package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Absence;
 import com.example.backend.Service.AbsenceService;
+import com.example.backend.Service.NotificationService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.AbsenceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,15 @@ public class AbsenceServiceImpl implements AbsenceService {
     @Autowired
     private AbsenceMapper absenceMapper;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public ResultVO<Object> createAbsence(long employee, long manager, long shop, String reason, Date absenceDate, byte[] attachmentPhoto, String photoType) {
         Absence absence = new Absence(null, employee, manager, shop, reason, attachmentPhoto, photoType, null, absenceDate, null);
         try {
             absenceMapper.insert(absence);
-            // TODO notification
+            notificationService.notifyWhenAbsenceCreated(absence.getId(), employee, manager);
             return new ResultVO<>(0, "申请提交成功", absenceMapper.selectById(absence.getId()));
         } catch (Exception e) {
             return new ResultVO<>(-1, "申请提交失败", null);
@@ -59,7 +63,9 @@ public class AbsenceServiceImpl implements AbsenceService {
         Absence absence = new Absence(id, null, null, null, null, null, null, isApproved, null, null);
         try {
             absenceMapper.updateById(absence);
-            // TODO notification  update schedule
+            absence = absenceMapper.selectById(id);
+            notificationService.notifyWhenAbsenceChecked(id, absence.getManagerId(), absence.getEmployeeId());
+            // TODO update schedule
             return new ResultVO<>(0, "修改成功", null);
         } catch (Exception e) {
             return new ResultVO<>(-1, "修改失败", null);
