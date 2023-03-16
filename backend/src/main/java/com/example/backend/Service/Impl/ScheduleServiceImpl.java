@@ -51,10 +51,9 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 调用排班算法，排班并存入schedule
             List<Flow> flows = flowService.getFlowByShop(shop, startAt, lastingDays).getData().subList(0, 1);
             List<List<Arranger.TimeStaffNum>> timeStaffNumList = new ArrayList<>();
-            timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows));
+            timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows, rule));
             return arranger.outPut(timeStaffNumList, shop, rule, manager);
         } catch (Exception e) {
-            e.printStackTrace();
             return -1;
         }
     }
