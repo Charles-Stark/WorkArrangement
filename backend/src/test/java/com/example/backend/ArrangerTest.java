@@ -36,13 +36,16 @@ public class ArrangerTest {
         System.out.println(calendar.getTime());
         int a=12311;
     }
-    @Test//排班算法测试
+    @Autowired
+    ArrangerNew arrangerNew;
+    @Test
     void test2(){
-        List<List<Arranger.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
-        List<List<Tool.Flowtest>> flows=new ArrayList<>();
-        flows.add(tool.getFlowTest());
-        timeStaffNumList.addAll(arranger.arrangeWeekTest(1l,flows));
-        arranger.outPut(timeStaffNumList,1,1,1);
+        List<List<ArrangerNew.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
+        Flow flow=tool.getFlow(2023,3,13,123l,6l,tool.getFlowTest());
+        List<Flow> flows=new ArrayList<>();
+        flows.add(flow);
+        timeStaffNumList.addAll(arrangerNew.arrangeWeek(6l,flows,12l));
+        //arrangerNew.outPut(timeStaffNumList,6,1,1);
     }
     @Autowired
     EmployeeService employeeService;
@@ -104,14 +107,6 @@ public class ArrangerTest {
         System.out.println(flowUnit.getBeginAt().toString());
         System.out.println(flowUnit.getEndAt());
     }
-    @Test
-    //arrangeWeekTest测试
-    void test6(){
-        List<List<Arranger.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
-        timeStaffNumList.addAll(arranger.arrangeWeekTest(6,tool.getMoreFLowTest()));
-        arranger.outPut(timeStaffNumList,6,1,1);
-    }
-
     @Autowired
     ScheduleMapper scheduleMapper;
     @Test
@@ -131,7 +126,7 @@ public class ArrangerTest {
         Flow flow=tool.getFlow(2023,3,13,123l,6l,tool.getFlowTest());
         List<Flow> flows=new ArrayList<>();
         flows.add(flow);
-        timeStaffNumList.addAll(arranger.arrangeWeek(6l,flows));
+        timeStaffNumList.addAll(arranger.arrangeWeek(6l,flows,1l));
         arranger.outPut(timeStaffNumList,6,1,1);
     }
     @Autowired
@@ -144,4 +139,5 @@ public class ArrangerTest {
         Rule rule=rules.get(0);
         System.out.println(rule);
     }
+
 }
