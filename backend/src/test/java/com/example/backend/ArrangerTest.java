@@ -107,6 +107,15 @@ public class ArrangerTest {
         System.out.println(flowUnit.getBeginAt().toString());
         System.out.println(flowUnit.getEndAt());
     }
+    @Test
+    void test6(){
+        List<List<Arranger.TimeStaffNum>> timeStaffNumList=new ArrayList<>();
+        Flow flow=tool.getFlow(2023,3,13,123l,6l,tool.getFlowTest());
+        List<Flow> flows=new ArrayList<>();
+        flows.add(flow);
+        timeStaffNumList.addAll(arranger.arrangeWeek(6l,flows,12l));
+        //arrangerNew.outPut(timeStaffNumList,6,1,1);
+    }
     @Autowired
     ScheduleMapper scheduleMapper;
     @Test
