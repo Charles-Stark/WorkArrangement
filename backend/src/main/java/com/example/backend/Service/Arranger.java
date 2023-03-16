@@ -317,7 +317,7 @@ public class Arranger {
                     if(!workingHours.contains(i)) workingHours.add(i);
                 }
             }
-
+            workingHours.sort((a,b)-> (int) (a+a-b-b));
         }
         public boolean mateDay(int week){
             if(workingDay==null) return true;
@@ -344,8 +344,8 @@ public class Arranger {
                     }
                     else k=i;
                 }
-                if(k!=-1&&endTime==workingHours.get(i)) {
-                    match=(i - k + 1) / (float) unitNum;
+                if(k!=-1&&endTime<workingHours.get(i)) {
+                    match=(i - k) / (float) unitNum;
                     if(match>0) matchingDegree.put(findStaff(id), match);
                     return true;
                 }
