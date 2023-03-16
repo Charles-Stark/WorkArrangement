@@ -48,7 +48,8 @@ id: long 用户id
       "toUser": 1046,
       "type": 2,
       "text": "1986",
-      "createAt": "2023-05-01 15:39:20"
+      "createAt": "2023-05-01 15:39:20",
+      "fromUsername": "dustin"
     },
     {
       "id": 2,
@@ -57,7 +58,8 @@ id: long 用户id
       "toUser": 1046,
       "type": 2,
       "text": "1986",
-      "createAt": "2023-04-19 15:33:20"
+      "createAt": "2023-04-19 15:33:20",
+      "fromUsername": "dustin"
     },
     {
       "id": 1,
@@ -66,7 +68,8 @@ id: long 用户id
       "toUser": 1046,
       "type": 1,
       "text": "1896",
-      "createAt": "2023-03-09 15:30:20"
+      "createAt": "2023-03-09 15:30:20",
+      "fromUsername": "dustin"
     }
   ]
 }
@@ -99,7 +102,8 @@ count: int 消息数量
       "toUser": 1046,
       "type": 2,
       "text": "1986",
-      "createAt": "2023-05-01 15:39:20"
+      "createAt": "2023-05-01 15:39:20",
+      "fromUsername": "dustin"
     },
     {
       "id": 2,
@@ -108,7 +112,8 @@ count: int 消息数量
       "toUser": 1046,
       "type": 2,
       "text": "1986",
-      "createAt": "2023-04-19 15:33:20"
+      "createAt": "2023-04-19 15:33:20",
+      "fromUsername": "dustin"
     },
     {
       "id": 1,
@@ -117,7 +122,8 @@ count: int 消息数量
       "toUser": 1046,
       "type": 1,
       "text": "1896",
-      "createAt": "2023-03-09 15:30:20"
+      "createAt": "2023-03-09 15:30:20",
+      "fromUsername": "dustin"
     }
   ]
 }
@@ -149,7 +155,8 @@ id: long 用户id
       "toUser": 1046,
       "type": 2,
       "text": "1986",
-      "createAt": "2023-05-01 15:43:20"
+      "createAt": "2023-05-01 15:43:20",
+      "fromUsername": "dustin"
     },
     {
       "id": 3,
@@ -158,7 +165,8 @@ id: long 用户id
       "toUser": 1046,
       "type": 2,
       "text": "1986",
-      "createAt": "2023-05-01 15:39:20"
+      "createAt": "2023-05-01 15:39:20",
+      "fromUsername": "dustin"
     }
   ]
 }
@@ -189,7 +197,8 @@ id: long 消息id
     "toUser": 1046,
     "type": 1,
     "text": "1896",
-    "createAt": "2023-03-09 15:30:20"
+    "createAt": "2023-03-09 15:30:20",
+    "fromUsername": "dustin"
   }
 }
 ```

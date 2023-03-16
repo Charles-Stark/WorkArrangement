@@ -2,15 +2,13 @@ package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Notification;
 import com.example.backend.Service.NotificationService;
+import com.example.backend.VO.NotificationVO;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.NotificationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class NotificationImpl implements NotificationService {
@@ -38,9 +36,9 @@ public class NotificationImpl implements NotificationService {
         return createNotification(2, String.valueOf(changedScheduleId), from, to);
     }
 
-    private void sortNotificationListByTimeOrder(List<Notification> notifications) {
-        Comparator<Notification> notificationComparator = (o1, o2) -> o2.getCreateAt().compareTo(o1.getCreateAt());
-        notifications.sort(notificationComparator);
+    private void sortNotificationListByTimeOrder(List<NotificationVO> notificationVOs) {
+        Comparator<NotificationVO> notificationVOComparator = (o1, o2) -> o2.getCreateAt().compareTo(o1.getCreateAt());
+        notificationVOs.sort(notificationVOComparator);
     }
 
     @Override
@@ -49,9 +47,15 @@ public class NotificationImpl implements NotificationService {
         searchingMap.put("toUser", userId);
         try {
             List<Notification> notifications = notificationMapper.selectByMap(searchingMap);
-            sortNotificationListByTimeOrder(notifications);
-            notifications = count > 0 ? notifications.subList(0, count) : notifications;
-            return new ResultVO<>(0, "获取通知成功", notifications);
+
+            List<NotificationVO> notificationVOs = new ArrayList<>();
+            for (Notification notification : notifications) {
+                notificationVOs.add(new NotificationVO(notification));
+            }
+
+            sortNotificationListByTimeOrder(notificationVOs);
+            notificationVOs = count > 0 ? notificationVOs.subList(0, count) : notificationVOs;
+            return new ResultVO<>(0, "获取通知成功", notificationVOs);
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取通知失败", null);
         }
@@ -64,8 +68,14 @@ public class NotificationImpl implements NotificationService {
         searchingMap.put("isRead", false);
         try {
             List<Notification> notifications = notificationMapper.selectByMap(searchingMap);
-            sortNotificationListByTimeOrder(notifications);
-            return new ResultVO<>(0, "获取未读通知成功", notifications);
+
+            List<NotificationVO> notificationVOs = new ArrayList<>();
+            for (Notification notification : notifications) {
+                notificationVOs.add(new NotificationVO(notification));
+            }
+
+            sortNotificationListByTimeOrder(notificationVOs);
+            return new ResultVO<>(0, "获取未读通知成功", notificationVOs);
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取未读通知失败", null);
         }
@@ -74,7 +84,7 @@ public class NotificationImpl implements NotificationService {
     @Override
     public ResultVO<Object> getNotification(Long id) {
         try {
-            return new ResultVO<>(0, "获取通知成功", notificationMapper.selectById(id));
+            return new ResultVO<>(0, "获取通知成功", new NotificationVO(notificationMapper.selectById(id)));
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取通知失败", null);
         }
