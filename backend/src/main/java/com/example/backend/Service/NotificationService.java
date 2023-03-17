@@ -8,6 +8,12 @@ public interface NotificationService {
 
     Boolean notifyWhenScheduleChanged(long changedScheduleId, long from, long to);
 
+    Boolean notifyWhenOpenShift(long scheduleId, long from, long to);
+
+    Boolean notifyWhenAbsenceCreated(long absenceId, long from, long to);
+
+    Boolean notifyWhenAbsenceChecked(long absenceId, long from, long to);
+
     ResultVO<Object> getNotificationList(Long userId, int count);
 
     ResultVO<Object> getUnreadNotificationList(Long userId);

@@ -36,6 +36,21 @@ public class NotificationImpl implements NotificationService {
         return createNotification(2, String.valueOf(changedScheduleId), from, to);
     }
 
+    @Override
+    public Boolean notifyWhenOpenShift(long scheduleId, long from, long to) {
+        return createNotification(3, String.valueOf(scheduleId), from, to);
+    }
+
+    @Override
+    public Boolean notifyWhenAbsenceCreated(long absenceId, long from, long to) {
+        return createNotification(4, String.valueOf(absenceId), from, to);
+    }
+
+    @Override
+    public Boolean notifyWhenAbsenceChecked(long absenceId, long from, long to) {
+        return createNotification(5, String.valueOf(absenceId), from, to);
+    }
+
     private void sortNotificationListByTimeOrder(List<NotificationVO> notificationVOs) {
         Comparator<NotificationVO> notificationVOComparator = (o1, o2) -> o2.getCreateAt().compareTo(o1.getCreateAt());
         notificationVOs.sort(notificationVOComparator);

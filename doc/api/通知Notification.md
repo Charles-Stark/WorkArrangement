@@ -13,7 +13,7 @@ type: Integer 通知类型
 text: String 通知数据（根据类型不同在形式上有变化）
 createAt: Date 创建时间
 ```
-有新的排班表产生：
+有新排班表产生：
 ```yaml
 type: 1
 text: 1024  # 新排班表的id
@@ -27,6 +27,16 @@ text: 1025  # 发生变更的排班表id
 ```yaml
 type: 3
 text: 1026  # 存在开放班次的排班表id
+```
+请假申请：
+```yaml
+type: 4
+text: 1027  # 请假记录的id
+```
+请假被审核（通过或拒绝）：
+```yaml
+type: 5
+text: 1028  # 请假记录的id
 ```
 
 ## 获取该用户所有消息
