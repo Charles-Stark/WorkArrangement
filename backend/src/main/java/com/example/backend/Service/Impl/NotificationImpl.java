@@ -69,7 +69,7 @@ public class NotificationImpl implements NotificationService {
             }
 
             sortNotificationListByTimeOrder(notificationVOs);
-            notificationVOs = count > 0 ? notificationVOs.subList(0, count) : notificationVOs;
+            notificationVOs = count > 0 ? (count > notificationVOs.size() ? notificationVOs : notificationVOs.subList(0, count)) : notificationVOs;
             return new ResultVO<>(0, "获取通知成功", notificationVOs);
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取通知失败", null);

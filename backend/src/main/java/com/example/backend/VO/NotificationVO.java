@@ -5,17 +5,27 @@ import com.example.backend.mapper.UserMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import javax.annotation.PostConstruct;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Component
 public class NotificationVO {
 
-    @Resource
+    @Autowired
     private UserMapper userMapper;
+    private static NotificationVO notificationVO;
+
+    @PostConstruct
+    private void init() {
+        notificationVO = this;
+        notificationVO.userMapper = this.userMapper;
+    }
 
     private Long id;
     private Boolean isRead;
@@ -34,7 +44,7 @@ public class NotificationVO {
         type = notification.getType();
         text = notification.getText();
         createAt = notification.getCreateAt();
-        fromUsername = userMapper.selectById(id).getUsername();
+        fromUsername = notificationVO.userMapper.selectById(id).getUsername();
     }
 
 }
