@@ -562,6 +562,7 @@ public class Arranger {
         }
         Schedule schedule=new Schedule(null,shopId, managerId,new Date(),true,ruleId,timeStaffNumList.get(0).get(0).startTime,timeStaffNumList.get(timeStaffNumList.size()-1).get(0).startTime,weeks);
         scheduleMapper.insert(schedule);
+        System.out.println("新的排班数据以创建,id="+schedule.getId());
         return schedule.getId();
     }
 
