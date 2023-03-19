@@ -327,7 +327,10 @@ public class Arranger {
             return false;
         }
         public boolean mateTime(String start,String end){
-            if(this.workingHours==null) return true;
+            if(this.workingHours==null) {
+                matchingDegree.put(findStaff(id),0.5f);
+                return true;
+            }
             if(findStaff(id)==null) return false;
             float startTime=Integer.parseInt(start.substring(0,2));
             if(start.charAt(3) == '3') startTime+=0.5;
@@ -335,7 +338,7 @@ public class Arranger {
             if(end.charAt(3) == '3') endTime+=0.5;
             int k=-1;
             for(int i=0;i<workingHours.size();i++){
-                float match=0;
+                float match;
                 if(workingHours.get(i)==startTime){
                     if(workingHours.size()-i<=unitNum) {
                         match=(workingHours.size() - i) / (float) unitNum;
