@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -24,7 +25,13 @@ public class RuleServiceImpl implements RuleService {
     @Override
     public ResultVO<Object> addRule(Long shop, long manager, Double prepareTime, Double prepareWorkloadPerPerson, String preparePosition, Double maxServiceNumber, String servicePosition, Integer numberOnDuty, Double closingTime, Double closingWorkloadPerPersonU, Double closingWorkloadPerPersonV, String closingPosition, Date startingDate, int lastingDays) {
         Rule rule = new Rule(null, shop, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition);
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shop", shop);
         try {
+            List<Rule> oldRules = ruleMapper.selectByMap(searchingMap);
+            for (Rule oldRule : oldRules) {
+                ruleMapper.deleteById(oldRule.getId());
+            }
             ruleMapper.insert(rule);
         } catch (Exception e) {
             return new ResultVO<>(-1, "添加规则失败", null);
@@ -66,7 +73,6 @@ public class RuleServiceImpl implements RuleService {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("shop", shopId);
         try {
-            // TODO which rule to use ???
             return new ResultVO<>(0, "获取排班规则成功", ruleMapper.selectByMap(searchingMap).get(0));
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取排班规则失败", null);
