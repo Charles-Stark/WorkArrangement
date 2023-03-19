@@ -120,6 +120,7 @@ public class Arranger {
             }
             public void replace(Staff newOne, Staff oldOne, List<TimeStaffNum> timeStaffNumList, int index){
                 for(int i=timeStaffNumList.get(index).workUnits.indexOf(this);i<timeStaffNumList.get(index).workUnits.size();i++){
+                    if(i==-1) break;
                     timeStaffNumList.get(index).workUnits.get(i).remove(oldOne);
                     timeStaffNumList.get(index).workUnits.get(i).add(0,newOne);
                 }
@@ -406,7 +407,7 @@ public class Arranger {
     //完全按照所给的客流量排班
     public List<TimeStaffNum> newArrange(Flow flow){
         int dayOfWeek=getDayOfWeek(flow.getDate());
-
+        for(Staff staff:staffList) staff.dayWorkTime=0;
         List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
         for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
             timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
@@ -433,8 +434,11 @@ public class Arranger {
             }
             List<Staff> keySetList= new ArrayList<>(matchingDegree.keySet());
             keySetList.sort((a,b)-> (int)(matchingDegree.get(b)*100-matchingDegree.get(a)*100));
-            for(int i=0;!timeStaffNum.isFull()&&i<matchingDegree.size();i++)
+            for(int i=0;!timeStaffNum.isFull()&&i<matchingDegree.size();i++){
+                keySetList.get(i).getContinuousWorkTime(timeStaffNumList,index);
                 if(!keySetList.get(i).isTired()) timeStaffNum.add(keySetList.get(i));
+            }
+
             //抓壮丁
             if (!timeStaffNumList.get(index).isFull()) {
                 for (Prefer prefer : preference) {
@@ -458,7 +462,9 @@ public class Arranger {
         //在已有基础上进行时间上的增删改
         //优化过程将不考虑员工工作时间偏好
         Staff last=null;
-        for(int i=0;i<timeStaffNumList.size();i++)
+        int nextI;
+        for(int i=0;i<timeStaffNumList.size();i++){
+            nextI=i;
             for(TimeStaffNum.WorkUnit unit:timeStaffNumList.get(i).workUnits){
                 if(unit.minStaffNum<unit.currentNum){
                     boolean next=false;
@@ -500,7 +506,8 @@ public class Arranger {
                 }
                 //处理工作时长不足两小时的员工
                 int j=i+1;
-                for(Staff staff:unit.staffs){
+                for(int i1=0;i1<unit.staffs.size();i1++){
+                    Staff staff=unit.staffs.get(i1);
                     double time1=staff.getContinuousWorkTime(timeStaffNumList,i);
                     if(time1<2){
                         Staff minOne=staff.findNearMin(timeStaffNumList,i);
@@ -514,7 +521,7 @@ public class Arranger {
                             for(int j1=tsm.workUnits.size()-1;j1>-1;j1--){
                                 if(!tsm.workUnits.get(j1).contains(staff)){
                                     Staff newOne=staff.findNearMin(timeStaffNumList,i);
-                                    timeStaffNumList.get(j).workUnits.get(j1).replace(newOne,staff,timeStaffNumList,j,(int)(time1-4)*2);
+                                    timeStaffNumList.get(j).workUnits.get(j1).replace(newOne,staff,timeStaffNumList,j,(int)((time1-4)*2));
                                     next=true;
                                     break;
                                 }
@@ -523,10 +530,11 @@ public class Arranger {
                         }
                     }
                 }
-                i=j-1;
-                if(i<0) i=0;
+                nextI=j-1;
+                if(nextI<0) nextI=0;
             }
-
+            i=nextI;
+        }
         return timeStaffNumList;
     }
     public ArrayList<Employee> transTo(List<EmployeeVO> employeeVOs){
@@ -549,7 +557,7 @@ public class Arranger {
             else week.setEndAt(timeStaffNumList.get(timeStaffNumList.size()-1).get(0).startTime);
             Schedule.WorkUnit[][] workUnits=new Schedule.WorkUnit[7][timeStaffNumList.get(0).size()*unitNum];
             for(int j=0;j<7;j++){
-                if(timeStaffNumList.size() <j+1) break;
+                if(timeStaffNumList.size() <=7*i+j) break;
                 int halfHourNum=timeStaffNumList.get(i+j).size()*unitNum-unitNum+timeStaffNumList.get(i+j).get(timeStaffNumList.get(i+j).size()-1).workUnits.size();
                 for(int k=0;k<halfHourNum;k++){
                     workUnits[j][k]=new Schedule.WorkUnit();

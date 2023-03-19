@@ -49,9 +49,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     public long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt, int lastingDays) {
         try {
             // 调用排班算法，排班并存入schedule
-            List<Flow> flows = flowService.getFlowByShop(shop, startAt, lastingDays).getData().subList(0, 1);
+            List<Flow> flows = flowService.getFlowByShop(shop, startAt, lastingDays).getData();
             List<List<Arranger.TimeStaffNum>> timeStaffNumList = new ArrayList<>();
-            timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows, rule));
+            for(int i=0;i<(flows.size()-1)/7+1;i++)
+                if(i*7+7>flows.size()) timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i*7,flows.size()), rule));
+                else timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i*7,(i+1)*7), rule));
             return arranger.outPut(timeStaffNumList, shop, rule, manager);
         } catch (Exception e) {
 
