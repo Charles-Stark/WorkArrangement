@@ -37,7 +37,14 @@ public class FlowServiceImpl implements FlowService {
             while (lastingDays > 0) {
                 String sDate = simpleDateFormat.format(new Date(timestamp));
                 searchingMap.put("date", simpleDateFormat.parse(sDate));
-                flows.add(flowMapper.selectByMap(searchingMap).get(0));
+
+                List<Flow> res = flowMapper.selectByMap(searchingMap);
+                if (res.size() == 0) {
+                    generateFlow(shopId, simpleDateFormat.parse(sDate), 1);
+                    res = flowMapper.selectByMap(searchingMap);
+                }
+                flows.add(res.get(0));
+
                 lastingDays--;
                 timestamp += 86400000;  // 时间加上一天
             }
