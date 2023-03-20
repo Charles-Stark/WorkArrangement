@@ -228,9 +228,11 @@ export default {
               }
               else if (res.data.code === -1) {
                 this.$emit('msg', '用户未注册')
+                this.loading = false
               }
             }).catch(() => {
               this.$emit('msg', '网络错误')
+                this.loading = false
             })
           }
           else {

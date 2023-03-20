@@ -166,7 +166,6 @@ import { getAllShop } from '../../request/shop'
 import { getEmployee } from '../../request/staff'
 import { getUserAvatar } from '../../request/user'
 import { getAllArr } from '../../request/rule'
-import { getUserInfo } from '../../request/user'
 import newArrangement from './newArrangement.vue'
 
 export default {
@@ -260,7 +259,7 @@ export default {
           timed: !allDay,
         })
       }
-      // this.events = events
+      this.events = events
     },
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a
@@ -280,22 +279,6 @@ export default {
     async getArr() {
       var events = (await getAllArr(this.branch)).data.data[9].weeks[0].data
       console.log(events)
-      for (var day of events) {
-        for (var event of day) {
-          for (var employee of event.employees) {
-            var name = (await getUserInfo(employee)).data.data.username
-            this.events.push({
-            name,
-            start: new Date(event.beginTime),
-            end: new Date(event.beginTime + 1800000),
-            color: 'blue',
-            timed: true
-          })
-          }
-          
-        }
-      }
-
     }
   },
   mounted() {

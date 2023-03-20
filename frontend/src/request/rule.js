@@ -6,7 +6,7 @@ import store from '../store/index'
 
 //上传排班规则进行排班
 // param:{
-//   shop: long 门店id
+  // shop: long 门店id
   // manager: long 管理员id
   // prepareTime: double 准备时间
   // prepareWorkloadPerPerson: double 人均单位工作量
@@ -26,5 +26,13 @@ export const createArr = params => {
     method: 'post',
     url: `/api/rule/add`,
     params,
+  })
+}
+
+//获取某个分店的全部排班
+export const getAllArr = id => {
+  return request({
+    method: 'get',
+    url: `/api/schedule/get/shop/${id}`,
   })
 }

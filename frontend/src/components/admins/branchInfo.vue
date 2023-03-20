@@ -285,16 +285,21 @@ export default {
     getAllShop().then(async res => {
       if (res.data.code === 0) {
         var items = res.data.data
-        if (items.length === 0) this.$emit('msg', '没有店铺信息')
-        for (var i = 0; i < items.length; i++) {
-          var flow = (await getFlow({
-            shop: items[i].id,
-            start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) + " 00:00:00",
-            lasting: 1
-          })).data.data[0].flowUnits
-          items[i].flow = []
-          items[i].flow = [flow[0].flow, flow[3].flow, flow[6].flow, flow[9].flow, flow[12].flow, flow[15].flow, flow[18].flow, flow[21].flow, flow[24].flow]
-          this.items = items
+        if (items.length === 0) {
+          this.$emit('msg', '没有店铺信息')
+          this.items=[]
+        }
+        else{
+          for (var i = 0; i < items.length; i++) {
+            var flow = (await getFlow({
+              shop: items[i].id,
+              start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) + " 00:00:00",
+              lasting: 1
+            })).data.data[0].flowUnits
+            items[i].flow = []
+            items[i].flow = [flow[0].flow, flow[3].flow, flow[6].flow, flow[9].flow, flow[12].flow, flow[15].flow, flow[18].flow, flow[21].flow, flow[24].flow]
+            this.items = items
+          }
         }
         this.ready = true
       }

@@ -2,7 +2,7 @@
   <div>
 
     <v-data-iterator :items="items" :search="search" :page.sync="page" hide-default-footer no-results-text="没有搜索结果"
-      :sort-by="keys[sortBy]" :sort-desc="sortDesc" no-data-text="没有数据">
+      :sort-by="keys[sortBy]" :sort-desc="sortDesc" no-data-text="暂无通知">
       <template v-slot:header>
         <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
@@ -230,7 +230,7 @@
 
       </template>
 
-      <template v-slot:footer v-if="ready">
+      <template v-slot:footer v-if="ready & items.length!==0">
         <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"></v-pagination>
       </template>
 
@@ -386,14 +386,15 @@ export default {
           this.getStaff(this.branches[this.branch].id)
         }
         else {
-          this.ready=true,
-          this.items=[]
+          this.ready = true,
+          this.items = []
           this.$emit('msg', '没有店铺信息')
         }
 
       }
     }).catch(() => {
       this.$emit('msg', '网络错误')
+      this.ready = true
     })
   }
 }

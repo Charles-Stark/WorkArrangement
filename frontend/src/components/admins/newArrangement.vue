@@ -4,7 +4,7 @@
       <v-card-title>
         新建智能排班
       </v-card-title>
-      <v-stepper v-model="e1">
+      <v-stepper v-model="e1" flat>
         <v-stepper-header>
           <v-stepper-step :complete="e1 > 1" step="1" class="h6">
             基本信息
@@ -27,7 +27,7 @@
         <v-stepper-items>
 
           <v-stepper-content step="1">
-            <v-card>
+            <v-card flat>
               <v-card-text>
                 <v-form ref="form1">
                   <v-row>
@@ -322,7 +322,9 @@ export default {
         startDate: this.arrangeConfig.basic.start+' 00:00:00',
         lastingDays: this.arrangeConfig.basic.lasting,
       }).then(res=>{
-
+        console.log(res)
+      }).catch(err=>{
+        console.log(err)
       })
     }
 
