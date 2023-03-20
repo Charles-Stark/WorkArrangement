@@ -26,4 +26,6 @@ public interface NotificationService {
 
     ResultVO<Object> countUnreadNotification(long userId);
 
+    ResultVO<Object> deleteNotification(long id);
+
 }

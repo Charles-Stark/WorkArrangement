@@ -47,4 +47,9 @@ public class NotificationController {
         return notificationService.countUnreadNotification(id);
     }
 
+    @PostMapping("/delete")
+    public ResultVO<Object> deleteNotification(@RequestParam("id") long id) {
+        return notificationService.deleteNotification(id);
+    }
+
 }

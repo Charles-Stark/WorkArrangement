@@ -285,3 +285,25 @@ id: long 用户id
   "data": null
 }
 ```
+
+## 删除通知
+删除通知
+
+POST请求 /api/notification/delete
+```yaml
+id: long 通知id
+```
+```json
+{
+  "code": 0,
+  "message": "删除通知成功",
+  "data": null
+}
+```
+```json
+{
+  "code": -1,
+  "message": "删除通知失败",
+  "data": null
+}
+```

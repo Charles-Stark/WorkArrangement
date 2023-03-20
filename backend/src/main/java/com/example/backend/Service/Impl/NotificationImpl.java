@@ -144,4 +144,14 @@ public class NotificationImpl implements NotificationService {
         }
     }
 
+    @Override
+    public ResultVO<Object> deleteNotification(long id) {
+        try {
+            notificationMapper.deleteById(id);
+            return new ResultVO<>(0, "删除通知成功", null);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "删除通知失败", null);
+        }
+    }
+
 }
