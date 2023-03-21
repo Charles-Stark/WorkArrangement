@@ -1,8 +1,10 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Flow;
+import com.example.backend.POJO.Schedule;
 import com.example.backend.Service.Arranger;
 import com.example.backend.Service.FlowService;
+import com.example.backend.Service.NotificationService;
 import com.example.backend.Service.ScheduleService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.ScheduleMapper;
@@ -24,6 +26,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private FlowService flowService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public ResultVO<Object> getScheduleById(long id) {
@@ -54,10 +59,24 @@ public class ScheduleServiceImpl implements ScheduleService {
             for(int i=0;i<(flows.size()-1)/7+1;i++)
                 if(i*7+7>flows.size()) timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i*7,flows.size()), rule));
                 else timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i*7,(i+1)*7), rule));
-            return arranger.outPut(timeStaffNumList, shop, rule, manager);
-        } catch (Exception e) {
+            long scheduleId = arranger.outPut(timeStaffNumList, shop, rule, manager);
 
-            e.printStackTrace();
+            Schedule schedule = scheduleMapper.selectById(scheduleId);
+            Set<Long> employees = new HashSet<>();
+            for (Schedule.Week week : schedule.getWeeks()) {
+                Schedule.WorkUnit[][] workUnits = week.getData();
+                for (Schedule.WorkUnit[] workUnit : workUnits) {
+                    for (Schedule.WorkUnit unit : workUnit) {
+                        employees.addAll(unit.getEmployees());
+                    }
+                }
+            }
+            for (Long employee : employees) {
+                notificationService.notifyWhenNewScheduleCreated(scheduleId, manager, employee);
+            }
+
+            return scheduleId;
+        } catch (Exception e) {
             return -1;
         }
     }
