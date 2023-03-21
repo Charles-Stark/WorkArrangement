@@ -1,6 +1,5 @@
 package com.example.backend.Service;
 
-import java.sql.Time;
 import java.util.*;
 
 import com.example.backend.POJO.*;
@@ -46,10 +45,9 @@ public class Arranger {
                     return s;
         return null;
     }
-    public boolean hasSelected(Staff staff, List<TimeStaffNum> timeStaffNums){
-        for(TimeStaffNum timeStaffNum:timeStaffNums){
-            if(timeStaffNum.contains(staff)) return true;
-        }
+    public boolean hasSelected(Staff staff, List<TimeStaffNum> timeStaffNums,int index){
+        if(timeStaffNums.get(index).contains(staff)) return true;
+        else if(index>0) return timeStaffNums.get(index-1).contains(staff);
         return false;
     }
     public class TimeStaffNum {     //记录时间段中员工数量
@@ -86,16 +84,19 @@ public class Arranger {
                 currentNum=0;
             }
             public void add(Staff s){
+                if(s==null) return;
                 currentNum++;
                 staffs.add(s);
                 s.setDayWorkTime(0.5);
             }
             public void add(int index, Staff s){
+                if(s==null) return;
                 currentNum++;
                 staffs.add(0,s);
                 s.setDayWorkTime(0.5);
             }
             public void remove(Staff s){
+                if(s==null) return;
                 currentNum--;
                 staffs.remove(s);
                 s.setDayWorkTime(-0.5);
@@ -233,16 +234,32 @@ public class Arranger {
         private Staff findNearMin(List<TimeStaffNum> timeStaffNumList, int index){
             Staff min=new Staff();
             min.setDayWorkTime(40);
-            for(int i=index-1;i>-1;i--){
-                List<TimeStaffNum.WorkUnit> units = timeStaffNumList.get(i).workUnits;
-                for(int j=units.size()-1;j>-1;j--){
-                    if(!units.get(j).contains(this))
-                        for(Staff s:units.get(j).staffs){
-                            if(s.dayWorkTime<min.dayWorkTime) min=s;
-                            else if(s.dayWorkTime==min.dayWorkTime&&s.weekWorkTime<min.weekWorkTime) min=s;
-                        }
+            if(index>0) {
+                for(int i=index-1;i>-1;i--){
+                    List<TimeStaffNum.WorkUnit> units = timeStaffNumList.get(i).workUnits;
+                    for(int j=units.size()-1;j>-1;j--){
+                        if(!units.get(j).contains(this))
+                            for(Staff s:units.get(j).staffs){
+                                if(s.dayWorkTime<min.dayWorkTime) min=s;
+                                else if(s.dayWorkTime==min.dayWorkTime&&s.weekWorkTime<min.weekWorkTime) min=s;
+                            }
+                    }
+                    if(min.dayWorkTime!=40) break;
                 }
-                if(min.dayWorkTime!=40) break;
+            }
+            else{
+                for(int i=-index+1;i<timeStaffNumList.size();i++){
+                    List<TimeStaffNum.WorkUnit> units = timeStaffNumList.get(i).workUnits;
+                    for(int j=0;j<units.size();j++){
+                        if(!units.get(j).contains(this))
+                            for(Staff s:units.get(j).staffs){
+                                if(s.dayWorkTime<min.dayWorkTime) min=s;
+                                else if(s.dayWorkTime==min.dayWorkTime&&s.weekWorkTime<min.weekWorkTime) min=s;
+                            }
+                    }
+                    if(min.dayWorkTime!=40) break;
+
+                }
             }
             return min;
         }
@@ -254,7 +271,6 @@ public class Arranger {
         public double getContinuousWorkTime(List<TimeStaffNum> timeStaffNumList, int index){
             int start=0,end=6;
             continuousWorkTime=0;
-            double count=0;
             for(int i=index-1;i>=0;i--){
                 if(!timeStaffNumList.get(i).contains(this)){
                     start=i+1;
@@ -273,6 +289,7 @@ public class Arranger {
                     else if(continuousWorkTime!=0) break;
                 }
             }
+            visitTime=0;
             return continuousWorkTime;
         }
     }
@@ -432,23 +449,23 @@ public class Arranger {
                 if (prefer.mateDay(dayOfWeek)) prefer.mateTime(start, end);
                 if (timeStaffNum.isFull()) break;
             }
+            if(t%2==1)
+                for(Staff staff:staffList) staff.getContinuousWorkTime(timeStaffNumList,index);
             List<Staff> keySetList= new ArrayList<>(matchingDegree.keySet());
             keySetList.sort((a,b)-> (int)(matchingDegree.get(b)*100-matchingDegree.get(a)*100));
             for(int i=0;!timeStaffNum.isFull()&&i<matchingDegree.size();i++){
-                keySetList.get(i).getContinuousWorkTime(timeStaffNumList,index);
                 if(!keySetList.get(i).isTired()) timeStaffNum.add(keySetList.get(i));
             }
-
             //抓壮丁
-            if (!timeStaffNumList.get(index).isFull()) {
+            if (!timeStaffNum.isFull()) {
                 for (Prefer prefer : preference) {
                     Staff staff=findStaff(prefer.id);
                     if (prefer.mateDay(dayOfWeek)) {
-                        if(staff!=null&&!hasSelected(staff,timeStaffNumList)&&!staff.isTired()) timeStaffNum.add(staff);
+                        if(staff!=null&&!hasSelected(staff,timeStaffNumList,index)&&!staff.isTired()) timeStaffNum.add(staff);
                     }
                     //强抓壮丁
                     if(t>20) {
-                        if(staff!=null&&!hasSelected(staff,timeStaffNumList)&&!staff.isTired()) timeStaffNum.add(staff);
+                        if(staff!=null&&!hasSelected(staff,timeStaffNumList,index)&&!staff.isTired()) timeStaffNum.add(staff);
                     }
                     if (timeStaffNum.isFull()) break;
                 }
@@ -527,6 +544,21 @@ public class Arranger {
                                 }
                             }
                             if(next) break;
+                        }
+                        if(j<0&&!next){
+                            for(int j2 = i; j2 < timeStaffNumList.size(); j2++){
+                                TimeStaffNum tsm=timeStaffNumList.get(j2);
+                                for(int j1=0;j1<tsm.workUnits.size();j1++){
+                                    if(!tsm.workUnits.get(j1).contains(staff)){
+                                        Staff newOne=staff.findNearMin(timeStaffNumList,-i);
+                                        System.out.println(time1);
+                                        timeStaffNumList.get(j2).workUnits.get(j1).replace(newOne,staff,timeStaffNumList, j2,(int)((time1-4)*2));
+                                        next=true;
+                                        break;
+                                    }
+                                }
+                                if(next) break;
+                            }
                         }
                     }
                 }

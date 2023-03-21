@@ -77,6 +77,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             return scheduleId;
         } catch (Exception e) {
+            System.out.println(e);
             return -1;
         }
     }
