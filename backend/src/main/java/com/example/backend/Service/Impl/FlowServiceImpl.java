@@ -66,7 +66,7 @@ public class FlowServiceImpl implements FlowService {
     @Override
     public void generateFlow(long shopId, Date startDate, int lastingDays) {
         Random random = new Random();
-        OriginalFlowData originalFlowData = new OriginalFlowData();
+        OriginalFlowData originalFlowData = new OriginalFlowData();//8:00-21:00，不后延
 
         for (int i = 0; i < lastingDays; i++) {
 

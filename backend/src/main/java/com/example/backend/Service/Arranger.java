@@ -1,10 +1,12 @@
 package com.example.backend.Service;
 
+import java.sql.Time;
 import java.util.*;
 
 import com.example.backend.POJO.*;
 import com.example.backend.VO.EmployeeVO;
 import com.example.backend.mapper.ScheduleMapper;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,20 +25,17 @@ public class Arranger {
     private final int unitNum=4;//一个为半小时
     private double maxServiceNumber=3.8;
     private int numberOnDuty=1;
+    private double prepareTime=1;
+    private double closingTime=1;
     private List<Prefer> preference;
     private List<Staff> staffList;
     private Map<Staff,Float> matchingDegree;
-
     public void changeRule(Rule rule){
         if (rule==null) return;
-        if(rule.getPrepareTime()==null) return;
-        double prepareTime = rule.getPrepareTime();
-        if(rule.getClosingTime()==null) return;
-        double closingTime = rule.getClosingTime();
-        if(rule.getNumberOnDuty()==null) return;
-        this.numberOnDuty=rule.getNumberOnDuty();
-        if(rule.getMaxServiceNumber()==null) return;
-        this.maxServiceNumber=rule.getMaxServiceNumber();
+        if(rule.getPrepareTime()!=null) prepareTime = rule.getPrepareTime();
+        if(rule.getClosingTime()!=null) closingTime = rule.getClosingTime();
+        if(rule.getNumberOnDuty()!=null) this.numberOnDuty=rule.getNumberOnDuty();
+        if(rule.getMaxServiceNumber()!=null) this.maxServiceNumber=rule.getMaxServiceNumber();
     }
     private Staff findStaff(Long id){
         if(staffList.get(0).getClass()== Staff.class)
@@ -52,8 +51,6 @@ public class Arranger {
     }
     public class TimeStaffNum {     //记录时间段中员工数量
         private int minStaffNum;   // 最少员工数
-        private int week;
-        //private int time;      //时间段,数据类型暂定
         private Date startTime;
         private int currentStaffNum;     //目前员工人数
         private ArrayList<Staff> staff;
@@ -69,6 +66,13 @@ public class Arranger {
                 Date begin=flowUnits.get(i).getBeginAt();
                 workUnits.add(new TimeStaffNum.WorkUnit(begin,new LinkedList<>(),flowUnits.get(i).getFlow()/maxServiceNumber));
             }
+        }
+        public TimeStaffNum(Date startTime){
+            minStaffNum=numberOnDuty;
+            currentStaffNum=0;
+            staff=new ArrayList<>();
+            workUnits=new ArrayList<>();
+            this.startTime=startTime;
         }
         @Data
         public class WorkUnit{
@@ -191,6 +195,18 @@ public class Arranger {
                 }
             }
         }
+        public void addUnit(List<TimeStaffNum> timeStaffNumList,int direct){
+            if(direct<0){
+                if(timeStaffNumList.get(0).workUnits.isEmpty()) workUnits.add(0,new WorkUnit(new Date(timeStaffNumList.get(1).startTime.getTime()-1800000),new LinkedList<>(),numberOnDuty));
+                else workUnits.add(0,new WorkUnit(new Date(timeStaffNumList.get(0).workUnits.get(0).beginTime.getTime()-1800000),new LinkedList<>(),numberOnDuty));
+                startTime.setTime(startTime.getTime()-1800000);
+            }
+            else{
+                int last=timeStaffNumList.size()-1;
+                if(timeStaffNumList.get(last).workUnits.isEmpty()) workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last-1).startTime.getTime()+1800000),new LinkedList<>(),numberOnDuty));
+                else workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last).workUnits.get(workUnits.size()-1).beginTime.getTime()+1800000),new LinkedList<>(),numberOnDuty));
+            }
+        }
         public void add(Staff s){
             currentStaffNum+=1;
             staff.add(s);
@@ -205,6 +221,19 @@ public class Arranger {
                 if(result=unit.contains(staff))
                     break;
             return result;
+        }
+        public void format(int direct){
+            if(workUnits.size()==unitNum) return;
+            if(direct>0){
+                for(int i=0;i<unitNum-workUnits.size();i++){
+                    workUnits.add(new WorkUnit(null,null,0));
+                }
+            }
+            else{
+                for(int i=0;i<unitNum-workUnits.size();i++){
+                    workUnits.add(0,new WorkUnit(null,null,0));
+                }
+            }
         }
     }
     private class Staff{       //方便使用，可换成employee
@@ -449,6 +478,33 @@ public class Arranger {
             for(Staff staff:staffList) staff.dayWorkTime=0;
         }
     }
+    public List<TimeStaffNum> init(Flow flow,int dayOfWeek){
+        List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
+        for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
+            timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
+        }
+        return timeStaffNumList;
+        /*
+        int count=0;
+        while(count<prepareTime){
+            if(count%4==0) timeStaffNumList.add(0,new TimeStaffNum(new Date(timeStaffNumList.get(0).startTime.getTime()-1800000)));
+            timeStaffNumList.get(0).addUnit(timeStaffNumList,-1);
+            count++;
+        }
+        timeStaffNumList.get(0).format(-1);
+        count=0;
+        while(count<closingTime){
+            int last = timeStaffNumList.size()-1;
+            if(count%4==0) {
+                timeStaffNumList.add(new TimeStaffNum(new Date(timeStaffNumList.get(last).startTime.getTime() + 1800000)));
+                last++;
+            }
+            timeStaffNumList.get(last).addUnit(timeStaffNumList,1);
+        }
+        timeStaffNumList.get(timeStaffNumList.size()-1).format(1);
+        return timeStaffNumList;
+        */
+    }
     public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId) throws RuntimeException{
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
         Rule rule = (Rule) ruleService.getRule(ruleId).getData();
@@ -494,13 +550,11 @@ public class Arranger {
     public List<TimeStaffNum> newArrange(Flow flow) throws RuntimeException{
         int dayOfWeek=getDayOfWeek(flow.getDate());
         for(Staff staff:staffList) staff.dayWorkTime=0;
-        List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
-        for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
-            timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
-        }
-        int index=0;
+        List<TimeStaffNum> timeStaffNumList;
+        timeStaffNumList=init(flow,dayOfWeek);
 
         //获取初始结果
+        int index=0;
         int t=0,last1= timeStaffNumList.size()-1;
         matchingDegree=new HashMap<>();
         while(!timeStaffNumList.get(last1).isFull()) {
