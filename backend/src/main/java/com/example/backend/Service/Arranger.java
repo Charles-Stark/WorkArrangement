@@ -407,7 +407,7 @@ public class Arranger {
         if(dayOfWeek<1) dayOfWeek=7;
         return dayOfWeek;
     }
-    public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId){
+    public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId) throws RuntimeException{
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
         Rule rule = (Rule) ruleService.getRule(ruleId).getData();
         changeRule(rule);
@@ -417,12 +417,14 @@ public class Arranger {
         List<Preference> preferenceList = findPreference(employeeList);
         preference=new Prefer().toPrefer(preferenceList);
         staffList=new Staff().toStaff(employeeList);
-        for(Flow flow:flowsOfWeek)
+        System.out.println("开始排班，本周排班起始星期为星期"+getDayOfWeek(flowsOfWeek.get(0).getDate()));
+        for(Flow flow:flowsOfWeek) {
             timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
+        }
         return timeStaffNumList;
     }
     //完全按照所给的客流量排班
-    public List<TimeStaffNum> newArrange(Flow flow){
+    public List<TimeStaffNum> newArrange(Flow flow) throws RuntimeException{
         int dayOfWeek=getDayOfWeek(flow.getDate());
         for(Staff staff:staffList) staff.dayWorkTime=0;
         List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
@@ -435,6 +437,7 @@ public class Arranger {
         int t=0,last1= timeStaffNumList.size()-1;
         matchingDegree=new HashMap<>();
         while(!timeStaffNumList.get(last1).isFull()) {
+            if(t>1000) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index);
             matchingDegree.clear();
             TimeStaffNum timeStaffNum=timeStaffNumList.get(index);
             for (Prefer prefer : preference) {
@@ -479,8 +482,10 @@ public class Arranger {
         //在已有基础上进行时间上的增删改
         //优化过程将不考虑员工工作时间偏好
         Staff last=null;
-        int nextI;
+        int nextI=0;
+        t=0;
         for(int i=0;i<timeStaffNumList.size();i++){
+            if(t>1000) throw new RuntimeException("排班优化超时,位置为i="+i+",j="+(nextI+1));
             nextI=i;
             for(TimeStaffNum.WorkUnit unit:timeStaffNumList.get(i).workUnits){
                 if(unit.minStaffNum<unit.currentNum){
@@ -551,7 +556,6 @@ public class Arranger {
                                 for(int j1=0;j1<tsm.workUnits.size();j1++){
                                     if(!tsm.workUnits.get(j1).contains(staff)){
                                         Staff newOne=staff.findNearMin(timeStaffNumList,-i);
-                                        System.out.println(time1);
                                         timeStaffNumList.get(j2).workUnits.get(j1).replace(newOne,staff,timeStaffNumList, j2,(int)((time1-4)*2));
                                         next=true;
                                         break;
@@ -566,7 +570,9 @@ public class Arranger {
                 if(nextI<0) nextI=0;
             }
             i=nextI;
+            t++;
         }
+        System.out.println("完成本次排班,星期为星期"+dayOfWeek);
         return timeStaffNumList;
     }
     public ArrayList<Employee> transTo(List<EmployeeVO> employeeVOs){
