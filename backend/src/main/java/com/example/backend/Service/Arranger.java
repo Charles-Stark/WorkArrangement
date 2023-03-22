@@ -119,6 +119,38 @@ public class Arranger {
                 this.staffs.remove(staff);
                 this.currentNum--;
             }
+            public void swap(Staff former, Staff later, List<TimeStaffNum> timeStaffNumList, int index, int indexOfUnit, int length){
+                int indexOfOld1=0,indexOfOld2=0;
+                if(indexOfUnit==unitNum-1) {
+                    indexOfOld2=0;
+                    indexOfOld1 += 1;
+                }
+                for(int i=0;i<length;i++){
+                    if(indexOfUnit==0){
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).staffs.remove(former);
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).staffs.add(later);
+                        index--;
+                        indexOfUnit=unitNum-1;
+                        continue;
+                    }
+                    else {
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).staffs.remove(former);
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).staffs.add(later);
+                        indexOfUnit--;
+                    }
+                    if(indexOfOld2==unitNum-1){
+                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).staffs.remove(later);
+                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).staffs.add(former);
+                        index++;
+                        indexOfUnit=0;
+                    }
+                    else{
+                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).staffs.remove(later);
+                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).staffs.add(former);
+                        indexOfOld2++;
+                    }
+                }
+            }
             public void replace(Staff newOne, Staff oldOne, List<TimeStaffNum> timeStaffNumList, int index){
                 for(int i=timeStaffNumList.get(index).workUnits.indexOf(this);i<timeStaffNumList.get(index).workUnits.size();i++){
                     if(i==-1) break;
@@ -418,9 +450,15 @@ public class Arranger {
         preference=new Prefer().toPrefer(preferenceList);
         staffList=new Staff().toStaff(employeeList);
         System.out.println("开始排班，本周排班起始星期为星期"+getDayOfWeek(flowsOfWeek.get(0).getDate()));
-        for(Flow flow:flowsOfWeek) {
-            timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
+        for(int i=0;i< flowsOfWeek.size();i++) {
+            try {
+                Flow flow=flowsOfWeek.get(i);
+                timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
+            }catch (IndexOutOfBoundsException e){
+                i--;
+            }
         }
+
         return timeStaffNumList;
     }
     //完全按照所给的客流量排班
@@ -542,8 +580,12 @@ public class Arranger {
                             TimeStaffNum tsm=timeStaffNumList.get(j);
                             for(int j1=tsm.workUnits.size()-1;j1>-1;j1--){
                                 if(!tsm.workUnits.get(j1).contains(staff)){
-                                    Staff newOne=staff.findNearMin(timeStaffNumList,i);
-                                    timeStaffNumList.get(j).workUnits.get(j1).replace(newOne,staff,timeStaffNumList,j,(int)((time1-4)*2));
+                                    Staff newOne=staff.findNearMin(timeStaffNumList,i);//往前找，从前向后覆盖
+                                    double time2=newOne.getContinuousWorkTime(timeStaffNumList,j);
+                                    if(time2<4)
+                                        timeStaffNumList.get(j).workUnits.get(j1).replace(newOne,staff,timeStaffNumList,j,(int)((time1-4)*2));
+                                    else
+                                        timeStaffNumList.get(j).workUnits.get(j1).swap(newOne,staff,timeStaffNumList,j,j1,(int)time2);
                                     next=true;
                                     break;
                                 }
@@ -556,7 +598,11 @@ public class Arranger {
                                 for(int j1=0;j1<tsm.workUnits.size();j1++){
                                     if(!tsm.workUnits.get(j1).contains(staff)){
                                         Staff newOne=staff.findNearMin(timeStaffNumList,-i);
-                                        timeStaffNumList.get(j2).workUnits.get(j1).replace(newOne,staff,timeStaffNumList, j2,(int)((time1-4)*2));
+                                        double time2=newOne.getContinuousWorkTime(timeStaffNumList,j2);
+                                        if(time2<4)
+                                            timeStaffNumList.get(j2).workUnits.get(j1).replace(newOne,staff,timeStaffNumList, j2,(int)((time1-4)*2));
+                                        else
+                                            timeStaffNumList.get(j2).workUnits.get(j1).swap(staff,newOne,timeStaffNumList,j2,j1,(int)(time2));
                                         next=true;
                                         break;
                                     }
