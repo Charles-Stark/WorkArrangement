@@ -110,6 +110,8 @@ export default {
           else{
             user.avatar=require('../../../assets/defaultAvatar.png')
           }
+      this.logined=true
+
         }
 
         this.user=user
@@ -119,8 +121,9 @@ export default {
       })
 
 
+
     }
-    this.logined=true
+    
   }
 
 

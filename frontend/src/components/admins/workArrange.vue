@@ -287,9 +287,10 @@ export default {
 
     },
     async getArr() {
+
       var events = (await getAllArr(this.branch)).data
+      console.log(events)
       var weeks = events.data[events.data.length - 1].weeks
-      var schecule = []
       for (var week of weeks) {
         for (var day of week.data) {
           var employees = []
@@ -319,7 +320,6 @@ export default {
                       name: this.staff.find(item => item.id === employee).username,
                     })
                   }
-                  console.log(employees)
                 }
               }
 
@@ -338,7 +338,6 @@ export default {
 
             }
           }
-          // console.log(1, schecule)
 
         }
 
@@ -362,7 +361,6 @@ export default {
         this.$emit('msg', '没有店铺信息')
       }
     }).catch((err) => {
-      console.log(err)
       this.$emit('msg', '网络错误')
     })
   }
