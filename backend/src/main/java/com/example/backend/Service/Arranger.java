@@ -450,12 +450,23 @@ public class Arranger {
         preference=new Prefer().toPrefer(preferenceList);
         staffList=new Staff().toStaff(employeeList);
         System.out.println("开始排班，本周排班起始星期为星期"+getDayOfWeek(flowsOfWeek.get(0).getDate()));
+        int errorTime=0;
         for(int i=0;i< flowsOfWeek.size();i++) {
             try {
                 Flow flow=flowsOfWeek.get(i);
                 timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
             }catch (IndexOutOfBoundsException e){
                 i--;
+            }catch (RuntimeException e){
+                System.out.println(e);
+                errorTime++;
+                i--;
+                if(errorTime>10) throw new RuntimeException("排版失败，请根据控制台信息检查原因");
+                else if(errorTime==5) {
+                    System.out.println("排班超时，重新开始本次排班");
+                    i=0;
+                    timeStaffNumList.clear();
+                }
             }
         }
 
