@@ -16,7 +16,7 @@
 
         </template>
 
-        <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length!==0">
+        <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length !== 0">
           <div v-for="notice of notices" :key="notice.id">
             <v-divider></v-divider>
             <v-list-item @click="1">
@@ -182,7 +182,7 @@
 
 <script>
 import { getUserAvatar, getUserInfo, logout } from '../../request/user'
-import {getNotisByCount} from '../../request/notis'
+import { getNotisByCount } from '../../request/notis'
 export default {
   data: () => ({
     snackBar: false,
@@ -293,7 +293,16 @@ export default {
     getNotisByCount(10).then(async res => {
       var notices = res.data.data
       for (var notice of notices) {
-        notice.avatar = await getUserAvatar(notice.fromUser).data || require('../../assets/defaultAvatar.png')
+
+        var avatar = await getUserAvatar(notice.fromUser)
+        if (avatar.status === 200) {
+          notice.avatar = URL.createObjectURL(avatar.data)
+        }
+        else {
+          notice.avatar = require('../../assets/defaultAvatar.png')
+        }
+
+
       }
       this.notices = notices
       if (this.notices.length === 0) this.notices = []

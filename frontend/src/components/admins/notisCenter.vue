@@ -208,9 +208,16 @@ export default {
     getNotis().then(async res => {
       var notices = res.data.data
       for (var notice of notices) {
-        notice.avatar = await getUserAvatar(notice.fromUser).data || require('../../assets/defaultAvatar.png')
+
+        var avatar=await getUserAvatar(notice.fromUser)
+          if(avatar.status===200){
+            notice.avatar=URL.createObjectURL(avatar.data)
+          }
+          else{
+            notice.avatar=require('../../assets/defaultAvatar.png')
+          }
+          this.notices.push(notice)
       }
-      this.notices = notices
       if (this.notices.length === 0) this.notices = []
       this.ready = true
 

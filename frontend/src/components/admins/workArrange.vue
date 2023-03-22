@@ -124,7 +124,7 @@
           <v-sheet>
             <v-calendar ref="calendar" v-model="focus" color="primary" :events="events" :event-color="getEventColor"
               first-interval="6" interval-count="18" locale="zh-cn" :type="type" @click:event="showEvent"
-              @click:more="viewDay" @click:date="viewDay" event-overlap-mode="column" @change="updateRange" >
+              @click:more="viewDay" @click:date="viewDay" event-overlap-mode="column" @change="updateRange">
             </v-calendar>
 
             <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
@@ -272,48 +272,78 @@ export default {
       }
       var staff = (await getEmployee(this.branch)).data.data
       for (var s of staff) {
-        s.avatar = await getUserAvatar(s.id).data || require('../../assets/defaultAvatar.png')
+        var avatar = await getUserAvatar(s.id)
+        if (avatar.status === 200) {
+          s.avatar = URL.createObjectURL(avatar.data)
+        }
+        else {
+          s.avatar = require('../../assets/defaultAvatar.png')
+        }
+
+        this.staff.push(s)
       }
-      this.staff = staff
+
+      if (this.staff.length === 0) this.staff = []
+
     },
     async getArr() {
-      var events = (await getAllArr(this.branch)).data.data[9].weeks[0].data
-      console.log(events)
-      var schecule=[]
-      for (var day of events) {
-        var employees = []
-        for (var event of day) {
-          var start = event.beginTime
-          for (var employee of event.employees) {
-            var flag=false
-            employees.forEach(e=>{
-              if(e.id===employee){
-                flag=true
-                if(start===e.end[e.end.length-1]){
-                    e.end[e.end.length-1]+=1800000
+      var events = (await getAllArr(this.branch)).data
+      var weeks = events.data[events.data.length - 1].weeks
+      var schecule = []
+      for (var week of weeks) {
+        for (var day of week.data) {
+          var employees = []
+          if (day !== null) {
+            for (var event of day) {
+              if (event !== null) {
+                var start = event.beginTime
+                for (var employee of event.employees) {
+                  var flag = false
+                  employees.forEach(e => {
+                    if (e.id === employee) {
+                      flag = true
+                      if (start === e.end[e.end.length - 1]) {
+                        e.end[e.end.length - 1] += 1800000
+                      }
+                      else {
+                        e.start.push(start)
+                        e.end.push(start + 1800000)
+                      }
+                    }
+                  })
+                  if (!flag) {
+                    employees.push({
+                      id: employee,
+                      start: [start],
+                      end: [start + 1800000],
+                      name: this.staff.find(item => item.id === employee).username,
+                    })
                   }
-                  else{
-                    e.start.push(start)
-                    e.end.push(start+1800000)
-                  }
+                  console.log(employees)
+                }
               }
-            })
-            if(!flag){
-              employees.push({
-                id:employee,
-                start:[start],
-                end:[start+1800000],
-                name:this.staff.find(item =>item.id===employee).username,
-                color: this.colors[this.rnd(0, this.colors.length - 1)],
-              })
+
             }
-            console.log(employees)
           }
+          for (var e of employees) {
+            for (var i = 0; i < e.start.length; i++) {
+              this.events.push({
+                id: e.id,
+                start:new Date(e.start[i]) ,
+                end:new Date(e.end[i]),
+                name: e.name,
+                color: this.colors[this.rnd(0, this.colors.length - 1)],
+                timed:true
+              })
+
+            }
+          }
+          // console.log(1, schecule)
+
         }
-        schecule.push(employees)
-        console.log(schecule)
-        
+
       }
+
 
     }
   },
@@ -321,11 +351,11 @@ export default {
     this.$refs.calendar.checkChange()
 
 
-    getAllShop().then(res => {
+    getAllShop().then(async res => {
       this.branches = res.data.data
       if (this.branches.length !== 0) {
         this.branch = this.branches[0].id
-        this.getStaff()
+        await this.getStaff()
         this.getArr()
       }
       else {

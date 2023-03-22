@@ -4,6 +4,9 @@ import vuetify from '@/plugins/vuetify'
 import store from './store'
 import router from './router'
 
+// import VueFullPage from 'vue-fullpage.js';
+// Vue.use(VueFullPage);
+
 Vue.config.productionTip = false
 
 new Vue({
