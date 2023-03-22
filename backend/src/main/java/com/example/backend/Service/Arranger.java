@@ -466,6 +466,7 @@ public class Arranger {
                     System.out.println("排班超时，重新开始本次排班");
                     i=0;
                     timeStaffNumList.clear();
+                    staffList=new Staff().toStaff(employeeList);
                 }
             }
         }
@@ -482,11 +483,11 @@ public class Arranger {
         }
         int index=0;
 
-        //准备加入循环
+        //获取初始结果
         int t=0,last1= timeStaffNumList.size()-1;
         matchingDegree=new HashMap<>();
         while(!timeStaffNumList.get(last1).isFull()) {
-            if(t>1000) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index);
+            if(t>500) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index);
             matchingDegree.clear();
             TimeStaffNum timeStaffNum=timeStaffNumList.get(index);
             for (Prefer prefer : preference) {
