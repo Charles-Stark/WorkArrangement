@@ -198,7 +198,7 @@ export default {
           this.$emit('msg', '删除成功')
         }
       }).catch(() => {
-
+        this.$emit('msg', '网络错误')
       })
     }
 

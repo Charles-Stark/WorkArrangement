@@ -64,6 +64,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
             long scheduleId = arranger.outPut(timeStaffNumList, shop, rule, manager);
 
+            /*
             Schedule schedule = scheduleMapper.selectById(scheduleId);
             Set<Long> employees = new HashSet<>();
             for (Schedule.Week week : schedule.getWeeks()) {
@@ -77,6 +78,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             for (Long employee : employees) {
                 notificationService.notifyWhenNewScheduleCreated(scheduleId, manager, employee);
             }
+            */
 
             return scheduleId;
         } catch (Exception e) {

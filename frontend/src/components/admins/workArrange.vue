@@ -62,7 +62,7 @@
 
             </v-card-title>
 
-            <v-virtual-scroll :items="filteredStaff" :item-height="63" min-height="650">
+            <v-virtual-scroll :items="filteredStaff" :item-height="63" height="700">
               <template v-slot:default="{ item }">
 
                 <v-list-item>
@@ -124,7 +124,7 @@
           <v-sheet>
             <v-calendar ref="calendar" v-model="focus" color="primary" :events="events" :event-color="getEventColor"
               first-interval="6" interval-count="18" locale="zh-cn" :type="type" @click:event="showEvent"
-              @click:more="viewDay" @click:date="viewDay" event-overlap-mode="column" @change="updateRange">
+              @click:more="viewDay" @click:date="viewDay" event-overlap-mode="column" @change="updateRange" >
             </v-calendar>
 
             <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
@@ -166,7 +166,6 @@ import { getAllShop } from '../../request/shop'
 import { getEmployee } from '../../request/staff'
 import { getUserAvatar } from '../../request/user'
 import { getAllArr } from '../../request/rule'
-import { getUserInfo } from '../../request/user'
 import newArrangement from './newArrangement.vue'
 
 export default {
@@ -280,20 +279,40 @@ export default {
     async getArr() {
       var events = (await getAllArr(this.branch)).data.data[9].weeks[0].data
       console.log(events)
+      var schecule=[]
       for (var day of events) {
+        var employees = []
         for (var event of day) {
+          var start = event.beginTime
           for (var employee of event.employees) {
-            var name = (await getUserInfo(employee)).data.data.username
-            this.events.push({
-            name,
-            start: new Date(event.beginTime),
-            end: new Date(event.beginTime + 1800000),
-            color: 'blue',
-            timed: true
-          })
+            var flag=false
+            employees.forEach(e=>{
+              if(e.id===employee){
+                flag=true
+                if(start===e.end[e.end.length-1]){
+                    e.end[e.end.length-1]+=1800000
+                  }
+                  else{
+                    e.start.push(start)
+                    e.end.push(start+1800000)
+                  }
+              }
+            })
+            if(!flag){
+              employees.push({
+                id:employee,
+                start:[start],
+                end:[start+1800000],
+                name:this.staff.find(item =>item.id===employee).username,
+                color: this.colors[this.rnd(0, this.colors.length - 1)],
+              })
+            }
+            console.log(employees)
           }
-          
         }
+        schecule.push(employees)
+        console.log(schecule)
+        
       }
 
     }

@@ -12,6 +12,18 @@ export const getNotis = () => {
   })
 }
 
+//获取指定数量通知
+export const getNotisByCount = count => {
+  return request({
+    method: 'post',
+    url: `api/notification/count`,
+    params:{
+      id:store.state.userId,
+      count
+    }
+  })
+}
+
 //已读全部消息
 export const setAllRead = () => {
   return request({
@@ -22,6 +34,7 @@ export const setAllRead = () => {
     }
   })
 }
+
 
 //删除通知
 export const deleteNoti = id => {

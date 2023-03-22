@@ -16,35 +16,34 @@
 
         </template>
 
-        <v-list three-line>
-          <v-subheader>
-            当前共有{{ noti }}条未读通知
-          </v-subheader>
-          <template v-for="(notice, index) in notices">
-            <v-divider :key="index + ' ' + notice.type"></v-divider>
+        <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length!==0">
+          <div v-for="notice of notices" :key="notice.id">
+            <v-divider></v-divider>
+            <v-list-item @click="1">
 
-            <v-list-item :key="index" @click="jumpToNoti()">
-              <v-list-item-avatar v-if="notice.type === 1">
-                <v-img :src="notice.avatar"></v-img>
+              <v-list-item-avatar>
+                <v-img size="70" :src="notice.avatar"></v-img>
               </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-subtitle class="mt-1 mx-2 text-subtitle-1"
-                  :class="notice.read === false ? 'strong--text' : 'grey--text'" v-if="notice.type === 1">{{
-                    notice.name
-                  }}申请了请假，点击查看详情</v-list-item-subtitle>
-                <v-list-item-subtitle class="mt-1 mx-2 text-subtitle-1"
-                  :class="notice.read === false ? 'strong--text' : 'grey--text'"
-                  v-else>有一个开放班次长时间无人认领，点击进行手动排班</v-list-item-subtitle>
-                <v-list-item-subtitle class="text-caption mt-3">{{ notice.date }} {{
-                  notice.time
-                }}</v-list-item-subtitle>
-              </v-list-item-content>
 
+              <v-list-item-content @click="check()">
+                <v-list-item-title :class="notice.isRead === false ? 'strong--text' : 'grey--text'">
+                  {{ messages[notice.type] }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ notice.createAt }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
             </v-list-item>
-          </template>
+
+          </div>
+
           <v-subheader><v-icon>mdi-menu-right</v-icon> <router-link to="/admin/notifications"
               style="text-decoration:none">进入通知中心查看全部消息</router-link></v-subheader>
         </v-list>
+
+        <v-card v-else>
+          暂无消息
+        </v-card>
 
       </v-menu>
 
@@ -183,6 +182,7 @@
 
 <script>
 import { getUserAvatar, getUserInfo, logout } from '../../request/user'
+import {getNotisByCount} from '../../request/notis'
 export default {
   data: () => ({
     snackBar: false,
@@ -196,17 +196,13 @@ export default {
       email: '',
     },
 
-    notices: [
-      { type: 1, avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg', name: 'aa', time: '10:24', date: '2022/10/24', read: true },
-      { type: 2, time: '10:24', date: '2022/10/24', read: false },
-      { type: 1, avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg', name: 'bb', time: '10:24', date: '2022/10/24', read: false },
-      { type: 2, time: '10:24', date: '2022/10/24', read: true },
-      { type: 2, time: '10:24', date: '2022/10/24', read: false },
-      { type: 2, time: '10:24', date: '2022/10/24', read: true },
-      { type: 2, time: '10:24', date: '2022/10/24', read: false },
-      { type: 2, time: '10:24', date: '2022/10/24', read: false },
-      { type: 2, time: '10:24', date: '2022/10/24', read: true },
-    ],
+    notices: [{}],
+
+    messages: {
+      1: '你有一个新的排班，点击查看',
+      2: '有一个排班表发生了变更',
+      3: '有一个开放班次长时间无人认领，点击进行手动排班'
+    }
 
 
 
@@ -265,6 +261,8 @@ export default {
     getMsg(data) {
       this.snackBarText = data
       this.snackBar = true
+    },
+    check() {
     }
 
   },
@@ -291,7 +289,21 @@ export default {
     }).catch(() => {
       this.getMsg('网络错误')
     })
+
+    getNotisByCount(10).then(async res => {
+      var notices = res.data.data
+      for (var notice of notices) {
+        notice.avatar = await getUserAvatar(notice.fromUser).data || require('../../assets/defaultAvatar.png')
+      }
+      this.notices = notices
+      if (this.notices.length === 0) this.notices = []
+
+    }).catch(() => {
+      this.$emit('msg', '网络错误')
+    })
   }
+
+
 
 }
 </script>

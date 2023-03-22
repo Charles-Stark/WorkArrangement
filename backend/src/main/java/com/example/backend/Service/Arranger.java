@@ -47,7 +47,7 @@ public class Arranger {
     }
     public boolean hasSelected(Staff staff, List<TimeStaffNum> timeStaffNums,int index){
         if(timeStaffNums.get(index).contains(staff)) return true;
-        else if(index>0) return timeStaffNums.get(index-1).contains(staff);
+        if(index>0) return timeStaffNums.get(index-1).contains(staff);
         return false;
     }
     public class TimeStaffNum {     //记录时间段中员工数量
@@ -224,26 +224,20 @@ public class Arranger {
             Preference preference=(Preference) preferenceService.getPreference(this.id).getData();
             prefer=new Prefer(preference);
             if(prefer.durationOfShift==null) prefer.durationOfShift=8;
-            if(prefer.durationOfWeek==null) prefer.durationOfWeek=8;
+            if(prefer.durationOfWeek==null) prefer.durationOfWeek=40;
         }
         public Staff(){}
         public boolean isTired(){
-            if(visitTime==3){
-                continuousWorkTime-=2;
-                visitTime=0;
-            }
             if(weekWorkTime>=prefer.durationOfWeek) return true;
             if(dayWorkTime>=prefer.durationOfShift) return true;
-            if(continuousWorkTime>=4){
-                visitTime++;
-                return true;
-            }
+            if(continuousWorkTime>=4) return true;
             return false;
         }
         public void setDayWorkTime(double time){
             weekWorkTime+=time;
             dayWorkTime+=time;
             continuousWorkTime+=time;
+            if(continuousWorkTime<0) continuousWorkTime=0;
         }
         public boolean isMiddle(List<TimeStaffNum> timeStaffNumList, int indexOfList, TimeStaffNum.WorkUnit unit){
             int indexOfUnits=timeStaffNumList.get(indexOfList).workUnits.indexOf(unit);
@@ -439,6 +433,22 @@ public class Arranger {
         if(dayOfWeek<1) dayOfWeek=7;
         return dayOfWeek;
     }
+    public void countWorkTime(ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList){
+        for(Staff staff:staffList) {
+            staff.weekWorkTime=0;
+            staff.dayWorkTime=0;
+        }
+        for(ArrayList<TimeStaffNum> timeStaffNums:timeStaffNumList){
+            for(TimeStaffNum timeStaffNum:timeStaffNums){
+                for(TimeStaffNum.WorkUnit workUnit:timeStaffNum.workUnits){
+                    for(Staff staff:workUnit.staffs){
+                        staff.setDayWorkTime(0.5);
+                    }
+                }
+            }
+            for(Staff staff:staffList) staff.dayWorkTime=0;
+        }
+    }
     public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId) throws RuntimeException{
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
         Rule rule = (Rule) ruleService.getRule(ruleId).getData();
@@ -455,8 +465,11 @@ public class Arranger {
             try {
                 Flow flow=flowsOfWeek.get(i);
                 timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
+                //errorTime=0;
             }catch (IndexOutOfBoundsException e){
+                System.out.println("重新开始本日排班");
                 i--;
+                countWorkTime(timeStaffNumList);
             }catch (RuntimeException e){
                 System.out.println(e);
                 errorTime++;
@@ -464,9 +477,13 @@ public class Arranger {
                 if(errorTime>10) throw new RuntimeException("排版失败，请根据控制台信息检查原因");
                 else if(errorTime==5) {
                     System.out.println("排班超时，重新开始本次排班");
-                    i=0;
+                    i=-1;
                     timeStaffNumList.clear();
                     staffList=new Staff().toStaff(employeeList);
+                }
+                else {
+                    System.out.println("重新开始本日排班");
+                    countWorkTime(timeStaffNumList);
                 }
             }
         }
@@ -487,7 +504,7 @@ public class Arranger {
         int t=0,last1= timeStaffNumList.size()-1;
         matchingDegree=new HashMap<>();
         while(!timeStaffNumList.get(last1).isFull()) {
-            if(t>500) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index);
+            if(t>500) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index+",还需要"+(timeStaffNumList.get(index).minStaffNum-timeStaffNumList.get(index).currentStaffNum));
             matchingDegree.clear();
             TimeStaffNum timeStaffNum=timeStaffNumList.get(index);
             for (Prefer prefer : preference) {
@@ -518,7 +535,7 @@ public class Arranger {
                     }
                     //强抓壮丁
                     if(t>20) {
-                        if(staff!=null&&!hasSelected(staff,timeStaffNumList,index)&&!staff.isTired()) timeStaffNum.add(staff);
+                        if(staff!=null&& !hasSelected(staff, timeStaffNumList, index) &&!staff.isTired()) timeStaffNum.add(staff);
                     }
                     if (timeStaffNum.isFull()) break;
                 }
