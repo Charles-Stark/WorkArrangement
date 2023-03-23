@@ -9,7 +9,7 @@ Vue.use(VueRouter)
 var commonRoutes = [
   {
     path: '/',
-    component: () => import('../components/testAvatar'),
+    component: () => import('../components/introduce/mainView'),
     meta: {
       title: '慧博云通智能排班',
     }
@@ -163,7 +163,7 @@ router.beforeEach((to, from, next) => {
 })
 
 //全局后置路由守卫
-router.afterEach((to, from) => {
+router.afterEach((to) => {
   if (!localStorage.token && to.matched.length === 0) {
     router.push('/404')
   }

@@ -4,7 +4,7 @@
       <v-container v-if="!show2">
 
         <v-img
-          :src="$vuetify.theme.dark === false ? require('../assets/logo-md.png') : require('../assets/logo-md-dark.png')"
+          :src="require('../../assets/logo-md-dark.png')"
           :width="$vuetify.breakpoint.xsOnly ? 300 : 250" class="mx-auto">
         </v-img>
         <v-row>
@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import { getOTP, OTPLogin, pswLogin, pswReset } from '../request/user'
+import { getOTP, OTPLogin, pswLogin, pswReset } from '../../request/user'
 export default {
 
   data: () => ({

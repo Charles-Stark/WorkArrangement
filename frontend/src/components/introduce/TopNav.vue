@@ -1,24 +1,25 @@
 <template>
     <div class="topnav">
         <header >
-            <img :src="require('../../../assets/logo-md-dark.png')" class="logoImg" />
+            <img :src="require('../../assets/logo-md-dark.png')" class="logoImg" />
             <ul>
                 <li><a href="#1">首页</a></li>
                 <li><a href="#2">核心业务</a></li>
                 <li><a href="#3">产品优势</a></li>
                 <li><a href="#4">系统亮点</a></li>
                 <li><a href="#5">项目品鉴</a></li>
+                <li v-if="$store.state.userId!==null & $store.state.token!==null"><router-link to="admin">控制台</router-link> </li>
                 <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-                <li><Login></Login></li>
+                <li><accountStatus></accountStatus></li>
             </ul>
         </header>
     </div>
 </template>
 
 <script>
-import Login from '@/components/introduce/components/Login.vue' 
+import accountStatus from '@/components/introduce/accountStatus.vue' 
 export default {
-    components: { Login },
+    components: { accountStatus },
     data() {
         return {
             value: "",

@@ -6,7 +6,7 @@
                 <div class="section" >
                     <div class="section1" id="1">
                         <div>
-                            <div class="left-img"><img src="../../../assets/logo-sm.png" alt="智能排班图标"></div>
+                            <div class="left-img"><img src="../../assets/logo-sm.png" alt="智能排班图标"></div>
                             <div class="right-section1">
                                 <div class="right-font">
                                     <span>智</span>
@@ -30,17 +30,17 @@
                         <div class="section2-1">
                         <div class="container">
                             <div class="panel" :class="{ active: isActive1 }" @click="ActiveClick1" style="background:red">
-                                <img src="../../../assets/2-1.png">
+                                <img src="../../assets/2-1.png">
                                 <h3>门店业务预测</h3>
                         </div>
                         <!-- <div class="panel" :class="{ active: isActive2 }" @click="ActiveClick2" style="background-image:url('https://images.unsplash.com/photo-1572276596237-5db2c3e16c5d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80')"> -->
                             <div class="panel" :class="{ active: isActive2 }" @click="ActiveClick2" style="background:white">
-                                <img src="../../../assets/2-2.png">    
+                                <img src="../../assets/2-2.png">    
                             <h3 style="color:black">劳动力管理预测</h3>
                         </div>
                         <!-- <div class="panel" :class="{ active: isActive3 }" @click="ActiveClick3" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1353&q=80')"> -->
                             <div class="panel" :class="{ active: isActive3 }" @click="ActiveClick3" >
-                                <img src="../../../assets/2-3.png">    
+                                <img src="../../assets/2-3.png">    
                                 <h3>高效智能排班</h3>
                         </div>
                         </div>
@@ -50,10 +50,10 @@
                 <div class="section" id="3">
                     <div class="section3">
                         <div class="section3-left">
-                            <img src="../../../assets/3-1.png">
+                            <img src="../../assets/3-1.png">
                         </div>
                         <div class="section3-right">
-                            <img src="../../../assets/ss3-1.png" alt="">
+                            <img src="../../assets/ss3-1.png" alt="">
                             <!-- <div class="s3 s3-1">
                                 <div class="s3-1-font">
                                     <span>
@@ -75,10 +75,10 @@
                 <div class="section" id="4">
                     <div class="section4">
                         <div class="s4-1img">
-                            <img src="../../../assets/4-1.png">
+                            <img src="../../assets/4-1.png">
                         </div>
                         <div class="s4-2img">
-                            <img src="../../../assets/4-2.png">
+                            <img src="../../assets/4-2.png">
                         </div>
                     </div>
                 </div>
@@ -109,7 +109,7 @@
                             </v-carousel>
                         </div>
                         <div class="section5-2">
-                            <img src="../../../assets/5-1.png" >
+                            <img src="../../assets/5-1.png" >
                         </div>
                         <div class="section5-3">
                             <div class="right-section5">
@@ -131,9 +131,8 @@
 </template>
 
 <script>
-import TopNav from '@/components/introduce/components/TopNav.vue'
+import TopNav from '@/components/introduce/TopNav.vue'
 export default {
-    name: '',
     components: {
         TopNav
     },
@@ -240,7 +239,7 @@ export default {
 
 <style scoped>
 .section1 {
-    background: url("../../../assets/首页UI_01.png");
+    background: url("../../assets/首页UI_01.png");
     background: linear-gradient(to bottom right, #331987, #431b62);
     background-repeat: no-repeat;
     background-size: 100%;

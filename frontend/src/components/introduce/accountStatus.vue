@@ -2,7 +2,7 @@
   <div class="Login">
     <v-row justify="center">
 
-      <v-menu bottom min-width="200" rounded class="ma-6" offset-y v-if="logined">
+      <v-menu bottom min-width="200" rounded class="ma-6" offset-y v-if="logined" dark>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" class="ma-8">
             <v-avatar size="44">
@@ -35,12 +35,12 @@
 
       <v-dialog v-model="dialog" persistent max-width="450" :fullscreen="$vuetify.breakpoint.xsOnly" v-else>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn color="primary" dark v-bind="attrs" v-on="on">
-            确定
+          <v-btn color="white" dark v-bind="attrs" v-on="on" text>
+            登录
           </v-btn>
         </template>
 
-        <v-card>
+        <v-card dark>
           <v-tabs background-color="primary darken-2" center-active dark>
             <v-tab @click="show = 1">登录</v-tab>
             <v-tab @click="show = 2">注册</v-tab>
@@ -72,9 +72,9 @@
 </template>
   
 <script>
-import loginBox from '@/components/loginBox.vue';
-import registerBox from '@/components/registerBox.vue';
-import { getUserInfo, getUserAvatar } from '../../../request/user'
+import loginBox from './loginBox.vue';
+import registerBox from './registerBox.vue';
+import { getUserInfo, getUserAvatar,logout } from '../../request/user'
 export default {
   components: { loginBox, registerBox },
   data: () => ({
@@ -92,6 +92,21 @@ export default {
     getMsg(data) {
       this.snackBarText = data
       this.snackBar = true
+    },
+    logout(){
+      logout().then(res => {
+        if (res.data.code === 0) {
+          this.$store.commit('deleteLoginInfo')
+          this.getMsg('退出登录成功，正在重定向...')
+          this.$router.push('/')
+          this.$router.go(0)
+        }
+        else {
+          this.getMsg('退出登录失败')
+        }
+      }).catch(
+        this.getMsg('网络错误')
+      )
     }
   },
 
@@ -108,7 +123,7 @@ export default {
             user.avatar=URL.createObjectURL(avatar.data)
           }
           else{
-            user.avatar=require('../../../assets/defaultAvatar.png')
+            user.avatar=require('../../assets/defaultAvatar.png')
           }
       this.logined=true
 

@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { getRegisterOTP,register } from '../request/user'
+import { getRegisterOTP,register } from '../../request/user'
 
 export default {
 

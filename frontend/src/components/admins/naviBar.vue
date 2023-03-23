@@ -85,13 +85,13 @@
       :color="$vuetify.theme.dark === false ? 'white' : '#151515'">
 
       <v-list-item class="px-2 mt-2">
-        <v-list-item v-if="mini == false">
+        <v-list-item v-if="mini == false" to="/">
           <v-img v-if="$vuetify.theme.dark === false" :src="require('../../assets/logo-md.png')" width="10"></v-img>
           <v-img v-else :src="require('../../assets/logo-md-dark.png')" width="10"></v-img>
         </v-list-item>
 
-        <v-avatar v-if="mini == true">
-          <v-img :src="require('../../assets/logo-sm.png')"></v-img>
+        <v-avatar v-if="mini == true" @click="$router.push('/')">
+          <v-img  :src="require('../../assets/logo-sm.png')"></v-img>
         </v-avatar>
       </v-list-item>
 
@@ -183,6 +183,7 @@
 <script>
 import { getUserAvatar, getUserInfo, logout } from '../../request/user'
 import { getNotisByCount } from '../../request/notis'
+import router from '@/router'
 export default {
   data: () => ({
     snackBar: false,
