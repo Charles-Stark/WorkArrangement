@@ -1,12 +1,10 @@
 package com.example.backend.Service;
 
-import java.sql.Time;
 import java.util.*;
 
 import com.example.backend.POJO.*;
 import com.example.backend.VO.EmployeeVO;
 import com.example.backend.mapper.ScheduleMapper;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,7 @@ public class Arranger {
     private List<Prefer> preference;
     private List<Staff> staffList;
     private Map<Staff,Float> matchingDegree;
-    public void changeRule(Rule rule){
+    public void setRule(Rule rule){
         if (rule==null) return;
         if(rule.getPrepareTime()!=null) prepareTime = rule.getPrepareTime();
         if(rule.getClosingTime()!=null) closingTime = rule.getClosingTime();
@@ -508,7 +506,7 @@ public class Arranger {
     public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId) throws RuntimeException{
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
         Rule rule = (Rule) ruleService.getRule(ruleId).getData();
-        changeRule(rule);
+        setRule(rule);
         List<EmployeeVO> employeeVoList = (List<EmployeeVO>) employeeService.getEmployeeByShop(shopId).getData();
         List<Employee> employeeList = transTo(employeeVoList);
         if(employeeList ==null) return null;
