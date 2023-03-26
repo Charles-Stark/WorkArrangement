@@ -1,5 +1,7 @@
 package com.example.backend.Service.Impl;
 
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.backend.POJO.EmployeeToSchedule;
 import com.example.backend.POJO.Flow;
 import com.example.backend.POJO.Schedule;
@@ -81,11 +83,14 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             Schedule schedule = scheduleMapper.selectById(scheduleId);
             Set<Long> employees = new HashSet<>();
-            for (Schedule.Week week : schedule.getWeeks()) {
+            for (int i = 0; i < schedule.getWeeks().size(); i++) {
+                Schedule.Week week = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(i)), Schedule.Week.class);
                 Schedule.WorkUnit[][] workUnits = week.getData();
-                for (Schedule.WorkUnit[] workUnit : workUnits) {
-                    for (Schedule.WorkUnit unit : workUnit) {
-                        employees.addAll(unit.getEmployees());
+                for (int j = 0; j < workUnits.length; j++) {
+                    for (int k = 0; k < workUnits[j].length; k++) {
+                        if (workUnits[j][k] != null) {
+                            employees.addAll(workUnits[j][k].getEmployees());
+                        }
                     }
                 }
             }
@@ -94,7 +99,9 @@ public class ScheduleServiceImpl implements ScheduleService {
                 notificationService.notifyWhenNewScheduleCreated(scheduleId, manager, employee);
                 // 关联员工id和表id
                 EmployeeToSchedule employeeToSchedule = new EmployeeToSchedule(employee, scheduleId);
-                if (employeeToScheduleMapper.updateById(employeeToSchedule) == 0) {
+                if (employeeToScheduleMapper.selectCount(new QueryWrapper<EmployeeToSchedule>().eq("employeeId", employee)) > 0) {
+                    employeeToScheduleMapper.updateById(employeeToSchedule);
+                } else {
                     employeeToScheduleMapper.insert(employeeToSchedule);
                 }
             }
