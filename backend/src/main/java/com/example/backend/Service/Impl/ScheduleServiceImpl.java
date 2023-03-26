@@ -1,5 +1,6 @@
 package com.example.backend.Service.Impl;
 
+import com.example.backend.POJO.EmployeeToSchedule;
 import com.example.backend.POJO.Flow;
 import com.example.backend.POJO.Schedule;
 import com.example.backend.Service.Arranger;
@@ -7,6 +8,7 @@ import com.example.backend.Service.FlowService;
 import com.example.backend.Service.NotificationService;
 import com.example.backend.Service.ScheduleService;
 import com.example.backend.VO.ResultVO;
+import com.example.backend.mapper.EmployeeToScheduleMapper;
 import com.example.backend.mapper.ScheduleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -19,6 +21,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private ScheduleMapper scheduleMapper;
+
+    @Autowired
+    private EmployeeToScheduleMapper employeeToScheduleMapper;
 
     @Autowired
     @Lazy
@@ -51,6 +56,16 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public ResultVO<Object> getScheduleForEmployee(long employeeId) {
+        try {
+            long scheduleId = employeeToScheduleMapper.selectById(employeeId).getScheduleId();
+            return new ResultVO<>(0, "获取排班表成功", scheduleMapper.selectById(scheduleId));
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取排班表失败", null);
+        }
+    }
+
+    @Override
     public long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt, int lastingDays) {
         try {
             // 调用排班算法，排班并存入schedule
@@ -64,7 +79,6 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
             long scheduleId = arranger.outPut(timeStaffNumList, shop, rule, manager);
 
-            /*
             Schedule schedule = scheduleMapper.selectById(scheduleId);
             Set<Long> employees = new HashSet<>();
             for (Schedule.Week week : schedule.getWeeks()) {
@@ -76,9 +90,14 @@ public class ScheduleServiceImpl implements ScheduleService {
                 }
             }
             for (Long employee : employees) {
+                // 产生了新排班表，创建通知
                 notificationService.notifyWhenNewScheduleCreated(scheduleId, manager, employee);
+                // 关联员工id和表id
+                EmployeeToSchedule employeeToSchedule = new EmployeeToSchedule(employee, scheduleId);
+                if (employeeToScheduleMapper.updateById(employeeToSchedule) == 0) {
+                    employeeToScheduleMapper.insert(employeeToSchedule);
+                }
             }
-            */
 
             return scheduleId;
         } catch (Exception e) {
