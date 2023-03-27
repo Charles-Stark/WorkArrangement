@@ -116,8 +116,8 @@
 </template>
 
 <script>
-import { getNotis, setAllRead, deleteNoti } from '../../request/notis'
-import { getUserAvatar } from '../../request/user'
+import { getNotis, setAllRead, deleteNoti } from '../request/notis'
+import { getUserAvatar } from '../request/user'
 export default {
   data() {
     return {
@@ -214,11 +214,11 @@ export default {
             notice.avatar=URL.createObjectURL(avatar.data)
           }
           else{
-            notice.avatar=require('../../assets/defaultAvatar.png')
+            notice.avatar=require('../assets/defaultAvatar.png')
           }
           this.notices.push(notice)
       }
-      if (this.notices.length === 0) this.notices = []
+      if (notices.length === 0) this.notices = []
       this.ready = true
 
     }).catch(() => {

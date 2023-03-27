@@ -9,29 +9,29 @@ Vue.use(VueRouter)
 var commonRoutes = [
   {
     path: '/',
-    component: () => import('../components/introduce/mainView'),
+    component: () => import('../view/mainView'),
     meta: {
       title: '慧博云通智能排班',
     }
   },
   {
     path: '/404',
-    component: () => import('../components/404Page'),
+    component: () => import('../view/404Page'),
     meta: {
       title: '404',
     }
   },
 ]
 
-//总管理员身份的路由
+//管理员身份的路由
 export var adminRoutes = {
-  path: '/admin',
-  redirect: '/admin/dashBoard',
-  component: () => import('../components/admins/naviBar'),
+  path: '/controlpanel',
+  redirect: '/controlpanel/dashBoard',
+  component: () => import('../view/naviBar'),
   children: [
     {
       path: 'dashboard',
-      component: () => import('../components/admins/dashBoard'),
+      component: () => import('../view/dashBoard'),
       meta: {
         title: '概览',
         //控制左侧导航栏选中
@@ -39,42 +39,42 @@ export var adminRoutes = {
       }
     }, {
       path: 'arrange',
-      component: () => import('../components/admins/workArrange'),
+      component: () => import('../view/workArrange'),
       meta: {
         title: '智能排班',
         selectedItem: 1,
       }
     }, {
       path: 'absences',
-      component: () => import('../components/admins/absenceNotis'),
+      component: () => import('../view/absenceNotis'),
       meta: {
         title: '请假管理',
         selectedItem: 2,
       }
     }, {
       path: 'notifications',
-      component: () => import('../components/admins/notisCenter'),
+      component: () => import('../view/notisCenter'),
       meta: {
         title: '通知中心',
         selectedItem: 3,
       }
     }, {
       path: 'branches',
-      component: () => import('../components/admins/branchInfo'),
+      component: () => import('../view/branchInfo'),
       meta: {
         title: '分店信息',
         selectedItem: 4,
       }
     }, {
       path: 'staff',
-      component: () => import('../components/admins/staffInfo'),
+      component: () => import('../view/staffInfo'),
       meta: {
         title: '员工信息',
         selectedItem: 5,
       }
     }, {
       path: 'settings',
-      component: () => import('../components/admins/settingPage'),
+      component: () => import('../view/settingPage'),
       meta: {
         title: '用户设置',
         selectedItem: 6,
@@ -83,18 +83,16 @@ export var adminRoutes = {
   ]
 }
 
-//门店管理员身份的路由
-export var managerRoutes = {}
 
 //普通员工身份的路由
 export var employeeRoutes = {
-  path: '/employee',
-  redirect: '/employee/dashBoard',
-  component: () => import('../components/employee/naviBar'),
+  path: '/controlpanel',
+  redirect: '/controlpanel/dashBoard',
+  component: () => import('../view/naviBar'),
   children: [
     {
       path: 'dashboard',
-      component: () => import('../components/employee/dashBoard'),
+      component: () => import('../view/dashBoard'),
       meta: {
         title: '概览',
         //控制左侧导航栏选中
@@ -102,42 +100,21 @@ export var employeeRoutes = {
       }
     }, {
       path: 'arrange',
-      component: () => import('../components/employee/workArrange'),
+      component: () => import('../view/workArrange'),
       meta: {
         title: '智能排班',
         selectedItem: 1,
       }
     }, {
-      path: 'absences',
-      component: () => import('../components/employee/absenceNotis'),
-      meta: {
-        title: '请假管理',
-        selectedItem: 2,
-      }
-    }, {
       path: 'notifications',
-      component: () => import('../components/employee/notisCenter'),
+      component: () => import('../view/notisCenter'),
       meta: {
         title: '通知中心',
         selectedItem: 3,
       }
-    }, {
-      path: 'branches',
-      component: () => import('../components/employee/branchInfo'),
-      meta: {
-        title: '分店信息',
-        selectedItem: 4,
-      }
-    }, {
-      path: 'staff',
-      component: () => import('../components/employee/staffInfo'),
-      meta: {
-        title: '员工信息',
-        selectedItem: 5,
-      }
-    }, {
+    },  {
       path: 'settings',
-      component: () => import('../components/employee/settingPage'),
+      component: () => import('../view/settingPage'),
       meta: {
         title: '用户设置',
         selectedItem: 6,

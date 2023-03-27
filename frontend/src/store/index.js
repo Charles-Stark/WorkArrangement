@@ -33,6 +33,10 @@ const mutations = {
     localStorage.clear();
     state.token = ''
     state.userId = ''
+  },
+  saveAuthority(state,value){
+    state.isManager=value.isManager,
+    state.isShopManager=value.isShopManager
   }
 
 }
@@ -46,6 +50,8 @@ const state = {
   currentTheme: localStorage.theme || 'blue',
   token: localStorage.getItem('token'),
   userId: localStorage.getItem('userId'),
+  isManager:false,
+  isShopManager:false,
 }
 
 

@@ -3,8 +3,9 @@
 
     <v-sheet>
       <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
-        <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60" no-data-text="没有数据"
-          dense flat hide-details style="max-width:140px;min-width:120px" @change="getStaff()"></v-select>
+        <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60"
+          no-data-text="没有数据" dense flat hide-details style="max-width:140px;min-width:120px"
+          @change="getStaff(); getArr()"></v-select>
         <v-spacer></v-spacer>
 
         <v-text-field v-model="search" clearable dense flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
@@ -53,7 +54,7 @@
 
     <v-card class="py-3 px-5" flat :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
       <v-row>
-        <v-col cols="3" v-if="$vuetify.breakpoint.mdAndUp">
+        <v-col cols="3" v-if="$vuetify.breakpoint.mdAndUp & ($store.state.isManager || $store.state.isShopManager)">
           <v-card flat :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
             <v-card-title class="white--text accent">
               本店员工
@@ -61,10 +62,10 @@
 
             </v-card-title>
 
-            <v-virtual-scroll :items="filteredStaff" :item-height="63" min-height="650">
+            <v-virtual-scroll :items="filteredStaff" :item-height="63" height="700">
               <template v-slot:default="{ item }">
 
-                <v-list-item @click="1">
+                <v-list-item>
                   <v-list-item-avatar>
                     <v-img :src="item.avatar"></v-img>
                   </v-list-item-avatar>
@@ -161,10 +162,11 @@
 </template>
 
 <script>
-import { getAllShop } from '../../request/shop'
-import { getEmployee } from '../../request/staff'
-import { getUserAvatar } from '../../request/user'
-import newArrangement from './newArrangement.vue'
+import { getAllShop } from '../request/shop'
+import { getEmployeeByShop } from '../request/staff'
+import { getUserAvatar } from '../request/user'
+import { getAllArr } from '../request/rule'
+import newArrangement from '../components/newArrangement.vue'
 
 export default {
   components: {
@@ -257,7 +259,7 @@ export default {
           timed: !allDay,
         })
       }
-      this.events = events
+      // this.events = events
     },
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a
@@ -265,33 +267,100 @@ export default {
     async getStaff() {
       for (var b of this.branches) {
         if (b.id === this.branch) {
-
           this.size = b.size
         }
       }
-      var staff = await (await getEmployee(this.branch)).data.data
+      var staff = (await getEmployeeByShop(this.branch)).data.data
       for (var s of staff) {
-        s.avatar = await getUserAvatar(s.id).data || require('../../assets/defaultAvatar.png')
+        var avatar = await getUserAvatar(s.id)
+        if (avatar.status === 200) {
+          s.avatar = URL.createObjectURL(avatar.data)
+        }
+        else {
+          s.avatar = require('../assets/defaultAvatar.png')
+        }
+
+        this.staff.push(s)
       }
-      this.staff = staff
+
+      if (this.staff.length === 0) this.staff = []
+
+    },
+    async getArr() {
+
+      var events = (await getAllArr(this.branch)).data
+      console.log(events)
+      var weeks = events.data[events.data.length - 1].weeks
+      for (var week of weeks) {
+        for (var day of week.data) {
+          var employees = []
+          if (day !== null) {
+            for (var event of day) {
+              if (event !== null) {
+                var start = event.beginTime
+                for (var employee of event.employees) {
+                  var flag = false
+                  employees.forEach(e => {
+                    if (e.id === employee) {
+                      flag = true
+                      if (start === e.end[e.end.length - 1]) {
+                        e.end[e.end.length - 1] += 1800000
+                      }
+                      else {
+                        e.start.push(start)
+                        e.end.push(start + 1800000)
+                      }
+                    }
+                  })
+                  if (!flag) {
+                    employees.push({
+                      id: employee,
+                      start: [start],
+                      end: [start + 1800000],
+                      name: this.staff.find(item => item.id === employee).username,
+                    })
+                  }
+                }
+              }
+
+            }
+          }
+          for (var e of employees) {
+            for (var i = 0; i < e.start.length; i++) {
+              this.events.push({
+                id: e.id,
+                start:new Date(e.start[i]) ,
+                end:new Date(e.end[i]),
+                name: e.name,
+                color: this.colors[this.rnd(0, this.colors.length - 1)],
+                timed:true
+              })
+
+            }
+          }
+
+        }
+
+      }
+
+
     }
   },
   mounted() {
     this.$refs.calendar.checkChange()
 
-    
 
-    getAllShop().then(res => {
+    getAllShop().then(async res => {
       this.branches = res.data.data
-      if (this.branches .length!==0) {
+      if (this.branches.length !== 0) {
         this.branch = this.branches[0].id
-        this.getStaff()
+        await this.getStaff()
+        this.getArr()
       }
       else {
         this.$emit('msg', '没有店铺信息')
       }
-    }).catch((err) => {
-      console.log(err)
+    }).catch(() => {
       this.$emit('msg', '网络错误')
     })
   }

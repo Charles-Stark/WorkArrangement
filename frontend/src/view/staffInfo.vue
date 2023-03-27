@@ -1,13 +1,12 @@
 <template>
   <div>
 
-    <v-data-iterator :items="items" :search="search" :page.sync="page" hide-default-footer no-results-text="没有搜索结果"
-      no-data-text="没有数据">
+    <v-data-iterator :items="staff" :search="search" :page.sync="page" hide-default-footer no-results-text="没有搜索结果"
+      :sort-by="keys[sortBy]" :sort-desc="sortDesc" no-data-text="没有数据">
       <template v-slot:header>
-        <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
+        <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
-          <v-dialog v-model="dialog1" persistent max-width="600"
-            :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
+          <v-dialog v-model="dialog1" persistent max-width="600" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
             <template v-slot:activator="{ on, attrs }">
               <v-btn large color="secondary" class="mr-5" outlined v-bind="attrs" v-on="on"
                 @click="newEmployee.shop = branches[branch].id">
@@ -36,22 +35,21 @@
                       </v-col>
 
                       <v-col cols="12" sm="6">
-                        <v-text-field label="薪资*" type="number" v-model="newEmployee.salary"
-                          :rules="rules.noneEmptyRules" prepend-icon="mdi-cash" required></v-text-field>
+                        <v-text-field label="薪资*" type="number" v-model="newEmployee.salary" :rules="rules.noneEmptyRules"
+                          prepend-icon="mdi-cash" required></v-text-field>
                       </v-col>
 
-                      <v-col cols="12" sm="6">
+                      <v-col :cols="$store.state.isManager ? 6 : 12">
                         <v-select :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="职位*"
                           prepend-icon="mdi-office-building-marker-outline" v-model="newEmployee.position"
                           :rules="rules.noneEmptyRules" required></v-select>
                       </v-col>
 
                       <v-col cols="12" sm="6">
-                        <v-select :items="branches" item-text="name" item-value="id" label="所属分店*"
-                          v-model="newEmployee.shop" :rules="rules.noneEmptyRules" prepend-icon="mdi-store"
-                          required></v-select>
+                        <v-select :items="branches" item-text="name" item-value="id" label="所属分店*" no-data-text="没有数据"
+                          v-if="$store.state.isManager" v-model="newEmployee.shop" :rules="rules.noneEmptyRules"
+                          prepend-icon="mdi-store" required></v-select>
                       </v-col>
-
 
                       <v-col cols="12"><span class="text-subtitle-1">员工偏好</span></v-col>
 
@@ -89,6 +87,7 @@
                           required></v-text-field>
                       </v-col>
 
+
                     </v-row>
                   </v-form>
                 </v-container>
@@ -106,18 +105,38 @@
             </v-card>
           </v-dialog>
 
-
-
-
           <template>
-            <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
-              label="搜索"></v-text-field>
+            <v-text-field v-if="$vuetify.breakpoint.mdAndUp" v-model="search" clearable flat solo-inverted hide-details
+              prepend-inner-icon="mdi-magnify" label="搜索"></v-text-field>
+
+            <v-spacer></v-spacer>
+
+            <template>
+              <v-select v-model="sortBy" clearable flat solo-inverted hide-details :items="Object.keys(keys)"
+                prepend-inner-icon="mdi-magnify" label="排序"></v-select>
+            </template>
+
+            <v-spacer></v-spacer>
+
+            <template>
+              <v-btn-toggle v-model="sortDesc" mandatory>
+                <v-btn large depressed color="secondary" :value="false" :disabled="!sortBy">
+                  <v-icon>mdi-arrow-up</v-icon>
+                </v-btn>
+                <v-btn large depressed color="secondary" :value="true" :disabled="!sortBy">
+                  <v-icon>mdi-arrow-down</v-icon>
+                </v-btn>
+              </v-btn-toggle>
+            </template>
+
           </template>
+
+
 
 
         </v-toolbar>
 
-        <v-tabs background-color="transparent" v-model="branch">
+        <v-tabs background-color="transparent" v-model="branch" v-if="$store.state.isManager">
           <v-tab v-for="branch in branches" :key="branch.id" @click="getStaff(branch.id)">{{ branch.name }}</v-tab>
         </v-tabs>
 
@@ -127,7 +146,7 @@
 
 
 
-        <div class="mx-10">
+        <div class="mx-10" v-if="ready">
           <v-row class="mt-3">
             <v-col cols="3">工号</v-col>
             <v-col cols="3">姓名</v-col>
@@ -135,7 +154,6 @@
             <v-col cols="3">编辑</v-col>
             <v-col cols="12"><v-divider></v-divider></v-col>
           </v-row>
-
 
           <v-row v-for="(item, index) in props.items" :key="item.uid">
             <v-col cols="3">
@@ -159,56 +177,83 @@
               <v-dialog max-width="600" :fullscreen="fullscreen" v-model="item.dialog1" persistent>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn outlined color="warning lighten-1" v-bind="attrs" v-on="on" class="mt-1 mx-1"
-                    :icon="$vuetify.breakpoint.mdAndDown" :value="item.approved"
-                    @click="editedEmployee.salary = item.salary; editedEmployee.position = item.position; editedEmployee.shop = item.shop">
+                    :icon="$vuetify.breakpoint.mdAndDown" :value="item.approved" @click="editedEmployee.email = item.email; editedEmployee.username = item.username; editedEmployee.salary = item.salary;
+                    editedEmployee.position = item.position; editedEmployee.shop = item.shop; editedEmployee.durationOfShift = item.durationOfShift; editedEmployee.durationOfWeek = item.durationOfWeek;
+                    editedEmployee.workingDay = item.workingDay; editedEmployee.workingHours = item.editedEmployee">
                     <v-icon>mdi-pencil</v-icon>
                     <span v-if="!$vuetify.breakpoint.mdAndDown">编辑</span>
                   </v-btn>
                 </template>
 
+
+
                 <v-card>
-                  <v-card-title>
-                    <span class="text-h5">编辑信息</span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-container>
-                      <v-form :ref="`editEmployeeForm${index}`" lazy-validation>
-                        <v-row>
 
-                          <v-col cols="12">
-                            <v-text-field label="薪资*" type="number" v-model="editedEmployee.salary"
-                              :rules="rules.noneEmptyRules" prepend-icon="mdi-cash" required></v-text-field>
-                          </v-col>
 
-                          <v-col cols="12" sm="6">
-                            <v-select :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="职位*"
-                              prepend-icon="mdi-office-building-marker-outline" v-model="editedEmployee.position"
-                              :rules="rules.noneEmptyRules" required></v-select>
-                          </v-col>
+                  <v-tabs v-model="tabs">
+                    <v-tab>
+                      基本信息
+                    </v-tab>
+                    <v-tab>
+                      员工偏好
+                    </v-tab>
+                  </v-tabs>
 
-                          <v-col cols="12" sm="6">
-                            <v-select :items="branches" item-text="name" item-value="id" label="所属分店*"
-                              v-model="editedEmployee.shop" :rules="rules.noneEmptyRules" prepend-icon="mdi-store"
-                              required></v-select>
-                          </v-col>
+                  <v-tabs-items v-model="tabs">
+                    <v-tab-item>
+                      <v-card>
+                        <v-card-title>
+                          <span class="text-h5">编辑信息</span>
+                        </v-card-title>
+                        <v-card-text>
+                          <v-container>
+                            <v-form :ref="`editEmployeeForm${index}`" lazy-validation>
+                              <v-row>
 
-                        </v-row>
-                      </v-form>
-                    </v-container>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" text
-                      @click="item.dialog1 = false; $refs[`editEmployeeForm${index}`][0].reset()" large>
-                      关闭
-                    </v-btn>
-                    <v-btn color="primary" @click="editEmployee(index, item)" large>
-                      提交
-                    </v-btn>
-                  </v-card-actions>
+
+                                <v-col cols="12">
+                                  <v-text-field label="薪资*" type="number" v-model="editedEmployee.salary"
+                                    :rules="rules.noneEmptyRules" prepend-icon="mdi-cash" required></v-text-field>
+                                </v-col>
+
+                                <v-col :cols="$store.state.isManager ? 6 : 12">
+                                  <v-select :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="职位*"
+                                    prepend-icon="mdi-office-building-marker-outline" v-model="editedEmployee.position"
+                                    :rules="rules.noneEmptyRules" required></v-select>
+                                </v-col>
+
+                                <v-col cols="12" sm="6" v-if="$store.state.isManager">
+                                  <v-select :items="branches" item-text="name" item-value="id" label="所属分店*"
+                                    v-model="editedEmployee.shop" :rules="rules.noneEmptyRules" prepend-icon="mdi-store"
+                                    required></v-select>
+                                </v-col>
+
+
+
+                              </v-row>
+                            </v-form>
+                          </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn color="primary" text
+                            @click="item.dialog1 = false; $refs[`editEmployeeForm${index}`][0].reset()" large>
+                            关闭
+                          </v-btn>
+                          <v-btn color="primary" @click="editEmployee(index, item)" large>
+                            提交
+                          </v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-tab-item>
+                    <v-tab-item>
+                      <editFavor @close="item.dialog1 = false" :id="item.id"
+                        @msg="getMsg">
+                      </editFavor>
+                    </v-tab-item>
+                  </v-tabs-items>
                 </v-card>
               </v-dialog>
-
 
               <v-dialog max-width="470" v-model="item.dialog2">
                 <template v-slot:activator="{ on, attrs }">
@@ -228,7 +273,7 @@
                     <v-btn color="grey" text @click="item.dialog2 = false" large>
                       返回
                     </v-btn>
-                    <v-btn color="success" text @click="deleteEmployee(index, item.id)" large>
+                    <v-btn color="error" text @click="deleteEmployee(index, item.id)" large>
                       确定
                     </v-btn>
                   </v-card-actions>
@@ -243,22 +288,30 @@
 
         </div>
 
+        <v-row v-else>
+          <v-col cols="12" v-for="index of 6" :key="index">
+            <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line,divider"></v-skeleton-loader>
+          </v-col>
+        </v-row>
+
       </template>
 
-      <template v-slot:footer>
+      <template v-slot:footer v-if="ready & staff.length !== 0">
         <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"></v-pagination>
       </template>
 
     </v-data-iterator>
   </div>
-
-
 </template>
 
 <script>
-import { getAllShop } from '../../request/shop'
-import { getEmployee, createEmployee, editEmployeeInfo, deleteEmployee } from '../../request/staff'
+import { getAllShop, getShopInfo } from '../request/shop'
+import { createEmployee, editEmployeeInfo, deleteEmployee, getEmployeeByShop, getEmployee } from '../request/staff'
+import editFavor from '../components/editFavor.vue'
 export default {
+  components: {
+    editFavor
+  },
   data() {
     return {
       search: '',
@@ -266,17 +319,23 @@ export default {
       branch: 0,
       dialog1: false,
       ready: false,
-
-      items: [],
+      sortBy: null,
+      keys: {
+        '工号': 'id',
+        '姓名': 'username',
+      },
+      sortDesc: true,
+      tabs: 0,
+      staff: [{}],
       branches: [],
       week: [
-        { value: 1, key: '星期一' },
-        { value: 2, key: '星期二' },
-        { value: 3, key: '星期三' },
-        { value: 4, key: '星期四' },
-        { value: 5, key: '星期五' },
-        { value: 6, key: '星期六' },
-        { value: 7, key: '星期天' },
+        { value: "1", key: '星期一' },
+        { value: "2", key: '星期二' },
+        { value: "3", key: '星期三' },
+        { value: "4", key: '星期四' },
+        { value: "5", key: '星期五' },
+        { value: "6", key: '星期六' },
+        { value: "7", key: '星期天' },
 
       ],
 
@@ -305,23 +364,28 @@ export default {
         position: '',
         shop: '',
         salary: null,
+        durationOfShift: null,
+        durationOfWeek: null,
         workingDay: [],
-        workingHours: [],
-        durationOfShift: '',
-        durationOfWeek: '',
+        workingHours: []
       },
 
       editedEmployee: {
         position: '',
         shop: '',
         salary: null,
-      }
+        durationOfShift: null,
+        durationOfWeek: null,
+        workingDay: [],
+        workingHours: []
+      },
+
 
     }
   },
   computed: {
     numberOfPages() {
-      return Math.ceil(this.items.length / 10)
+      return Math.ceil(this.staff.length / 10)
     },
     fullscreen() {
       return this.$vuetify.breakpoint.xsOnly ? true : false
@@ -342,13 +406,17 @@ export default {
           position: this.newEmployee.position,
           shop: this.newEmployee.shop,
           salary: this.newEmployee.salary,
-          workingDay: this.newEmployee.workingDay === [] ? null : this.newEmployee.workingDay.toString(),
-          workingHours: this.newEmployee.workingHours ? (this.newEmployee.workingHours === [] ? null : this.newEmployee.workingHours.toString()) : null,
-          durationOfShift: this.newEmployee.durationOfShift === '' ? null : this.newEmployee.durationOfShift,
-          durationOfWeek: this.newEmployee.durationOfWeek === '' ? null:this.newEmployee.durationOfWeek
+          durationOfShift: this.newEmployee.durationOfShift,
+          durationOfWeek: this.newEmployee.durationOfWeek,
+          workingDay: this.newEmployee.workingDay !== null ? this.newEmployee.workingDay.toString() : '',
+          workingHours: this.newEmployee.workingHours !== null ? this.newEmployee.workingHours.toString() : ''
         }).then(res => {
           if (res.data.code === 0) {
-            // this.$router.go(0)
+            this.$emit('msg', '添加成功')
+            this.$router.go(0)
+          }
+          if (res.data.code === -1) {
+            this.$emit('msg', '邮箱重复')
           }
         }).catch(() => {
           this.$emit('msg', '网络错误')
@@ -364,31 +432,66 @@ export default {
           position: this.editedEmployee.position,
         }).then(res => {
           if (res.data.code === 0) {
-            item.salary = this.editedEmployee.salary,
-              item.shop = this.editedEmployee.shop,
-              item.position = this.editedEmployee.position
+            this.$emit('msg', '修改信息成功')
+            this.$router.go(0)
           }
         }).catch(() => {
           this.$emit('msg', '网络错误')
         })
+
       }
     },
     deleteEmployee(index, id) {
       deleteEmployee(id).then(res => {
         if (res.data.code === 0) {
-          this.items.splice(index, 1)
+          this.$emit('msg', '删除成功')
+          this.$router.go(0)
         }
       }).catch(() => {
         this.$emit('msg', '网络错误')
       })
     },
+
     getStaff(shopId) {
-      getEmployee(shopId).then(res => {
-        this.items = res.data.data
+      getEmployeeByShop(shopId).then(res => {
+        this.staff = res.data.data
       }).catch(() => {
         this.$emit('msg', '网络错误')
       })
+    },
+
+    getMsg(data) {
+      this.$emit('msg', data)
     }
+  },
+
+
+  async mounted() {
+    try {
+      if (this.$store.state.isManager) {
+        var shops = (await getAllShop()).data.data
+        this.branches = shops
+        if (this.branches.length !== 0) {
+          this.getStaff(this.branches[this.branch].id)
+        }
+        else {
+          this.ready = true,
+            this.staff = []
+          this.$emit('msg', '没有店铺信息')
+        }
+        this.ready = true
+      }
+      if (this.$store.state.isShopManager) {
+        var employee = (await getEmployee()).data.data
+        this.getStaff(employee.shop)
+        var shop = (await getShopInfo(employee.shop)).data.data
+        this.branches.push(shop)
+        this.ready = true
+      }
+    } catch (err) {
+      this.$emit('msg', '网络错误')
+    }
+
   },
 
   watch: {
@@ -403,17 +506,7 @@ export default {
         }
       }
     }
-  },
-
-  mounted() {
-    getAllShop().then(res => {
-      if (res.data.code === 0) {
-        this.branches = res.data.data
-        this.getStaff(this.branches[this.branch].id)
-      }
-    }).catch(() => {
-      this.$emit('msg', '网络错误')
-    })
   }
+
 }
 </script>

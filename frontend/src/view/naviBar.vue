@@ -86,12 +86,12 @@
 
       <v-list-item class="px-2 mt-2">
         <v-list-item v-if="mini == false" to="/">
-          <v-img v-if="$vuetify.theme.dark === false" :src="require('../../assets/logo-md.png')" width="10"></v-img>
-          <v-img v-else :src="require('../../assets/logo-md-dark.png')" width="10"></v-img>
+          <v-img v-if="$vuetify.theme.dark === false" :src="require('../assets/logo-md.png')" width="10"></v-img>
+          <v-img v-else :src="require('../assets/logo-md-dark.png')" width="10"></v-img>
         </v-list-item>
 
         <v-avatar v-if="mini == true" @click="$router.push('/')">
-          <v-img  :src="require('../../assets/logo-sm.png')"></v-img>
+          <v-img  :src="require('../assets/logo-sm.png')"></v-img>
         </v-avatar>
       </v-list-item>
 
@@ -99,7 +99,7 @@
 
         <v-list-item-group v-model="selectedItem" color="primary" mandatory>
 
-          <v-list-item link to="/admin/dashboard">
+          <v-list-item link to="dashboard">
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
@@ -114,33 +114,33 @@
           </v-list-item>
 
 
-          <v-list-item to="/admin/absences" link>
+          <v-list-item to="absences" link v-if="$store.state.isManager || $store.state.isShopManager">
             <v-list-item-icon>
               <v-icon>mdi-shore</v-icon>
             </v-list-item-icon>
             <v-list-item-title>请假管理</v-list-item-title>
           </v-list-item>
 
-          <v-list-item to="/admin/notifications" link>
+          <v-list-item to="notifications" link>
             <v-list-item-icon>
               <v-icon>{{ noti === 0 ? 'mdi-bell' : 'mdi-bell-badge' }}</v-icon>
             </v-list-item-icon>
             <v-list-item-title>通知中心</v-list-item-title>
           </v-list-item>
 
-          <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand">
+          <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand" v-if="$store.state.isManager || $store.state.isShopManager">
             <template v-slot:activator>
               <v-list-item-title>信息管理</v-list-item-title>
             </template>
 
-            <v-list-item to="/admin/branches" link>
+            <v-list-item to="branches" link>
               <v-list-item-icon>
                 <v-icon>mdi-store</v-icon>
               </v-list-item-icon>
               <v-list-item-title>分店信息</v-list-item-title>
             </v-list-item>
 
-            <v-list-item to="/admin/staff" link>
+            <v-list-item to="staff" link>
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
@@ -148,7 +148,7 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-item to="/admin/settings" link>
+          <v-list-item to="settings" link>
             <v-list-item-icon>
               <v-icon>mdi-cogs</v-icon>
             </v-list-item-icon>
@@ -181,9 +181,8 @@
 </template>
 
 <script>
-import { getUserAvatar, getUserInfo, logout } from '../../request/user'
-import { getNotisByCount } from '../../request/notis'
-import router from '@/router'
+import { getUserAvatar, getUserInfo, logout } from '../request/user'
+import { getNotisByCount } from '../request/notis'
 export default {
   data: () => ({
     snackBar: false,
@@ -285,7 +284,7 @@ export default {
         this.user.avatar = url
       }
       else if (res.status === 204) {
-        this.user.avatar = require('../../assets/defaultAvatar.png')
+        this.user.avatar = require('../assets/defaultAvatar.png')
       }
     }).catch(() => {
       this.getMsg('网络错误')
@@ -300,13 +299,13 @@ export default {
           notice.avatar = URL.createObjectURL(avatar.data)
         }
         else {
-          notice.avatar = require('../../assets/defaultAvatar.png')
+          notice.avatar = require('../assets/defaultAvatar.png')
         }
 
 
       }
       this.notices = notices
-      if (this.notices.length === 0) this.notices = []
+      if (notices.length === 0) this.notices = []
 
     }).catch(() => {
       this.$emit('msg', '网络错误')

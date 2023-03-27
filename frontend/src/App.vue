@@ -16,18 +16,13 @@ export default {
     //根据身份生成路由
     if (localStorage.getItem('token')) {
       var user=(await getUserInfo()).data.data
-      var isManager=user.isManager
-      var isShopManager=user.isShopManager
+      this.$store.commit('saveAuthority',{isManager:user.isManager,isShopManager:user.isShopManager})
       var blank = {
         path: '*',
         redirect: '/404'
       }
-        if (isManager) {
+        if (this.$store.state.isManager || this.$store.state.isShopManager) {
           this.$router.addRoute(adminRoutes)
-          this.$router.addRoute(blank)
-        }
-        else if (isShopManager) {
-          this.$router.addRoute(managerRoutes)
           this.$router.addRoute(blank)
         }
         else {

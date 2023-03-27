@@ -41,7 +41,7 @@
         </template>
 
         <v-card dark>
-          <v-tabs background-color="primary darken-2" center-active dark>
+          <v-tabs background-color="purple darken-3" center-active dark>
             <v-tab @click="show = 1">登录</v-tab>
             <v-tab @click="show = 2">注册</v-tab>
             <v-spacer></v-spacer>

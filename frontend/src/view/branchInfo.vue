@@ -1,10 +1,11 @@
 <template>
-  <v-data-iterator :items="items" :search="search" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据"
+  <v-data-iterator :items="branches" :search="search" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据"
     disable-pagination>
     <template v-slot:header>
       <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
-        <v-dialog v-model="dialog1" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
+        <v-dialog v-model="dialog1" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false"
+          v-if="$store.state.isManager">
           <template v-slot:activator="{ on, attrs }">
             <v-btn large color="secondary" class="mr-5" outlined v-bind="attrs" v-on="on">
               <v-icon>mdi-plus</v-icon>
@@ -98,7 +99,7 @@
                     :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
                     <template v-slot:activator="{ on, attrs }">
                       <v-btn large color="secondary" class="mr-5" outlined v-bind="attrs" v-on="on"
-                        @click="editedShop.name = item.name; editedShop.address = item.address; editedShop.size = item.size;editedShop.dialog=false">
+                        @click="editedShop.name = item.name; editedShop.address = item.address; editedShop.size = item.size; editedShop.dialog = false">
                         编辑信息
                       </v-btn>
                     </template>
@@ -194,14 +195,15 @@
 </template>
 
 <script>
-import { createShop, getAllShop, editShopInfo, deleteShop, getFlow } from '../../request/shop'
+import { createShop, getAllShop, editShopInfo, deleteShop, getFlow, getShopInfo } from '../request/shop'
+import { getEmployee } from '../request/staff'
 export default {
   data() {
     return {
       search: '',
       dialog1: false,
       ready: false,
-      items: [{}],
+      branches: [{}],
       newShop: {
         name: '',
         address: '',
@@ -212,7 +214,7 @@ export default {
         name: '',
         address: '',
         size: null,
-        dialog:false
+        dialog: false
       },
 
 
@@ -270,9 +272,9 @@ export default {
       }
     },
     deleteShop(index) {
-      deleteShop(this.items[index].id).then(res => {
+      deleteShop(this.branches[index].id).then(res => {
         if (res.data.code === 0) {
-          this.items.splice(index, 1)
+          this.branches.splice(index, 1)
           this.$emit('msg', '删除成功')
         }
       }).catch(() => {
@@ -281,26 +283,47 @@ export default {
     },
   },
 
-  mounted() {
-    getAllShop().then(async res => {
-      if (res.data.code === 0) {
-        var items = res.data.data
-        if (items.length === 0) this.$emit('msg', '没有店铺信息')
-        for (var i = 0; i < items.length; i++) {
-          var flow = (await getFlow({
-            shop: items[i].id,
-            start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) + " 00:00:00",
-            lasting: 1
-          })).data.data[0].flowUnits
-          items[i].flow = []
-          items[i].flow = [flow[0].flow, flow[3].flow, flow[6].flow, flow[9].flow, flow[12].flow, flow[15].flow, flow[18].flow, flow[21].flow, flow[24].flow]
-          this.items = items
+  async mounted() {
+    try {
+      if (this.$store.state.isManager) {
+        var shop1 = (await getAllShop()).data.data
+        if (shop1.length === 0) {
+          this.$emit('msg', '没有店铺信息')
+          this.branches = []
+        }
+        else {
+          for (var i = 0; i < shop1.length; i++) {
+            var flow1 = (await getFlow({
+              shop: shop1[i].id,
+              start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) + " 00:00:00",
+              lasting: 1
+            })).data.data[0].flowUnits
+            shop1[i].flow = []
+            shop1[i].flow = [flow1[0].flow, flow1[3].flow, flow1[6].flow, flow1[9].flow, flow1[12].flow, flow1[15].flow, flow1[18].flow, flow1[21].flow, flow1[24].flow]
+            this.branches = shop1
+          }
         }
         this.ready = true
       }
-    }).catch(() => {
+      else if (this.$store.state.isShopManager) {
+        var employee = (await getEmployee()).data.data.shop
+        var shop2 = (await getShopInfo(employee)).data.data
+        var flow2 = (await getFlow({
+          shop: shop2.id,
+          start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) + " 00:00:00",
+          lasting: 1
+        })).data.data[0].flowUnits
+        shop2.flow = []
+        shop2.flow = [flow2[0].flow, flow2[3].flow, flow2[6].flow, flow2[9].flow, flow2[12].flow, flow2[15].flow, flow2[18].flow, flow2[21].flow, flow2[24].flow]
+        this.branches = []
+        this.branches.push(shop2)
+        this.ready = true
+
+      }
+    }catch(err){
       this.$emit('msg', '网络错误')
-    })
+    }
+    
   }
 }
 </script>

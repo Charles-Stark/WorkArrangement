@@ -58,8 +58,8 @@
                   <v-card-title class="text-h5">
                     修改用户名
                   </v-card-title>
-                  <v-card-text class="mt-5"><v-text-field v-model="newName" counter="10" label="输入新用户名" required
-                      outlined @keyup.enter="updateName()"></v-text-field></v-card-text>
+                  <v-card-text class="mt-5"><v-text-field v-model="newName" counter="10" label="输入新用户名" required outlined
+                      @keyup.enter="updateName()"></v-text-field></v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn class="mb-5" @click="updateName()" color="primary" width="120" height="40">
@@ -264,6 +264,25 @@
                 </v-card>
               </v-dialog>
 
+              <v-divider v-if="!$store.state.isManager"></v-divider>
+
+              <v-dialog v-model="dialog4" width="500" persistent v-if="!$store.state.isManager">
+                <template v-slot:activator="{ on, attrs }">
+
+                  <v-list-item v-bind="attrs" v-on="on" class="mt-2">
+                    <v-list-item-icon>
+                      <v-icon color="accent">mdi-star-circle</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>排班喜好</v-list-item-title>
+                    <v-list-item-subtitle>点击修改</v-list-item-subtitle>
+                  </v-list-item>
+
+                </template>
+
+                <editFavor @close="dialog4=false" ></editFavor>
+
+              </v-dialog>
+
             </v-list-item-group>
           </v-list>
         </v-expansion-panel-content>
@@ -348,22 +367,24 @@
 
     </v-expansion-panels>
   </v-container>
-
-
-
 </template>
 
 <script>
-import themes from '../../plugins/themes'
-import { getUserAvatar, getUserInfo, pswReset, getOTP, OTPLogin, updateName, updateAvatar, updateEmail, getEmailOTP, logout } from '../../request/user'
+import themes from '../plugins/themes'
+import { getUserAvatar, getUserInfo, pswReset, getOTP, OTPLogin, updateName, updateAvatar, updateEmail, getEmailOTP, logout } from '../request/user'
+import editFavor from '../components/editFavor.vue'
 
 export default {
+  components:{
+    editFavor
+  },
   data: () => ({
     step1: 1,
     step2: 1,
     dialog1: false,
     dialog2: false,
     dialog3: false,
+    dialog4: false,
     dark: null,
     autoDark: null,
     toggle: [],
@@ -371,12 +392,14 @@ export default {
     counter: 0,
     counter2: 0,
     loading: false,
+    menu: false,
 
     user: {
       avatar: '',
       userName: '',
       email: '',
     },
+
 
     otp1: '',
     otp2: '',
@@ -596,15 +619,15 @@ export default {
         this.$emit('msg', '请输入验证码')
       }
     },
-    logout(){
-      logout().then(res=>{
-        if(res.data.code===0){
+    logout() {
+      logout().then(res => {
+        if (res.data.code === 0) {
           this.$store.commit('deleteLoginInfo')
           this.$emit('msg', '退出登录成功，正在重定向...')
           this.$router.push('/')
           this.$router.go(0)
         }
-        else{
+        else {
           this.$emit('msg', '退出登录失败')
         }
       }).catch(
@@ -622,31 +645,28 @@ export default {
         this.$vuetify.theme.dark = matchMedia("(prefers-color-scheme: dark)").matches
         this.$store.commit('dark', matchMedia("(prefers-color-scheme: dark)").matches ? 'true' : '')
       }
-    }
+    },
   },
 
-  mounted() {
-    getUserInfo().then(res => {
-      if (res.data.code === 0) {
-        this.user.userName = res.data.data.username
-        this.user.email = res.data.data.email
-      }
+  async mounted() {
+    try {
+      var userinfo = (await getUserInfo()).data.data
+      this.user.userName = userinfo.username
+      this.user.email = userinfo.email
 
-    }).catch(() => {
-      this.$emit('msg', '网络错误')
-    })
-
-    getUserAvatar(this.$store.state.userId).then(res => {
-      if (res.status === 200) {
-        let url = URL.createObjectURL(res.data)
+      var avatar = (await getUserAvatar(this.$store.state.userId))
+      if (avatar.status === 200) {
+        let url = URL.createObjectURL(avatar.data)
         this.user.avatar = url
       }
-      else if (res.status === 204) {
-        this.user.avatar = require('../../assets/defaultAvatar.png')
+      else if (avatar.status === 204) {
+        this.user.avatar = require('../assets/defaultAvatar.png')
       }
-    }).catch(() => {
+
+      
+    } catch (err) {
       this.$emit('msg', '网络错误')
-    })
+    }
   },
 
   created() {

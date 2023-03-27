@@ -25,7 +25,7 @@
               <v-text-field label="邮箱" outlined prepend-inner-icon="mdi-email" placeholder="hello@email.com"
                 v-model="email" @keyup.enter="getOTP()"></v-text-field>
 
-              <v-btn color="primary" @click="getOTP()" class="mx-auto mt-5" block height="55" :loading="loading">
+              <v-btn color="purple" @click="getOTP()" class="mx-auto mt-5" block height="55" :loading="loading">
                 <span class="text-subtitle-1">继续</span>
               </v-btn>
 
@@ -45,12 +45,12 @@
               </v-text-field>
             </v-col>
             <v-col cols="4">
-              <v-btn color="primary" block height="55" outlined @click="show3 = true">
+              <v-btn color="purple" block height="55" outlined @click="show3 = true">
                 <span class="text-subtitle-1">忘记密码</span>
               </v-btn>
             </v-col>
             <v-col cols="8">
-              <v-btn color="primary" @click="submit()" class="mx-auto" block height="55">
+              <v-btn color="purple" @click="submit()" class="mx-auto" block height="55">
                 <span class="text-subtitle-1">登录</span>
               </v-btn>
             </v-col>
@@ -62,7 +62,7 @@
       <template v-else>
         <v-btn text @click="show2 = false">返回</v-btn>
         <v-otp-input v-model="otp" @finish="submit()" class="my-10"></v-otp-input>
-        <v-btn block color="primary" height="55" class="mt-4" :disabled="counter !== 0"
+        <v-btn block color="purple" height="55" class="mt-4" :disabled="counter !== 0"
           v-text="counter !== 0 ? `在${counter}秒后重试` : '重新获取验证码'" @click="getOTP()"></v-btn>
       </template>
     </div>
@@ -78,7 +78,7 @@
         </v-col>
 
         <v-col cols="4">
-          <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
+          <v-btn color="purple" @click="getOTP()" class="mx-auto" block height="55" outlined
             v-text="counter === 0 ? '获取验证码' : `${counter}秒后重试`" :disabled="counter !== 0"></v-btn>
         </v-col>
 
@@ -97,7 +97,7 @@
         </v-col>
 
         <v-col cols="12">
-          <v-btn color="primary" class="mx-auto" block height="55" :loading="loading" @click="pswReset()">
+          <v-btn color="purple" class="mx-auto" block height="55" :loading="loading" @click="pswReset()">
             <span class="text-subtitle-1">修改密码</span>
           </v-btn>
         </v-col>

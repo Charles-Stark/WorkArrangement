@@ -13,7 +13,7 @@
         </v-col>
 
         <v-col cols="4">
-          <v-btn color="primary" @click="getOTP()" class="mx-auto" block height="55" outlined
+          <v-btn color="purple" @click="getOTP()" class="mx-auto" block height="55" outlined
             v-text="counter === 0 ? '获取验证码' : `${counter}秒后重试`" :disabled="counter !== 0"></v-btn>
         </v-col>
 
@@ -31,7 +31,7 @@
 
 
         <v-col cols="12">
-          <v-btn color="primary " @click="submit()" class="mx-auto" block height="55" :loading="loading">
+          <v-btn color="purple " @click="submit()" class="mx-auto" block height="55" :loading="loading">
             <span class="text-subtitle-1">注册</span>
           </v-btn>
         </v-col>

@@ -8,7 +8,7 @@
                 <li><a href="#3">产品优势</a></li>
                 <li><a href="#4">系统亮点</a></li>
                 <li><a href="#5">项目品鉴</a></li>
-                <li v-if="$store.state.userId!==null & $store.state.token!==null"><router-link to="admin">控制台</router-link> </li>
+                <li v-if="$store.state.userId!==null & $store.state.token!==null"><router-link to="controlpanel">控制台</router-link> </li>
                 <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
                 <li><accountStatus></accountStatus></li>
             </ul>
