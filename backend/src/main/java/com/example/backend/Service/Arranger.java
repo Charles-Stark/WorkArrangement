@@ -360,7 +360,10 @@ public class Arranger {
             if(s!=null){
                 String[] list=s.split(",");
                 workingDay=new ArrayList<Integer>();
-                for(String a:list) workingDay.add(Integer.parseInt(a));
+                for(String a:list) {
+                    if(a.equals(" ")||a.equals("")) continue;
+                    workingDay.add(Integer.parseInt(a));
+                }
             }
             s = preference.getWorkingHours();
             if(s!=null) {
