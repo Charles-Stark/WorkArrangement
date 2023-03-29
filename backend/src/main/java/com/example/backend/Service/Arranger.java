@@ -380,7 +380,7 @@ public class Arranger {
             workingHours = new ArrayList<>();
             int start,end;
             for(String s1:list) {
-                if(s1.equals(" ")) continue;
+                if(s1.equals(" ")||s1.equals("")) continue;
                 start = Integer.parseInt(s1.substring(0, 2));
                 end = Integer.parseInt(s1.substring(6, 8));
                 if (s1.charAt(3) == '3') start += 0.5;
