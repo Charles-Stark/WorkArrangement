@@ -44,7 +44,7 @@ public class NotificationVO {
         type = notification.getType();
         text = notification.getText();
         createAt = notification.getCreateAt();
-        fromUsername = notificationVO.userMapper.selectById(id).getUsername();
+        fromUsername = notificationVO.userMapper.selectById(fromUser).getUsername();
     }
 
 }
