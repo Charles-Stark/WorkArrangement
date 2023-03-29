@@ -380,6 +380,7 @@ public class Arranger {
             workingHours = new ArrayList<>();
             int start,end;
             for(String s1:list) {
+                if(s1.equals(" ")) continue;
                 start = Integer.parseInt(s1.substring(0, 2));
                 end = Integer.parseInt(s1.substring(6, 8));
                 if (s1.charAt(3) == '3') start += 0.5;
@@ -735,7 +736,7 @@ public class Arranger {
         }
         Schedule schedule=new Schedule(null,shopId, managerId,new Date(),true,ruleId,timeStaffNumList.get(0).get(0).startTime,timeStaffNumList.get(timeStaffNumList.size()-1).get(0).startTime,weeks);
         scheduleMapper.insert(schedule);
-        System.out.println("新的排班数据以创建,id="+schedule.getId());
+        System.out.println("新的排班数据已创建,id="+schedule.getId());
         return schedule.getId();
     }
 
