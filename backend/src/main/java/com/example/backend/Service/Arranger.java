@@ -206,7 +206,7 @@ public class Arranger {
             }
             else{
                 int last=timeStaffNumList.size()-1;
-                if(timeStaffNumList.get(last).workUnits.isEmpty()) workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last-1).startTime.getTime()+1800000),new LinkedList<>(),numberOnDuty));
+                if(timeStaffNumList.get(last).workUnits.isEmpty()) workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last).startTime.getTime()),new LinkedList<>(),numberOnDuty));
                 else workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last).workUnits.get(workUnits.size()-1).beginTime.getTime()+1800000),new LinkedList<>(),numberOnDuty));
             }
         }
@@ -238,6 +238,7 @@ public class Arranger {
                 int length=unitNum- workUnits.size();
                 for(int i=0;i<length;i++){
                     workUnits.add(0,new WorkUnit(null,new LinkedList<>(),0));
+                    startTime.setTime(startTime.getTime()-1800000);
                 }
             }
         }
@@ -494,7 +495,7 @@ public class Arranger {
 
         int count=0;
         while(count<prepareTime*2){
-            if(count%4==0) timeStaffNumList.add(0,new TimeStaffNum(new Date(timeStaffNumList.get(0).startTime.getTime()-3600000)));
+            if(count%4==0) timeStaffNumList.add(0,new TimeStaffNum(new Date(timeStaffNumList.get(0).startTime.getTime())));
             timeStaffNumList.get(0).addUnit(timeStaffNumList,-1);
             count++;
         }
@@ -504,7 +505,7 @@ public class Arranger {
         while(count<closingTime*2){
             int last = timeStaffNumList.size()-1;
             if((count-lastLength)%4==0) {
-                timeStaffNumList.add(new TimeStaffNum(new Date(timeStaffNumList.get(last).startTime.getTime() + 3600000)));
+                timeStaffNumList.add(new TimeStaffNum(new Date(timeStaffNumList.get(last).startTime.getTime() + 7200000)));
                 last++;
             }
             timeStaffNumList.get(last).addUnit(timeStaffNumList,1);
