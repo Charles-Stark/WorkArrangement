@@ -37,7 +37,7 @@
 
           </div>
 
-          <v-subheader><v-icon>mdi-menu-right</v-icon> <router-link to="/admin/notifications"
+          <v-subheader><v-icon>mdi-menu-right</v-icon> <router-link to="/controlpanel/notifications"
               style="text-decoration:none">进入通知中心查看全部消息</router-link></v-subheader>
         </v-list>
 
@@ -66,7 +66,7 @@
                 {{ user.email }}
               </p>
               <v-divider class="my-3"></v-divider>
-              <v-btn depressed rounded text to="/admin/settings">
+              <v-btn depressed rounded text to="dashboard">
                 账户设置
               </v-btn>
               <v-divider class="my-3"></v-divider>
@@ -225,7 +225,7 @@ export default {
     noti() {
       var num = 0
       for (var notice in this.notices) {
-        if (this.notices[notice].read === false) {
+        if (this.notices[notice].isRead === false) {
           num++
         }
       }

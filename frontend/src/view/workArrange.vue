@@ -38,7 +38,10 @@
           </template>
           <v-list>
             <v-list-item>
-              <v-btn text>导出/打印</v-btn>
+              <download-excel name="排班导出结果.xls">
+                <v-btn text>导出/打印</v-btn>
+              </download-excel>
+
             </v-list-item>
             <v-list-item>
               <v-btn text>历史排班</v-btn>
@@ -122,7 +125,7 @@
             </v-toolbar>
           </v-sheet>
           <v-sheet>
-            <v-calendar ref="calendar" v-model="focus" color="primary" :events="events" :event-color="getEventColor"
+            <v-calendar ref="calendar" v-model="focus" color="primary" :events="scheduleType" :event-color="getEventColor"
               first-interval="6" interval-count="18" locale="zh-cn" :type="type" @click:event="showEvent"
               @click:more="viewDay" @click:date="viewDay" event-overlap-mode="column" @change="updateRange">
             </v-calendar>
@@ -165,7 +168,7 @@
 import { getAllShop } from '../request/shop'
 import { getEmployeeByShop } from '../request/staff'
 import { getUserAvatar } from '../request/user'
-import { getAllArr } from '../request/rule'
+import { getAllArr, getRule } from '../request/rule'
 import newArrangement from '../components/newArrangement.vue'
 
 export default {
@@ -186,22 +189,63 @@ export default {
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
+
       events: [],
+      rawEvents: [],
+
       colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
       names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
 
       branch: ' ',
       branches: [],
       size: null,
-      staff: []
+      staff: [],
+
+      rules: [],
+
+      json_fields: {
+        id: "",
+        employees: "",
+        beginTime: "",
+        shop: "",
+        manager: "",
+        createAt: "",
+        isActive: "",
+        useRule: "",
+        startAt: "",
+        endAt: "",
+        week: "",
+
+      }
+
     }
   },
   computed: {
+    scheduleType() {
+      return this.type === 'week' ? this.rawEvents : this.events
+    },
     filteredStaff() {
       return this.staff.filter(p => {
         return p.uid.indexOf(this.search) !== -1 || p.username.indexOf(this.search) !== -1
       })
     },
+
+    json_data() {
+      return {
+        "排班表id": this.json_fields.id,
+        "员工id": this.json_fields.employees,
+        "开始工作时间": this.json_fields.beginTime,
+        "店铺id": this.json_fields.shop,
+        "管理员id": this.json_fields.manager,
+        "创建时间": this.json_fields.createAt,
+        "是否正在使用": this.json_fields.isActive,
+        "使用的排班规则id": this.json_fields.useRule,
+        "开始启用时间": this.json_fields.startAt,
+        "结束使用时间": this.json_fields.endAt,
+        "工作详细": this.json_fields.week,
+      }
+    }
+
   },
   methods: {
     viewDay({ date }) {
@@ -271,32 +315,31 @@ export default {
         }
       }
       var staff = (await getEmployeeByShop(this.branch)).data.data
-      for (var s of staff) {
-        var avatar = await getUserAvatar(s.id)
-        if (avatar.status === 200) {
-          s.avatar = URL.createObjectURL(avatar.data)
-        }
-        else {
-          s.avatar = require('../assets/defaultAvatar.png')
-        }
-
+      staff.forEach(s => {
+        s.avatar = ''
         this.staff.push(s)
-      }
+      })
 
       if (this.staff.length === 0) this.staff = []
 
     },
     async getArr() {
-
       var events = (await getAllArr(this.branch)).data
       console.log(events)
+      this.rules = (await getRule(events.data[events.data.length - 1].useRule)).data.data
       var weeks = events.data[events.data.length - 1].weeks
+      var rawEvents = []
+
+
       for (var week of weeks) {
+
         for (var day of week.data) {
           var employees = []
           if (day !== null) {
             for (var event of day) {
               if (event !== null) {
+
+                //将排班处理成按员工分类
                 var start = event.beginTime
                 for (var employee of event.employees) {
                   var flag = false
@@ -321,6 +364,30 @@ export default {
                     })
                   }
                 }
+
+
+                //将排班处理成按时间分类
+                var d=new Date(event.beginTime).getDay()
+                var time=new Date(event.beginTime).getHours()
+                var color
+                if(d>=1& d<=5){
+                  if(time<9||time>=21)color='green'
+                  else color='blue'
+                }
+                else{
+                  if(time<10||time>=22)color='green'
+                  else color='blue'
+                }
+                rawEvents.push({
+                  start: new Date(event.beginTime),
+                  end: new Date(event.beginTime + 1800000),
+                  name: event.employees.length + '个员工',
+                  detail: event.employees,
+                  color,
+                  timed: true
+                })
+
+
               }
 
             }
@@ -329,33 +396,44 @@ export default {
             for (var i = 0; i < e.start.length; i++) {
               this.events.push({
                 id: e.id,
-                start:new Date(e.start[i]) ,
-                end:new Date(e.end[i]),
+                start: new Date(e.start[i]),
+                end: new Date(e.end[i]),
                 name: e.name,
                 color: this.colors[this.rnd(0, this.colors.length - 1)],
-                timed:true
+                timed: true
               })
 
             }
           }
 
+
+
         }
 
       }
-
-
+      this.rawEvents = rawEvents
     }
   },
   mounted() {
     this.$refs.calendar.checkChange()
-
 
     getAllShop().then(async res => {
       this.branches = res.data.data
       if (this.branches.length !== 0) {
         this.branch = this.branches[0].id
         await this.getStaff()
-        this.getArr()
+        await this.getArr()
+
+        this.staff.forEach( async s => {
+        var avatar =  await getUserAvatar(s.id)
+        if (avatar.status === 200) {
+          s.avatar = URL.createObjectURL(avatar.data)
+        }
+        else {
+          s.avatar = require('../assets/defaultAvatar.png')
+        }
+      })
+
       }
       else {
         this.$emit('msg', '没有店铺信息')
@@ -363,6 +441,9 @@ export default {
     }).catch(() => {
       this.$emit('msg', '网络错误')
     })
+
+    
+
   }
 
 }

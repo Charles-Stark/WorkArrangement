@@ -36,3 +36,11 @@ export const getAllArr = id => {
     url: `/api/schedule/get/shop/${id}`,
   })
 }
+
+//获取某个排班的规则
+export const getRule = id => {
+  return request({
+    method: 'get',
+    url: `/api/rule/get/${id}`,
+  })
+}

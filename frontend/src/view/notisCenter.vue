@@ -182,6 +182,7 @@ export default {
             notice.isRead = true
           }
         this.$emit('msg', '操作成功')
+        this.dialog=false
         }
       }).catch(() => {
         this.$emit('msg', '网络错误')
@@ -216,8 +217,8 @@ export default {
           else{
             notice.avatar=require('../assets/defaultAvatar.png')
           }
-          this.notices.push(notice)
       }
+      this.notices=notices
       if (notices.length === 0) this.notices = []
       this.ready = true
 

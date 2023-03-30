@@ -21,7 +21,7 @@
                 {{ user.email }}
               </p>
               <v-divider class="my-3"></v-divider>
-              <v-btn depressed rounded text to="/admin/settings">
+              <v-btn depressed rounded text to="/controlpanel/settings">
                 账户设置
               </v-btn>
               <v-divider class="my-3"></v-divider>

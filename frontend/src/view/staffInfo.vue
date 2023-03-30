@@ -247,8 +247,7 @@
                       </v-card>
                     </v-tab-item>
                     <v-tab-item>
-                      <editFavor @close="item.dialog1 = false" :id="item.id"
-                        @msg="getMsg">
+                      <editFavor @close="item.dialog1 = false" :id="item.id" @msg="getMsg">
                       </editFavor>
                     </v-tab-item>
                   </v-tabs-items>
@@ -455,6 +454,7 @@ export default {
     getStaff(shopId) {
       getEmployeeByShop(shopId).then(res => {
         this.staff = res.data.data
+        this.ready = true
       }).catch(() => {
         this.$emit('msg', '网络错误')
       })
@@ -475,11 +475,10 @@ export default {
           this.getStaff(this.branches[this.branch].id)
         }
         else {
-          this.ready = true,
-            this.staff = []
+          this.ready = true
+          this.staff = []
           this.$emit('msg', '没有店铺信息')
         }
-        this.ready = true
       }
       if (this.$store.state.isShopManager) {
         var employee = (await getEmployee()).data.data
