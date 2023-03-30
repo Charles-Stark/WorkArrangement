@@ -82,28 +82,33 @@ public class Arranger {
                 this.beginTime=beginTime;
                 this.staffs=staffs;
                 minStaffNum=(int)min;
-                if(minStaffNum==0) minStaffNum=numberOnDuty;
+                if(beginTime!=null&&minStaffNum==0) minStaffNum=numberOnDuty;
                 currentNum=0;
             }
             public void add(Staff s){
                 if(s==null) return;
+                if(this.staffs==null) return;
+                if(this.beginTime==null) return;
                 currentNum++;
                 staffs.add(s);
                 s.setDayWorkTime(0.5);
             }
             public void add(int index, Staff s){
                 if(s==null) return;
+                if(this.beginTime==null) return;
                 currentNum++;
                 staffs.add(0,s);
                 s.setDayWorkTime(0.5);
             }
             public void remove(Staff s){
                 if(s==null) return;
+                if(beginTime==null) return;
                 currentNum--;
                 staffs.remove(s);
                 s.setDayWorkTime(-0.5);
             }
             public boolean contains(Staff staff){
+                if(staffs==null) return false;
                 return staffs.contains(staff);
             }
             public void move(Staff staff, List<TimeStaffNum> timeStaffNumList, int index){
@@ -201,7 +206,7 @@ public class Arranger {
             }
             else{
                 int last=timeStaffNumList.size()-1;
-                if(timeStaffNumList.get(last).workUnits.isEmpty()) workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last-1).startTime.getTime()+1800000),new LinkedList<>(),numberOnDuty));
+                if(timeStaffNumList.get(last).workUnits.isEmpty()) workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last).startTime.getTime()),new LinkedList<>(),numberOnDuty));
                 else workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last).workUnits.get(workUnits.size()-1).beginTime.getTime()+1800000),new LinkedList<>(),numberOnDuty));
             }
         }
@@ -215,21 +220,25 @@ public class Arranger {
         }
         public boolean contains(Staff staff){
             boolean result=false;
-            for(TimeStaffNum.WorkUnit unit:workUnits)
-                if(result=unit.contains(staff))
-                    break;
+            for(TimeStaffNum.WorkUnit unit:workUnits){
+                if(result=unit.contains(staff)) break;
+            }
+
             return result;
         }
         public void format(int direct){
             if(workUnits.size()==unitNum) return;
             if(direct>0){
-                for(int i=0;i<unitNum-workUnits.size();i++){
-                    workUnits.add(new WorkUnit(null,null,0));
+                int length=unitNum- workUnits.size();
+                for(int i=0;i<length;i++){
+                    workUnits.add(new WorkUnit(null,new LinkedList<>(),0));
                 }
             }
             else{
-                for(int i=0;i<unitNum-workUnits.size();i++){
-                    workUnits.add(0,new WorkUnit(null,null,0));
+                int length=unitNum- workUnits.size();
+                for(int i=0;i<length;i++){
+                    workUnits.add(0,new WorkUnit(null,new LinkedList<>(),0));
+                    startTime.setTime(startTime.getTime()-1800000);
                 }
             }
         }
@@ -485,27 +494,28 @@ public class Arranger {
         for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
             timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
         }
-        return timeStaffNumList;
-        /*
+        //return timeStaffNumList;
+
         int count=0;
-        while(count<prepareTime){
-            if(count%4==0) timeStaffNumList.add(0,new TimeStaffNum(new Date(timeStaffNumList.get(0).startTime.getTime()-1800000)));
+        while(count<prepareTime*2){
+            if(count%4==0) timeStaffNumList.add(0,new TimeStaffNum(new Date(timeStaffNumList.get(0).startTime.getTime())));
             timeStaffNumList.get(0).addUnit(timeStaffNumList,-1);
             count++;
         }
         timeStaffNumList.get(0).format(-1);
         count=0;
-        while(count<closingTime){
+        int lastLength=timeStaffNumList.get(timeStaffNumList.size()-1).workUnits.size();
+        while(count<closingTime*2){
             int last = timeStaffNumList.size()-1;
-            if(count%4==0) {
-                timeStaffNumList.add(new TimeStaffNum(new Date(timeStaffNumList.get(last).startTime.getTime() + 1800000)));
+            if((count-lastLength)%4==0) {
+                timeStaffNumList.add(new TimeStaffNum(new Date(timeStaffNumList.get(last).startTime.getTime() + 7200000)));
                 last++;
             }
             timeStaffNumList.get(last).addUnit(timeStaffNumList,1);
+            count++;
         }
         timeStaffNumList.get(timeStaffNumList.size()-1).format(1);
         return timeStaffNumList;
-        */
     }
     public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId) throws RuntimeException{
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
@@ -532,7 +542,10 @@ public class Arranger {
                 System.out.println(e);
                 errorTime++;
                 i--;
-                if(errorTime>10) throw new RuntimeException("排版失败，请根据控制台信息检查原因");
+                if(errorTime>10) {
+                    e.printStackTrace();
+                    throw new RuntimeException("排版失败，请根据控制台信息检查原因");
+                }
                 else if(errorTime==5) {
                     System.out.println("排班超时，重新开始本次排班");
                     i=-1;
