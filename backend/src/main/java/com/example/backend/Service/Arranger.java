@@ -123,37 +123,33 @@ public class Arranger {
                 }
                 if(newUnit!=null) newUnit.add(0, staff);
                 else return;
-                this.staffs.remove(staff);
-                this.currentNum--;
+                remove(staff);
             }
             public void swap(Staff former, Staff later, List<TimeStaffNum> timeStaffNumList, int index, int indexOfUnit, int length){
                 int indexOfOld1=0,indexOfOld2=0;
-                if(indexOfUnit==unitNum-1) {
-                    indexOfOld2=0;
-                    indexOfOld1 += 1;
-                }
+                if(indexOfUnit==unitNum-1) indexOfOld1 += 1;
                 for(int i=0;i<length;i++){
                     if(indexOfUnit==0){
-                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).staffs.remove(former);
-                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).staffs.add(later);
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).remove(former);
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).add(later);
                         index--;
                         indexOfUnit=unitNum-1;
                         continue;
                     }
                     else {
-                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).staffs.remove(former);
-                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).staffs.add(later);
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).remove(former);
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnit).add(later);
                         indexOfUnit--;
                     }
                     if(indexOfOld2==unitNum-1){
-                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).staffs.remove(later);
-                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).staffs.add(former);
+                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).remove(later);
+                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).add(former);
                         index++;
                         indexOfUnit=0;
                     }
                     else{
-                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).staffs.remove(later);
-                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).staffs.add(former);
+                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).remove(later);
+                        timeStaffNumList.get(indexOfOld1).workUnits.get(indexOfOld2).add(former);
                         indexOfOld2++;
                     }
                 }
@@ -355,89 +351,98 @@ public class Arranger {
             return continuousWorkTime;
         }
     }
-    private class Prefer{
+    private class Prefer {
         private Long id;
         private List<Integer> workingDay;
         private List<Float> workingHours;
         private Integer durationOfShift;
         private Integer durationOfWeek;
-        public Prefer(Preference preference){
-            this.id=preference.getId();
-            this.durationOfShift=preference.getDurationOfShift();
-            this.durationOfWeek=preference.getDurationOfWeek();
-            String s=preference.getWorkingDay();
-            if(s!=null){
-                String[] list=s.split(",");
-                workingDay=new ArrayList<Integer>();
-                for(String a:list) {
-                    if(a.equals(" ")||a.equals("")) continue;
+
+        public Prefer(Preference preference) {
+            this.id = preference.getId();
+            this.durationOfShift = preference.getDurationOfShift();
+            this.durationOfWeek = preference.getDurationOfWeek();
+            String s = preference.getWorkingDay();
+            if (s != null) {
+                String[] list = s.split(",");
+                workingDay = new ArrayList<Integer>();
+                for (String a : list) {
+                    if (a.equals(" ") || a.equals("")) continue;
                     workingDay.add(Integer.parseInt(a));
                 }
             }
             s = preference.getWorkingHours();
-            if(s!=null) {
+            if (s != null) {
                 addWorkingHours(s);
             }
         }
-        public Prefer(){}
-        public List<Prefer> toPrefer(List<Preference> preferenceList){
-            var preferList=new ArrayList<Prefer>();
-            preferenceList.forEach(a->{
+
+        public Prefer() {
+        }
+
+        public List<Prefer> toPrefer(List<Preference> preferenceList) {
+            var preferList = new ArrayList<Prefer>();
+            preferenceList.forEach(a -> {
                 preferList.add(new Prefer(a));
             });
             return preferList;
         }
-        public void addWorkingHours(String s){
+
+        public void addWorkingHours(String s) {
             String[] list = s.split(",");
             workingHours = new ArrayList<>();
-            int start,end;
-            for(String s1:list) {
-                if(s1.equals(" ")||s1.equals("")) continue;
+            int start, end;
+            for (String s1 : list) {
+                if (s1.equals(" ") || s1.equals("")) continue;
                 start = Integer.parseInt(s1.substring(0, 2));
                 end = Integer.parseInt(s1.substring(6, 8));
                 if (s1.charAt(3) == '3') start += 0.5;
                 if (s1.charAt(9) == '3') end += 0.5;
-                for(float i=start;i<=end;i+=0.5){
-                    if(!workingHours.contains(i)) workingHours.add(i);
+                for (float i = start; i <= end; i += 0.5) {
+                    if (!workingHours.contains(i)) workingHours.add(i);
                 }
             }
-            workingHours.sort((a,b)-> (int) (a+a-b-b));
+            workingHours.sort((a, b) -> (int) (a + a - b - b));
         }
-        public boolean mateDay(int week){
-            if(workingDay==null) return true;
-            for(int a:workingDay)
-                if(a==week)
+
+        public boolean mateDay(int week) {
+            if (workingDay == null) return true;
+            for (int a : workingDay)
+                if (a == week)
                     return true;
             return false;
         }
-        public boolean mateTime(String start,String end){
-            if(this.workingHours==null) {
-                matchingDegree.put(findStaff(id),0.5f);
-                return true;
-            }
-            if(findStaff(id)==null) return false;
-            float startTime=Integer.parseInt(start.substring(0,2));
-            if(start.charAt(3) == '3') startTime+=0.5;
-            float endTime=Integer.parseInt(end.substring(0,2));
-            if(end.charAt(3) == '3') endTime+=0.5;
-            int k=-1;
-            for(int i=0;i<workingHours.size();i++){
-                float match;
-                if(workingHours.get(i)==startTime){
-                    if(workingHours.size()-i<=unitNum) {
-                        match=(workingHours.size() - i) / (float) unitNum;
-                        if(match>0) matchingDegree.put(findStaff(id), match);
-                        return true;
-                    }
-                    else k=i;
+
+        public void mateTime(String start, String end, int dayOfWeek, Staff staff) {
+            float matchDay = 0, matchHour = 0, matchlength = 0, match = 0;
+            if (findStaff(id) == null) return;
+            float startTime = Integer.parseInt(start.substring(0, 2));
+            if (start.charAt(3) == '3') startTime += 0.5;
+            float endTime = Integer.parseInt(end.substring(0, 2));
+            if (end.charAt(3) == '3') endTime += 0.5;
+            int k = -1;
+            for (int i = 0; i < workingHours.size(); i++) {
+                if (workingHours == null) break;
+                if (workingHours.get(i) == startTime) {
+                    if (workingHours.size() - i <= unitNum) {
+                        matchHour = (workingHours.size() - i) / (float) unitNum;
+                    } else k = i;
                 }
-                if(k!=-1&&endTime<workingHours.get(i)) {
-                    match=(i - k) / (float) unitNum;
-                    if(match>0) matchingDegree.put(findStaff(id), match);
-                    return true;
+                if (k != -1 && endTime < workingHours.get(i)) {
+                    matchHour = (i - k) / (float) unitNum;
                 }
             }
-            return false;
+            for (int i = 0; i < workingDay.size(); i++) {
+                if (workingDay == null) break;
+                if (workingDay.get(i) == dayOfWeek) {
+                    matchDay = 1;
+                    break;
+                }
+            }
+            if (durationOfShift > staff.continuousWorkTime) matchlength = 1;
+            match = (float) (0.2 * matchDay + 0.5 * matchHour + 0.3 * matchlength);
+            if (staff.weekWorkTime == 0) match += 0.05;
+            matchingDegree.put(staff, match);
         }
     }
     private ArrayList<Preference> findPreference(List<Employee> list){
@@ -488,6 +493,48 @@ public class Arranger {
             }
             for(Staff staff:staffList) staff.dayWorkTime=0;
         }
+    }
+    public List<TimeStaffNum> check(List<TimeStaffNum> timeStaffNumList){
+        List<Staff> staffList=new LinkedList();
+        for(int i = 0;i<timeStaffNumList.size();i++)
+            for(TimeStaffNum.WorkUnit workUnit:timeStaffNumList.get(i).workUnits){
+                if(workUnit.beginTime!=null){
+                    for(Staff staff: workUnit.staffs){
+                        if(staff.getContinuousWorkTime(timeStaffNumList,i)<2){
+                            staff=new Staff();
+                        }
+                        else staffList.add(staff);
+                    }
+                    for(int j=0;j< staffList.size();j++){
+                        Staff staff=staffList.get(i);
+                        if(!workUnit.contains(staff)) {
+                            staffList.remove(staff);
+                            j--;
+                        }
+                    }
+                }
+            }
+        return timeStaffNumList;
+    }
+    public List<TimeStaffNum> init2(Flow flow,int dayOfWeek){
+        ArrayList<Flow.FlowUnit> units = flow.getFlowUnits();
+        Flow.FlowUnit last=units.get(0);
+        for(int i=0;i<prepareTime*2;i++){
+            Flow.FlowUnit unit = new Flow.FlowUnit(new Date(last.getBeginAt().getTime()-1800000),new Date(last.getEndAt().getTime()-1800000),0);
+            units.add(0,unit);
+            last=unit;
+        }
+        last=units.get(units.size()-1);
+        for(int i=0;i<closingTime*2;i++){
+            Flow.FlowUnit unit = new Flow.FlowUnit(new Date(last.getBeginAt().getTime()+1800000),new Date(last.getEndAt().getTime()+1800000),0);
+            units.add(unit);
+            last=unit;
+        }
+        List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
+        for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
+            timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
+        }
+        return timeStaffNumList;
     }
     public List<TimeStaffNum> init(Flow flow,int dayOfWeek){
         List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
@@ -566,7 +613,7 @@ public class Arranger {
         int dayOfWeek=getDayOfWeek(flow.getDate());
         for(Staff staff:staffList) staff.dayWorkTime=0;
         List<TimeStaffNum> timeStaffNumList;
-        timeStaffNumList=init(flow,dayOfWeek);
+        timeStaffNumList=init2(flow,dayOfWeek);
 
         //获取初始结果
         int index=0;
@@ -576,16 +623,15 @@ public class Arranger {
             if(t>500) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index+",还需要"+(timeStaffNumList.get(index).minStaffNum-timeStaffNumList.get(index).currentStaffNum));
             matchingDegree.clear();
             TimeStaffNum timeStaffNum=timeStaffNumList.get(index);
-            for (Prefer prefer : preference) {
-                String start = timeStaffNumList.get(0).startTime.toString();
-                String regEx = "\\d+\\d+:+\\d+\\d+:+\\d+\\d";
-                Pattern p = Pattern.compile(regEx);
-                Matcher m = p.matcher(start);
-                if(!m.find()) System.out.println("not match");
-                start = m.group().substring(0, 5);
-                String end = getEndTime(start);
-
-                if (prefer.mateDay(dayOfWeek)) prefer.mateTime(start, end);
+            String start = timeStaffNumList.get(0).startTime.toString();
+            String regEx = "\\d+\\d+:+\\d+\\d+:+\\d+\\d";
+            Pattern p = Pattern.compile(regEx);
+            Matcher m = p.matcher(start);
+            if(!m.find()) System.out.println("not match");
+            start = m.group().substring(0, 5);
+            String end = getEndTime(start);
+            for (Staff staff : staffList) {
+                staff.prefer.mateTime(start,end,dayOfWeek,staff);
                 if (timeStaffNum.isFull()) break;
             }
             if(t%2==1)
