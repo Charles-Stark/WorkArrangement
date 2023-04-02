@@ -421,24 +421,28 @@ public class Arranger {
             float endTime = Integer.parseInt(end.substring(0, 2));
             if (end.charAt(3) == '3') endTime += 0.5;
             int k = -1;
-            for (int i = 0; i < workingHours.size(); i++) {
-                if (workingHours == null) break;
-                if (workingHours.get(i) == startTime) {
-                    if (workingHours.size() - i <= unitNum) {
-                        matchHour = (workingHours.size() - i) / (float) unitNum;
-                    } else k = i;
-                }
-                if (k != -1 && endTime < workingHours.get(i)) {
-                    matchHour = (i - k) / (float) unitNum;
-                }
-            }
-            for (int i = 0; i < workingDay.size(); i++) {
-                if (workingDay == null) break;
-                if (workingDay.get(i) == dayOfWeek) {
-                    matchDay = 1;
-                    break;
+            if (workingHours != null){
+                for (int i = 0; i < workingHours.size(); i++) {
+                    if (workingHours.get(i) == startTime) {
+                        if (workingHours.size() - i <= unitNum) {
+                            matchHour = (workingHours.size() - i) / (float) unitNum;
+                        } else k = i;
+                    }
+                    if (k != -1 && endTime < workingHours.get(i)) {
+                        matchHour = (i - k) / (float) unitNum;
+                    }
                 }
             }
+            if(workingDay!=null){
+                for (int i = 0; i < workingDay.size(); i++) {
+                    if (workingDay == null) break;
+                    if (workingDay.get(i) == dayOfWeek) {
+                        matchDay = 1;
+                        break;
+                    }
+                }
+            }
+
             if (durationOfShift > staff.continuousWorkTime) matchlength = 1;
             match = (float) (0.2 * matchDay + 0.5 * matchHour + 0.3 * matchlength);
             if (staff.weekWorkTime == 0) match += 0.05;
