@@ -3,9 +3,8 @@
     <div v-if="!show3">
       <v-container v-if="!show2">
 
-        <v-img
-          :src="require('../../assets/logo-md-dark.png')"
-          :width="$vuetify.breakpoint.xsOnly ? 300 : 250" class="mx-auto">
+        <v-img :src="require('../../assets/logo-md-dark.png')" :width="$vuetify.breakpoint.xsOnly ? 300 : 250"
+          class="mx-auto">
         </v-img>
         <v-row>
           <v-row class="mt-8">
@@ -54,6 +53,8 @@
                 <span class="text-subtitle-1">登录</span>
               </v-btn>
             </v-col>
+
+            <Vcode :show="showCheckCode" @success="pswLogin()" @close="close" />
 
           </template>
         </v-row>
@@ -110,11 +111,15 @@
 
 <script>
 import { getOTP, OTPLogin, pswLogin, pswReset } from '../../request/user'
+import Vcode from "vue-puzzle-vcode";
+
 export default {
+  components: {
+    Vcode
+  },
 
   data: () => ({
     loading: false,
-    pswLogin: true,
     show1: false,
     show2: false,
     show3: false,
@@ -125,6 +130,7 @@ export default {
     repsw: '',
     otp: '',
     counter: 0,
+    showCheckCode: false
   }),
   computed: {
     rules() {
@@ -164,7 +170,6 @@ export default {
       }
       else {
         var validated = true
-
         if (this.email === '') {
           validated = false
           this.$emit('msg', '邮箱不能为空')
@@ -177,12 +182,14 @@ export default {
           validated = false
           this.$emit('msg', '密码不能为空')
         }
-
-        if (validated) {
-          pswLogin(this.email, this.password).then(res => {
+        if(validated) this.showCheckCode=true
+      }
+      this.loading = false
+    },
+    pswLogin(){
+      pswLogin(this.email, this.password).then(res => {
             if (res.data.code === 0) {
               this.$emit('msg', '登录成功')
-
               //将登录信息保存在vuex和localstorage中
               this.$store.commit('setLoginInfo', { token: res.data.data.token, userId: res.data.data.id })
               this.$router.go(0)
@@ -198,9 +205,6 @@ export default {
           }).catch(() => {
             this.$emit('msg', '网络错误')
           })
-        }
-      }
-      this.loading = false
     },
     getOTP() {
       if (this.email !== '') {
@@ -232,7 +236,7 @@ export default {
               }
             }).catch(() => {
               this.$emit('msg', '网络错误')
-                this.loading = false
+              this.loading = false
             })
           }
           else {
@@ -303,9 +307,16 @@ export default {
       }
 
       return true
+    },
+    close() {
+      this.showCheckCode = false;
     }
+
   },
+
 
 
 }
 </script>
+
+<style scoped></style>

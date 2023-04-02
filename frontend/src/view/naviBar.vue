@@ -17,8 +17,8 @@
         </template>
 
         <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length !== 0">
+          <v-list-title class="text-h4 ml-2 mt-2">通知</v-list-title>
           <div v-for="notice of notices" :key="notice.id">
-            <v-divider></v-divider>
             <v-list-item @click="1">
 
               <v-list-item-avatar>
@@ -34,6 +34,7 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+            <v-divider class="mx-3"></v-divider>
 
           </div>
 
@@ -91,7 +92,7 @@
         </v-list-item>
 
         <v-avatar v-if="mini == true" @click="$router.push('/')">
-          <v-img  :src="require('../assets/logo-sm.png')"></v-img>
+          <v-img :src="require('../assets/logo-sm.png')"></v-img>
         </v-avatar>
       </v-list-item>
 
@@ -128,7 +129,8 @@
             <v-list-item-title>通知中心</v-list-item-title>
           </v-list-item>
 
-          <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand" v-if="$store.state.isManager || $store.state.isShopManager">
+          <v-list-group prepend-icon="mdi-inbox" mandatory :value="expand"
+            v-if="$store.state.isManager || $store.state.isShopManager">
             <template v-slot:activator>
               <v-list-item-title>信息管理</v-list-item-title>
             </template>
@@ -199,9 +201,11 @@ export default {
     notices: [{}],
 
     messages: {
-      1: '你有一个新的排班，点击查看',
-      2: '有一个排班表发生了变更',
-      3: '有一个开放班次长时间无人认领，点击进行手动排班'
+      1: '发布了一个新的排班表',
+      2: '变更了排班',
+      3: '有一个开放班次长时间无人认领，点击进行手动排班',
+      4: '申请了请假',
+      5: '请假审核状态更新'
     }
 
 

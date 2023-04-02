@@ -163,7 +163,7 @@
                         @blur="arrangeConfig.in.num <= 0 ? arrangeConfig.in.num = 3.8 : arrangeConfig.in.num = arrangeConfig.in.num"></v-text-field>
                     </v-col>
                     <v-col cols="3">
-                      <v-subheader>=预测流量 人</v-subheader>
+                      <v-subheader>=需求员工数</v-subheader>
                     </v-col>
                   </v-row>
                   <v-row>
@@ -319,12 +319,18 @@ export default {
         closingWorkloadPerPersonU: this.arrangeConfig.post.workLoad,
         closingWorkloadPerPersonV: this.arrangeConfig.post.offset,
         closingPosition: this.arrangeConfig.post.position,
-        startDate: this.arrangeConfig.basic.start+' 00:00:00',
+        startDate: this.arrangeConfig.basic.start + ' 00:00:00',
         lastingDays: this.arrangeConfig.basic.lasting,
-      }).then(res=>{
-        console.log(res)
-      }).catch(err=>{
-        console.log(err)
+      }).then((res) => {
+        if (res.data.code === 0) {
+          this.$emit('msg', '排班成功')
+          this.$router.go(0)
+        }
+        else {
+          this.$emit('msg', '排班失败')
+        }
+      }).catch(() => {
+        this.$emit('msg', '网络错误')
       })
     }
 

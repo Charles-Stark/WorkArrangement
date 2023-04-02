@@ -33,13 +33,13 @@
 
                     <v-col cols="12">
                         <v-text-field label="班次时长" v-model="favor.durationOfShift" type="number"
-                            @blur="favor.durationOfShift <= 0 ? favor.durationOfShift = 1 : favor.durationOfShift = favor.durationOfShift"
+                            @blur="favor.durationOfShift <= 0 ? favor.durationOfShift = '' : favor.durationOfShift = favor.durationOfShift"
                             required></v-text-field>
                     </v-col>
 
                     <v-col cols="12">
                         <v-text-field label="周工作时间上限" v-model="favor.durationOfWeek" type="number"
-                            @blur="favor.durationOfWeek <= 0 ? favor.durationOfWeek = 1 : favor.durationOfWeek = favor.durationOfWeek"
+                            @blur="favor.durationOfWeek <= 0 ? favor.durationOfWeek = '' : favor.durationOfWeek = favor.durationOfWeek"
                             required></v-text-field>
                     </v-col>
 
