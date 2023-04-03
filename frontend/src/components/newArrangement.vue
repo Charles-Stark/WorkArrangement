@@ -96,7 +96,7 @@
                       <v-text-field required v-model="arrangeConfig.pre.workLoad" dense label="人均工作量" type="number"
                         :rules="noneEmptyRule"
                         @blur="arrangeConfig.pre.workLoad <= 0 ? arrangeConfig.pre.workLoad = 100 : arrangeConfig.pre.workLoad = arrangeConfig.pre.workLoad"
-                        class="mt-3"></v-text-field>
+                        class="mt-3" suffix="m²"></v-text-field>
                     </v-col>
                     <v-col cols="2">
                       <v-subheader>={{ Math.ceil(size / arrangeConfig.pre.workLoad) }}人</v-subheader>
@@ -160,7 +160,7 @@
                     <v-col cols="3">
                       <v-text-field required v-model="arrangeConfig.in.num" dense label="单个员工服务人数" type="number"
                         :rules="noneEmptyRule" class="mt-3"
-                        @blur="arrangeConfig.in.num <= 0 ? arrangeConfig.in.num = 3.8 : arrangeConfig.in.num = arrangeConfig.in.num"></v-text-field>
+                        @blur="arrangeConfig.in.num <= 0 ? arrangeConfig.in.num = 3.8 : arrangeConfig.in.num = arrangeConfig.in.num" suffix="人"></v-text-field>
                     </v-col>
                     <v-col cols="3">
                       <v-subheader>=需求员工数</v-subheader>
@@ -215,7 +215,7 @@
                       <v-text-field required v-model="arrangeConfig.post.workLoad" dense label="人均工作量" type="number"
                         :rules="noneEmptyRule"
                         @blur="arrangeConfig.post.workLoad <= 0 ? arrangeConfig.post.workLoad = 80 : arrangeConfig.post.workLoad = arrangeConfig.post.workLoad"
-                        class="mt-3"></v-text-field>
+                        class="mt-3" suffix="m²"></v-text-field>
                     </v-col>
                     <v-col cols="1" class="mt-3">
                       +

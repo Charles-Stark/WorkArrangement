@@ -314,6 +314,7 @@ export default {
       this.events = [],
         this.rawEvents = []
       var events = (await getAllArr(this.branch)).data
+      console.log(events)
 
       this.rules = (await getRule(events.data[events.data.length - 1].useRule)).data.data
       var weeks = events.data[events.data.length - 1].weeks
@@ -346,14 +347,14 @@ export default {
                     }
                   })
                   if (!flag) {
-                    var name=this.staff.find(item => item.id === employee)
+                    var name = this.staff.find(item => item.id === employee)
                     employees.push({
                       id: employee,
                       start: [start],
                       end: [start + 1800000],
-                      category: name!==undefined?name.username:'开放班次',
-                      name: name!==undefined?name.username:'开放班次',
-                      color: name!==undefined?this.colors[this.rnd(0, this.colors.length - 1)]:'grey'
+                      category: name !== undefined ? name.username : '开放班次',
+                      name: name !== undefined ? name.username : '开放班次',
+                      color: name !== undefined ? this.colors[this.rnd(0, this.colors.length - 1)] : 'grey'
                     })
                   }
                 }
@@ -487,3 +488,13 @@ export default {
 
 }
 </script>
+
+<style>
+.v-calendar-category .v-calendar-daily__day {
+  min-width: 30px;
+}
+
+.v-calendar-category .v-calendar-category__columns .v-calendar-category__column-header {
+  min-width: 30px;
+}
+</style>

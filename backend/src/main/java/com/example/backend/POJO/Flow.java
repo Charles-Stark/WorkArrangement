@@ -33,5 +33,10 @@ public class Flow {
         private double flow;  // 该单元的客流量大小
 
     }
-
+    public Flow(Flow flow){
+        this.id=flow.id;
+        this.date=flow.date;
+        this.shop=flow.shop;
+        this.flowUnits=flow.flowUnits;
+    }
 }
