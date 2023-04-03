@@ -128,10 +128,10 @@ public class Arranger {
             public void swap(Staff former, Staff later, List<TimeStaffNum> timeStaffNumList, int index, int indexOfUnit, int length){
                 int indexOfOld1=0,indexOfOld2=0;
                 if(index<0) return;
-                System.out.println(index+","+indexOfUnit);
                 if(indexOfUnit==unitNum-1) indexOfOld1 += 1;
                 for(int i=0;i<length;i++){
-                    if(index<0) break;
+                    if(index<=0) continue;
+                    if(index>=timeStaffNumList.size()) continue;
                     if(indexOfUnit==0){
                         timeStaffNumList.get(index).workUnits.get(indexOfUnit).remove(former);
                         timeStaffNumList.get(index).workUnits.get(indexOfUnit).add(later);
@@ -633,8 +633,8 @@ public class Arranger {
                 timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
             }catch (IndexOutOfBoundsException e){
                 System.out.println("重新开始本日排班");
-                e.printStackTrace();
                 i--;
+                errorTime++;
                 countWorkTime(timeStaffNumList);
             }catch (RuntimeException e){
                 System.out.println(e);
