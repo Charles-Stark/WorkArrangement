@@ -243,13 +243,12 @@ public class Arranger {
         private double dayWorkTime,weekWorkTime,continuousWorkTime;
         private Long id;
         private Prefer prefer;
-        private int visitTime;
+
         public Staff(Long id){
             this.id=id;
             dayWorkTime=0;
             weekWorkTime=0;
             continuousWorkTime=0;
-            visitTime=0;
         }
         public Staff(Employee e){
             this(e.getId());
@@ -271,6 +270,7 @@ public class Arranger {
             continuousWorkTime+=time;
             if(continuousWorkTime<0) continuousWorkTime=0;
         }
+        public void setOpenClasses(){id=0l;}
         public boolean isMiddle(List<TimeStaffNum> timeStaffNumList, int indexOfList, TimeStaffNum.WorkUnit unit){
             int indexOfUnits=timeStaffNumList.get(indexOfList).workUnits.indexOf(unit);
             if(indexOfList==0&&indexOfUnits==0||indexOfList==timeStaffNumList.size()-1&&indexOfUnits==unitNum-1) return false;
@@ -347,7 +347,70 @@ public class Arranger {
                     else if(continuousWorkTime!=0) break;
                 }
             }
-            visitTime=0;
+            return continuousWorkTime;
+        }
+        public double getContinuousWorkTime(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits){
+            int start=-1,end=-1,startUnit=0,endUnit=0;
+            continuousWorkTime=0;
+            for(int i=index;i>=0;i--){
+                if(!timeStaffNumList.get(i).contains(this)){
+                    start=i+1;
+                    startUnit=0;
+                    break;
+                }
+                else {
+                    int a = timeStaffNumList.get(i).workUnits.size()-1;
+                    if(i==index) a=indexOfUnits;
+                    for(int i1 = a;i1>=0;i1--){
+                        if(!timeStaffNumList.get(i).workUnits.get(i1).contains(this)){
+                            startUnit=i1+1;
+                            start=i;
+                            if(startUnit==timeStaffNumList.get(i).workUnits.size()) {
+                                start=i+1;
+                                startUnit=0;
+                            }
+                            break;
+                        }
+                    }
+                    if(start!=-1) break;
+                }
+            }
+            if(start==-1) start=0;
+
+            for(int i=index;i<timeStaffNumList.size();i++){
+                if(!timeStaffNumList.get(i).contains(this)){
+                    end=i-1;
+                    if(index==timeStaffNumList.size()-1) end=i;
+                    endUnit=timeStaffNumList.get(end).workUnits.size()-1;
+                    break;
+                }
+                else{
+                    int a=0;
+                    if(i==index) a=indexOfUnits;
+                    for(int i1 = a;i1<timeStaffNumList.get(i).workUnits.size();i1++){
+                        if(!timeStaffNumList.get(i).workUnits.get(i1).contains(this)){
+                            endUnit=i1-1;
+                            end=i;
+                            if(endUnit==-1){
+                                end=i-1;
+                                endUnit=timeStaffNumList.get(end).workUnits.size()-1;
+                            }
+                            break;
+                        }
+                    }
+                }
+                if(end!=-1) break;
+            }
+            if(end==-1) end=timeStaffNumList.size()-1;
+
+            for(int i=start;i<=end;i++){
+                int a=0,b=unitNum-1;
+                if(i==start) a=startUnit;
+                if(i==end) b=endUnit;
+                for(int j=a;j<=b;j++){
+                    continuousWorkTime+=0.5;
+                }
+            }
             return continuousWorkTime;
         }
     }
@@ -377,8 +440,7 @@ public class Arranger {
             }
         }
 
-        public Prefer() {
-        }
+        public Prefer() {}
 
         public List<Prefer> toPrefer(List<Preference> preferenceList) {
             var preferList = new ArrayList<Prefer>();
@@ -500,27 +562,35 @@ public class Arranger {
     }
     public List<TimeStaffNum> check(List<TimeStaffNum> timeStaffNumList){
         List<Staff> staffList=new LinkedList();
-        for(int i = 0;i<timeStaffNumList.size();i++)
+        for(int i = 0;i<timeStaffNumList.size();i++){
+            int k=0;
             for(TimeStaffNum.WorkUnit workUnit:timeStaffNumList.get(i).workUnits){
                 if(workUnit.beginTime!=null){
-                    for(Staff staff: workUnit.staffs){
-                        if(staff.getContinuousWorkTime(timeStaffNumList,i)<2){
-                            staff=new Staff();
+                    for(int j=0;j<workUnit.staffs.size();j++){
+                        Staff staff=workUnit.staffs.get(j);
+                        if(!staffList.contains(staff)&&staff.getContinuousWorkTime(timeStaffNumList,i,k)<2){
+                            if(staff.id==0l) continue;
+                            workUnit.staffs.remove(staff);
+                            workUnit.staffs.add(new Staff(0l));
+                            j--;
                         }
                         else staffList.add(staff);
                     }
                     for(int j=0;j< staffList.size();j++){
-                        Staff staff=staffList.get(i);
+                        Staff staff=staffList.get(j);
                         if(!workUnit.contains(staff)) {
                             staffList.remove(staff);
                             j--;
                         }
                     }
                 }
+                k++;
             }
+        }
+
         return timeStaffNumList;
     }
-    public List<TimeStaffNum> init2(Flow flow,int dayOfWeek){
+    public List<TimeStaffNum> init(Flow flow,int dayOfWeek){
         ArrayList<Flow.FlowUnit> units = flow.getFlowUnits();
         Flow.FlowUnit last=units.get(0);
         for(int i=0;i<prepareTime*2;i++){
@@ -540,34 +610,6 @@ public class Arranger {
         }
         return timeStaffNumList;
     }
-    public List<TimeStaffNum> init(Flow flow,int dayOfWeek){
-        List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
-        for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
-            timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
-        }
-        //return timeStaffNumList;
-
-        int count=0;
-        while(count<prepareTime*2){
-            if(count%4==0) timeStaffNumList.add(0,new TimeStaffNum(new Date(timeStaffNumList.get(0).startTime.getTime())));
-            timeStaffNumList.get(0).addUnit(timeStaffNumList,-1);
-            count++;
-        }
-        timeStaffNumList.get(0).format(-1);
-        count=0;
-        int lastLength=timeStaffNumList.get(timeStaffNumList.size()-1).workUnits.size();
-        while(count<closingTime*2){
-            int last = timeStaffNumList.size()-1;
-            if((count-lastLength)%4==0) {
-                timeStaffNumList.add(new TimeStaffNum(new Date(timeStaffNumList.get(last).startTime.getTime() + 7200000)));
-                last++;
-            }
-            timeStaffNumList.get(last).addUnit(timeStaffNumList,1);
-            count++;
-        }
-        timeStaffNumList.get(timeStaffNumList.size()-1).format(1);
-        return timeStaffNumList;
-    }
     public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId) throws RuntimeException{
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
         Rule rule = (Rule) ruleService.getRule(ruleId).getData();
@@ -584,7 +626,6 @@ public class Arranger {
             try {
                 Flow flow=flowsOfWeek.get(i);
                 timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
-                //errorTime=0;
             }catch (IndexOutOfBoundsException e){
                 System.out.println("重新开始本日排班");
                 i--;
@@ -595,10 +636,11 @@ public class Arranger {
                 i--;
                 if(errorTime>10) {
                     e.printStackTrace();
-                    throw new RuntimeException("排版失败，请根据控制台信息检查原因");
+                    System.out.println("排班失败，请根据控制台信息检查原因");
                 }
                 else if(errorTime==5) {
                     System.out.println("排班超时，重新开始本次排班");
+                    System.out.println("本次排班起始星期为星期"+getDayOfWeek(flowsOfWeek.get(0).getDate()));
                     i=-1;
                     timeStaffNumList.clear();
                     staffList=new Staff().toStaff(employeeList);
@@ -617,8 +659,8 @@ public class Arranger {
         int dayOfWeek=getDayOfWeek(flow.getDate());
         for(Staff staff:staffList) staff.dayWorkTime=0;
         List<TimeStaffNum> timeStaffNumList;
-        timeStaffNumList=init2(flow,dayOfWeek);
-
+        timeStaffNumList=init(flow,dayOfWeek);
+        System.out.println("开始本日排班，星期为星期"+dayOfWeek);
         //获取初始结果
         int index=0;
         int t=0,last1= timeStaffNumList.size()-1;
@@ -641,6 +683,14 @@ public class Arranger {
             if(t%2==1)
                 for(Staff staff:staffList) staff.getContinuousWorkTime(timeStaffNumList,index);
             List<Staff> keySetList= new ArrayList<>(matchingDegree.keySet());
+
+            /* 均衡排班
+            if() keySetList.sort((a,b)->{
+                if(Objects.equals(matchingDegree.get(b), matchingDegree.get(a))) return (int)(a.dayWorkTime*2-b.dayWorkTime*2);
+                else return (int)(matchingDegree.get(b)*100-matchingDegree.get(a)*100);
+            });
+            else
+            */
             keySetList.sort((a,b)-> (int)(matchingDegree.get(b)*100-matchingDegree.get(a)*100));
             for(int i=0;!timeStaffNum.isFull()&&i<matchingDegree.size();i++){
                 if(!keySetList.get(i).isTired()) timeStaffNum.add(keySetList.get(i));
@@ -768,6 +818,7 @@ public class Arranger {
         }
         System.out.println("完成本次排班,星期为星期"+dayOfWeek);
         return timeStaffNumList;
+        //return check(timeStaffNumList);
     }
     public ArrayList<Employee> transTo(List<EmployeeVO> employeeVOs){
         ArrayList<Employee> employees=new ArrayList<>();
