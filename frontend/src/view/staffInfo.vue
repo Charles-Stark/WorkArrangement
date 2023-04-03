@@ -36,6 +36,7 @@
 
                       <v-col cols="12" sm="6">
                         <v-text-field label="薪资*" type="number" v-model="newEmployee.salary" :rules="rules.noneEmptyRules"
+                          @blur="newEmployee.salary = newEmployee.salary <= 0 ? '' : newEmployee.salary"
                           prepend-icon="mdi-cash" required></v-text-field>
                       </v-col>
 
@@ -213,7 +214,8 @@
 
                                 <v-col cols="12">
                                   <v-text-field label="薪资*" type="number" v-model="editedEmployee.salary"
-                                    :rules="rules.noneEmptyRules" prepend-icon="mdi-cash" required></v-text-field>
+                                    :rules="rules.noneEmptyRules" prepend-icon="mdi-cash" required
+                                    @blur="editedEmployee.salary = editedEmployee.salary <= 0 ? '' : editedEmployee.salary"></v-text-field>
                                 </v-col>
 
                                 <v-col :cols="$store.state.isManager ? 6 : 12">
@@ -462,7 +464,8 @@ export default {
 
     getMsg(data) {
       this.$emit('msg', data)
-    }
+    },
+
   },
 
 

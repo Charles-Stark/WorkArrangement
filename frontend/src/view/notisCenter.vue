@@ -37,8 +37,10 @@
 
       </v-toolbar>
       <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat dense rounded>
-        <v-chip class="ml-2">请假申请</v-chip>
-        <v-chip class="ml-2">排班信息</v-chip>
+        <v-chip class="ml-2" :class="filter === 1 ? 'white--text' : ''" :color="filter === 1 ? 'blue' : ''"
+          @click="filter = filter === 1 ? 0 : 1">请假申请</v-chip>
+        <v-chip class="ml-2" :class="filter === 2 ? 'white--text' : ''" :color="filter === 2 ? 'green' : ''"
+          @click="filter = filter === 2 ? 0 : 2">排班信息</v-chip>
       </v-toolbar>
 
 
@@ -59,8 +61,11 @@
 
               <v-list-item-content @click="check()">
                 <v-list-item-title :class="notice.isRead === false ? 'strong--text' : 'grey--text'">
-                  {{ messages[notice.type] }}
+                  {{ notice.fromUsername }}
                 </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ messages[notice.type] }}
+                </v-list-item-subtitle>
                 <v-list-item-subtitle>
                   {{ notice.createAt }}
                 </v-list-item-subtitle>
@@ -83,7 +88,7 @@
                       <v-btn color="primary" text @click="notice.dialog = false">
                         取消
                       </v-btn>
-                      <v-btn color="error" text @click="deleteNoti(notice.id);notice.dialog = false">
+                      <v-btn color="error" text @click="deleteNoti(notice.id); notice.dialog = false">
                         确定
                       </v-btn>
 
@@ -117,7 +122,7 @@
 
 <script>
 import { getNotis, setAllRead, deleteNoti } from '../request/notis'
-import { getUserAvatar } from '../request/user'
+import { getUserAvatar, getUserInfo } from '../request/user'
 export default {
   data() {
     return {
@@ -131,15 +136,19 @@ export default {
 
       notices: [{}],
 
+      filter: 0,
+
       types: {
         1: '排班',
         2: '请假',
       },
 
       messages: {
-        1: '你有一个新的排班，点击查看',
-        2: '有一个排班表发生了变更',
-        3: '有一个开放班次长时间无人认领，点击进行手动排班'
+        1: '发布了一个新的排班表',
+        2: '变更了排班',
+        3: '有一个开放班次长时间无人认领，点击进行手动排班',
+        4: '申请了请假',
+        5: '请假审核状态更新'
       }
 
     }
@@ -152,10 +161,17 @@ export default {
       return this.$vuetify.breakpoint.xsOnly ? true : false
     },
     filteredItems() {
+      var notices = this.notices
       if (this.onlyUnread === true) {
-        return this.notices.filter(item => { return item.isRead === false })
+        notices = notices.filter(item => { return item.isRead === false })
       }
-      return this.notices
+      if (this.filter === 1) {
+        notices = notices.filter(item => { return item.type === 4 || item.type === 5 })
+      }
+      if (this.filter === 2) {
+        notices = notices.filter(item => { return item.type === 1 || item.type === 2 || item.type === 3 })
+      }
+      return notices
     }
 
   },
@@ -181,8 +197,8 @@ export default {
           for (var notice of this.notices) {
             notice.isRead = true
           }
-        this.$emit('msg', '操作成功')
-        this.dialog=false
+          this.$emit('msg', '操作成功')
+          this.dialog = false
         }
       }).catch(() => {
         this.$emit('msg', '网络错误')
@@ -191,9 +207,9 @@ export default {
     deleteNoti(id) {
       deleteNoti(id).then(res => {
         if (res.data.code === 0) {
-          for(var index in this.notices){
-            if(this.notices[index].id===id){
-              this.notices.splice(index,1) 
+          for (var index in this.notices) {
+            if (this.notices[index].id === id) {
+              this.notices.splice(index, 1)
             }
           }
           this.$emit('msg', '删除成功')
@@ -208,19 +224,18 @@ export default {
   mounted() {
     getNotis().then(async res => {
       var notices = res.data.data
-      for (var notice of notices) {
-
-        var avatar=await getUserAvatar(notice.fromUser)
-          if(avatar.status===200){
-            notice.avatar=URL.createObjectURL(avatar.data)
-          }
-          else{
-            notice.avatar=require('../assets/defaultAvatar.png')
-          }
-      }
-      this.notices=notices
+      notices.forEach(notice => {
+        notice.avatar = require('../assets/defaultAvatar.png')
+      })
+      this.notices = notices
       if (notices.length === 0) this.notices = []
       this.ready = true
+      for (var notice of this.notices) {
+        var avatar = await getUserAvatar(notice.fromUser)
+        if (avatar.status === 200) {
+          notice.avatar = URL.createObjectURL(avatar.data)
+        }
+      }
 
     }).catch(() => {
       this.$emit('msg', '网络错误')

@@ -33,7 +33,8 @@
 
                     <v-col cols="12" sm="6">
                       <v-text-field label="分店面积*" type="number" v-model="newShop.size" :rules="rules.noneEmptyRules"
-                        prepend-icon="mdi-domain" required></v-text-field>
+                        prepend-icon="mdi-domain" required
+                        @blur="newShop.size = newShop.size <= 0 ? '' : newShop.size"></v-text-field>
                     </v-col>
 
                   </v-row>
@@ -124,7 +125,8 @@
 
                               <v-col cols="12" sm="6">
                                 <v-text-field label="分店面积*" type="number" v-model="editedShop.size"
-                                  :rules="rules.noneEmptyRules" prepend-icon="mdi-domain" required></v-text-field>
+                                  :rules="rules.noneEmptyRules" prepend-icon="mdi-domain" required 
+                                  @blur="editedShop.size = editedShop.size <= 0 ? '' : editedShop.size"></v-text-field>
                               </v-col>
 
                             </v-row>
