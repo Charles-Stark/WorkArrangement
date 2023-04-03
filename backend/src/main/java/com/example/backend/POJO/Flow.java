@@ -32,11 +32,18 @@ public class Flow {
         private Date endAt;  // 该单元结束的时间
         private double flow;  // 该单元的客流量大小
 
+        public FlowUnit(FlowUnit flowUnit){
+            this.beginAt=flowUnit.beginAt;
+            this.endAt=flowUnit.endAt;
+            this.flow=flowUnit.flow;
+        }
     }
     public Flow(Flow flow){
         this.id=flow.id;
         this.date=flow.date;
         this.shop=flow.shop;
-        this.flowUnits=flow.flowUnits;
+        this.flowUnits=new ArrayList<>();
+        for(FlowUnit unit:flow.flowUnits)
+               this.flowUnits.add(new FlowUnit(unit));
     }
 }

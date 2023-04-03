@@ -176,7 +176,7 @@ public class Arranger {
                 int count=0;
                 int indexOfUnit=timeStaffNum.workUnits.indexOf(this);
                 if(indexOfUnit==timeStaffNum.workUnits.size()-1) {
-                    if(index==)
+                    //if(index==)
                     timeStaffNum=timeStaffNumList.get(index+1);
                     for(TimeStaffNum.WorkUnit unit:timeStaffNum.workUnits){
                         unit.remove(oldOne);
