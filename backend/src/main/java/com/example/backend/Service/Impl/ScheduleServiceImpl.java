@@ -69,7 +69,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         searchingMap.put("shop", id);
         try {
             List<Schedule> schedules = scheduleMapper.selectByMap(searchingMap);
-            List<ScheduleVO>scheduleVOs = new ArrayList<>();
+            List<ScheduleVO> scheduleVOs = new ArrayList<>();
             for (Schedule schedule : schedules) {
                 scheduleVOs.add(new ScheduleVO(schedule));
             }
@@ -83,8 +83,47 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ResultVO<Object> getScheduleForEmployee(long employeeId) {
         try {
             long scheduleId = employeeToScheduleMapper.selectById(employeeId).getScheduleId();
-            return new ResultVO<>(0, "获取排班表成功", scheduleMapper.selectById(scheduleId));
+            Schedule schedule = scheduleMapper.selectById(scheduleId);
+            Schedule resultSchedule = new Schedule(
+                    schedule.getId(),
+                    schedule.getShop(),
+                    schedule.getManager(),
+                    schedule.getCreateAt(),
+                    schedule.getIsActive(),
+                    schedule.getUseRule(),
+                    schedule.getStartAt(),
+                    schedule.getEndAt(),
+                    null
+            );
+
+            ArrayList<Schedule.Week> weeks = new ArrayList<>();
+
+            for (int i = 0; i < schedule.getWeeks().size(); i++) {
+                Schedule.Week week = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(i)), Schedule.Week.class);
+                Schedule.Week newWeek = new Schedule.Week(week.getStartAt(), week.getEndAt(), null);
+
+                Schedule.WorkUnit[][] workUnits = week.getData();
+                Schedule.WorkUnit[][] newWorkUnits = new Schedule.WorkUnit[workUnits.length][workUnits[0].length];
+
+                for (int j = 0; j < workUnits.length; j++) {
+                    for (int k = 0; k < workUnits[j].length; k++) {
+                        if (workUnits[j][k] != null) {
+                            if (workUnits[j][k].getEmployees().contains(employeeId)) {
+                                ArrayList<Long> employees = new ArrayList<>();
+                                employees.add(employeeId);
+                                newWorkUnits[j][k] = new Schedule.WorkUnit(workUnits[j][k].getBeginTime(), employees);
+                            }
+                        }
+                    }
+                }
+                newWeek.setData(newWorkUnits);
+                weeks.add(newWeek);
+            }
+            resultSchedule.setWeeks(weeks);
+
+            return new ResultVO<>(0, "获取排班表成功", resultSchedule);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResultVO<>(-1, "获取排班表失败", null);
         }
     }
