@@ -12,6 +12,8 @@ public interface ScheduleService {
 
     ResultVO<Object> getScheduleForEmployee(long employeeId);
 
+    ResultVO<Object> getScheduleForShop(long shopId);
+
     long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt, int lastingDays);
 
 }

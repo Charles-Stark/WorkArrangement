@@ -25,6 +25,11 @@ public class ScheduleController {
         return scheduleService.getScheduleByShop(id);
     }
 
+    @GetMapping("/get/shop/newest/{id}")
+    public ResultVO<Object> getNewestScheduleByShop(@PathVariable long id) {
+        return scheduleService.getScheduleForShop(id);
+    }
+
     @GetMapping("/get/employee/{id}")
     public ResultVO<Object> getScheduleForEmployee(@PathVariable long id) {
         return scheduleService.getScheduleForEmployee(id);

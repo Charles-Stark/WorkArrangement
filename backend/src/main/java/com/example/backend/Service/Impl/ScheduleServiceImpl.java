@@ -46,6 +46,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
     }
 
+    private void sortSchedulesByTimeOrder(List<Schedule> schedules) {
+        Comparator<Schedule> scheduleComparator = Comparator.comparing(Schedule::getCreateAt);
+        schedules.sort(scheduleComparator);
+    }
+
     @Override
     public ResultVO<Object> getScheduleByShop(long id) {
         Map<String, Object> searchingMap = new HashMap<>();
@@ -68,16 +73,29 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public ResultVO<Object> getScheduleForShop(long shopId) {
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shop", shopId);
+        try {
+            List<Schedule> schedules = scheduleMapper.selectByMap(searchingMap);
+            sortSchedulesByTimeOrder(schedules);
+            return new ResultVO<>(0, "获取排班表成功", schedules.get(schedules.size() - 1));
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取排班表失败", null);
+        }
+    }
+
+    @Override
     public long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt, int lastingDays) {
         try {
             // 调用排班算法，排班并存入schedule
             List<Flow> flows = flowService.getFlowByShop(shop, startAt, lastingDays).getData();
             List<List<Arranger.TimeStaffNum>> timeStaffNumList = new ArrayList<>();
-            for(int i=0;i<(flows.size()-1)/7+1;i++) {
+            for (int i = 0; i < (flows.size() - 1) / 7 + 1; i++) {
                 if (i * 7 + 7 > flows.size())
                     timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i * 7, flows.size()), rule));
                 else timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i * 7, (i + 1) * 7), rule));
-                System.out.println("完成本周排班，起始日期为"+flows.get(i).getDate());
+                System.out.println("完成本周排班，起始日期为" + flows.get(i).getDate());
             }
             long scheduleId = arranger.outPut(timeStaffNumList, shop, rule, manager);
 
@@ -108,7 +126,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             return scheduleId;
         } catch (Exception e) {
-//            System.out.println(e);
             e.printStackTrace();
             return -1;
         }
