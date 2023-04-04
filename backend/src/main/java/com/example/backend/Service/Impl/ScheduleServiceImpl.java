@@ -10,6 +10,7 @@ import com.example.backend.Service.FlowService;
 import com.example.backend.Service.NotificationService;
 import com.example.backend.Service.ScheduleService;
 import com.example.backend.VO.ResultVO;
+import com.example.backend.VO.ScheduleVO;
 import com.example.backend.mapper.EmployeeToScheduleMapper;
 import com.example.backend.mapper.ScheduleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,22 @@ public class ScheduleServiceImpl implements ScheduleService {
         searchingMap.put("shop", id);
         try {
             return new ResultVO<>(0, "获取排班表成功", scheduleMapper.selectByMap(searchingMap));
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取排班表失败", null);
+        }
+    }
+
+    @Override
+    public ResultVO<Object> getSimplifiedScheduleByShop(long id) {
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shop", id);
+        try {
+            List<Schedule> schedules = scheduleMapper.selectByMap(searchingMap);
+            List<ScheduleVO>scheduleVOs = new ArrayList<>();
+            for (Schedule schedule : schedules) {
+                scheduleVOs.add(new ScheduleVO(schedule));
+            }
+            return new ResultVO<>(0, "获取排班表成功", scheduleVOs);
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取排班表失败", null);
         }
