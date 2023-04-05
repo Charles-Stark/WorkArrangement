@@ -10,6 +10,7 @@ import com.example.backend.Service.FlowService;
 import com.example.backend.Service.NotificationService;
 import com.example.backend.Service.ScheduleService;
 import com.example.backend.VO.ResultVO;
+import com.example.backend.VO.ScheduleVO;
 import com.example.backend.mapper.EmployeeToScheduleMapper;
 import com.example.backend.mapper.ScheduleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
     }
 
+    private void sortSchedulesByTimeOrder(List<Schedule> schedules) {
+        Comparator<Schedule> scheduleComparator = Comparator.comparing(Schedule::getCreateAt);
+        schedules.sort(scheduleComparator);
+    }
+
     @Override
     public ResultVO<Object> getScheduleByShop(long id) {
         Map<String, Object> searchingMap = new HashMap<>();
@@ -58,10 +64,78 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public ResultVO<Object> getSimplifiedScheduleByShop(long id) {
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shop", id);
+        try {
+            List<Schedule> schedules = scheduleMapper.selectByMap(searchingMap);
+            List<ScheduleVO> scheduleVOs = new ArrayList<>();
+            for (Schedule schedule : schedules) {
+                scheduleVOs.add(new ScheduleVO(schedule));
+            }
+            return new ResultVO<>(0, "获取排班表成功", scheduleVOs);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取排班表失败", null);
+        }
+    }
+
+    @Override
     public ResultVO<Object> getScheduleForEmployee(long employeeId) {
         try {
             long scheduleId = employeeToScheduleMapper.selectById(employeeId).getScheduleId();
-            return new ResultVO<>(0, "获取排班表成功", scheduleMapper.selectById(scheduleId));
+            Schedule schedule = scheduleMapper.selectById(scheduleId);
+            Schedule resultSchedule = new Schedule(
+                    schedule.getId(),
+                    schedule.getShop(),
+                    schedule.getManager(),
+                    schedule.getCreateAt(),
+                    schedule.getIsActive(),
+                    schedule.getUseRule(),
+                    schedule.getStartAt(),
+                    schedule.getEndAt(),
+                    null
+            );
+
+            ArrayList<Schedule.Week> weeks = new ArrayList<>();
+
+            for (int i = 0; i < schedule.getWeeks().size(); i++) {
+                Schedule.Week week = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(i)), Schedule.Week.class);
+                Schedule.Week newWeek = new Schedule.Week(week.getStartAt(), week.getEndAt(), null);
+
+                Schedule.WorkUnit[][] workUnits = week.getData();
+                Schedule.WorkUnit[][] newWorkUnits = new Schedule.WorkUnit[workUnits.length][workUnits[0].length];
+
+                for (int j = 0; j < workUnits.length; j++) {
+                    for (int k = 0; k < workUnits[j].length; k++) {
+                        if (workUnits[j][k] != null) {
+                            if (workUnits[j][k].getEmployees().contains(employeeId)) {
+                                ArrayList<Long> employees = new ArrayList<>();
+                                employees.add(employeeId);
+                                newWorkUnits[j][k] = new Schedule.WorkUnit(workUnits[j][k].getBeginTime(), employees);
+                            }
+                        }
+                    }
+                }
+                newWeek.setData(newWorkUnits);
+                weeks.add(newWeek);
+            }
+            resultSchedule.setWeeks(weeks);
+
+            return new ResultVO<>(0, "获取排班表成功", resultSchedule);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResultVO<>(-1, "获取排班表失败", null);
+        }
+    }
+
+    @Override
+    public ResultVO<Object> getScheduleForShop(long shopId) {
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shop", shopId);
+        try {
+            List<Schedule> schedules = scheduleMapper.selectByMap(searchingMap);
+            sortSchedulesByTimeOrder(schedules);
+            return new ResultVO<>(0, "获取排班表成功", schedules.get(schedules.size() - 1));
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取排班表失败", null);
         }
@@ -73,11 +147,11 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 调用排班算法，排班并存入schedule
             List<Flow> flows = flowService.getFlowByShop(shop, startAt, lastingDays).getData();
             List<List<Arranger.TimeStaffNum>> timeStaffNumList = new ArrayList<>();
-            for(int i=0;i<(flows.size()-1)/7+1;i++) {
+            for (int i = 0; i < (flows.size() - 1) / 7 + 1; i++) {
                 if (i * 7 + 7 > flows.size())
                     timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i * 7, flows.size()), rule));
                 else timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i * 7, (i + 1) * 7), rule));
-                System.out.println("完成本周排班，起始日期为"+flows.get(i).getDate());
+                System.out.println("完成本周排班，起始日期为" + flows.get(i).getDate());
             }
             long scheduleId = arranger.outPut(timeStaffNumList, shop, rule, manager);
 
@@ -108,7 +182,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             return scheduleId;
         } catch (Exception e) {
-//            System.out.println(e);
             e.printStackTrace();
             return -1;
         }
