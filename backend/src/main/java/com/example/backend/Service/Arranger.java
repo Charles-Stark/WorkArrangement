@@ -401,14 +401,27 @@ public class Arranger {
             return false;
         }
         public void extend(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits,int length){
-            if(indexOfUnits==3) {
-                index+=1;
-                indexOfUnits=-1;
+            if(length<0||index>=timeStaffNumList.size()-2){
+                if(length<0) length=-length;
+                if(indexOfUnits==0){
+                    index--;
+                    indexOfUnits=unitNum;
+                }
+                if(index==0) return;
+                timeStaffNumList.get(index).workUnits.get(indexOfUnits-1).add(this);
+                length--;
+                if(length>0) extend(timeStaffNumList,index,indexOfUnits,-length);
             }
-            if(index==timeStaffNumList.size()) return;
-            timeStaffNumList.get(index).workUnits.get(indexOfUnits+1).add(this);
-            length--;
-            if(length>0) extend(timeStaffNumList,index,indexOfUnits,length);
+            else{
+                if(indexOfUnits==3) {
+                    index+=1;
+                    indexOfUnits=-1;
+                }
+                if(index==timeStaffNumList.size()) return;
+                timeStaffNumList.get(index).workUnits.get(indexOfUnits+1).add(this);
+                length--;
+                if(length>0) extend(timeStaffNumList,index,indexOfUnits,length);
+            }
         }
         public double getContinuousWorkTime(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits){
             int start=-1,end=-1,startUnit=0,endUnit=0;
