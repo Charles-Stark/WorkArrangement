@@ -65,13 +65,6 @@ public class Arranger {
                 workUnits.add(new TimeStaffNum.WorkUnit(begin,new LinkedList<>(),flowUnits.get(i).getFlow()/maxServiceNumber));
             }
         }
-        public TimeStaffNum(Date startTime){
-            minStaffNum=numberOnDuty;
-            currentStaffNum=0;
-            staff=new ArrayList<>();
-            workUnits=new ArrayList<>();
-            this.startTime=startTime;
-        }
         @Data
         public class WorkUnit{
             private Date beginTime;
@@ -89,6 +82,7 @@ public class Arranger {
                 if(s==null) return;
                 if(this.staffs==null) return;
                 if(this.beginTime==null) return;
+                if(this.contains(s)) return;
                 currentNum++;
                 staffs.add(s);
                 s.setDayWorkTime(0.5);
@@ -353,6 +347,69 @@ public class Arranger {
             }
             return continuousWorkTime;
         }
+        public boolean connect(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits){
+            if(indexOfUnits==2){
+                if(index==timeStaffNumList.size()-1) return false;
+                if(timeStaffNumList.get(index+1).workUnits.get(0).contains(this)){
+                    if(weekWorkTime<=prefer.durationOfWeek-0.5&&dayWorkTime<=prefer.durationOfShift-0.5&&getContinuousWorkTime(timeStaffNumList,index+1,0)<=3){
+                        timeStaffNumList.get(index).workUnits.get(3).add(this);
+                        return true;
+                    }
+                } else if (timeStaffNumList.get(index+1).workUnits.get(1).contains(this)) {
+                    if(weekWorkTime<=prefer.durationOfWeek-1&&dayWorkTime<=prefer.durationOfShift-1&&getContinuousWorkTime(timeStaffNumList,index+1,0)<=2.5){
+                        timeStaffNumList.get(index).workUnits.get(3).add(this);
+                        timeStaffNumList.get(index+1).workUnits.get(1).add(this);
+                        return true;
+                    }
+                }
+            }
+            else if(indexOfUnits==3){
+                if(index==timeStaffNumList.size()-1) return false;
+                if(timeStaffNumList.get(index+1).workUnits.get(2).contains(this)){
+                    if(weekWorkTime<=prefer.durationOfWeek-0.5&&dayWorkTime<=prefer.durationOfShift-0.5&&getContinuousWorkTime(timeStaffNumList,index+1,1)<=3){
+                        timeStaffNumList.get(index+1).workUnits.get(0).add(this);
+                        return true;
+                    }
+                } else if (timeStaffNumList.get(index+1).workUnits.get(3).contains(this)) {
+                    if(weekWorkTime<=prefer.durationOfWeek-1&&dayWorkTime<=prefer.durationOfShift-1&&getContinuousWorkTime(timeStaffNumList,index+1,2)<=2.5){
+                        timeStaffNumList.get(index+1).workUnits.get(0).add(this);
+                        timeStaffNumList.get(index+1).workUnits.get(1).add(this);
+                        return true;
+                    }
+                }
+            }
+            else if(indexOfUnits<2){
+                if(timeStaffNumList.get(index).workUnits.get(indexOfUnits+2).contains(this)){
+                    if(weekWorkTime<=prefer.durationOfWeek-0.5&&dayWorkTime<=prefer.durationOfShift-0.5&&getContinuousWorkTime(timeStaffNumList,index,indexOfUnits+2)<=3){
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnits+1).add(this);
+                        return true;
+                    }
+                }else if(indexOfUnits==0&&timeStaffNumList.get(index).workUnits.get(2).contains(this)){
+                    if(weekWorkTime<=prefer.durationOfWeek-1&&dayWorkTime<=prefer.durationOfShift-1&&getContinuousWorkTime(timeStaffNumList, index, 2)<=2.5){
+                        timeStaffNumList.get(index).workUnits.get(1).add(this);
+                        timeStaffNumList.get(index).workUnits.get(2).add(this);
+                        return true;
+                    }
+                } else if (indexOfUnits==1&&timeStaffNumList.get(index+1).workUnits.get(0).contains(this)) {
+                    if(weekWorkTime<=prefer.durationOfWeek-1&&dayWorkTime<=prefer.durationOfShift-1&&getContinuousWorkTime(timeStaffNumList, index+1, 0)<=2.5){
+                        timeStaffNumList.get(index).workUnits.get(2).add(this);
+                        timeStaffNumList.get(index).workUnits.get(3).add(this);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public void extend(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits,int length){
+            if(indexOfUnits==3) {
+                index+=1;
+                indexOfUnits=-1;
+            }
+            if(index==timeStaffNumList.size()) return;
+            timeStaffNumList.get(index).workUnits.get(indexOfUnits+1).add(this);
+            length--;
+            if(length>0) extend(timeStaffNumList,index,indexOfUnits,length);
+        }
         public double getContinuousWorkTime(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits){
             int start=-1,end=-1,startUnit=0,endUnit=0;
             continuousWorkTime=0;
@@ -422,7 +479,7 @@ public class Arranger {
         private Long id;
         private List<Integer> workingDay;
         private List<Float> workingHours;
-        private Integer durationOfShift;
+        private Integer durationOfShift;//每天时长
         private Integer durationOfWeek;
 
         public Prefer(Preference preference) {
@@ -572,13 +629,27 @@ public class Arranger {
                 if(workUnit.beginTime!=null){
                     for(int j=0;j<workUnit.staffs.size();j++){
                         Staff staff=workUnit.staffs.get(j);
-                        if(!staffList.contains(staff)&&staff.getContinuousWorkTime(timeStaffNumList,i,k)<2){
-                            if(staff.id==0l) continue;
-                            workUnit.staffs.remove(staff);
-                            workUnit.staffs.add(new Staff(0l));
-                            j--;
+                        if(!staffList.contains(staff)){
+                            double time= staff.getContinuousWorkTime(timeStaffNumList,i,k);
+                            if(time<=1) {
+                                if (staff.id == 0l) continue;
+                                if(!staff.connect(timeStaffNumList,i,k)){
+                                    if(time==1&&staff.dayWorkTime<=staff.prefer.durationOfShift-1&&staff.weekWorkTime<=staff.prefer.durationOfWeek-1) staff.extend(timeStaffNumList,i,k,2);
+                                    else {
+                                        workUnit.remove(staff);
+                                        workUnit.add(new Staff(0l));
+                                        j--;
+                                    }
+                                }
+                            } else if (time>=1&&time<2) {
+                                if(staff.dayWorkTime<=staff.prefer.durationOfShift-2+time&&staff.weekWorkTime<=staff.prefer.durationOfWeek-2+time) staff.extend(timeStaffNumList,i,k, (int) ((2-time)*2));
+                                else{
+                                    workUnit.remove(staff);
+                                    workUnit.add(new Staff(0l));
+                                    j--;
+                                }
+                            }else staffList.add(staff);
                         }
-                        else staffList.add(staff);
                     }
                     for(int j=0;j< staffList.size();j++){
                         Staff staff=staffList.get(j);
@@ -823,8 +894,8 @@ public class Arranger {
             t++;
         }
         System.out.println("完成本次排班,星期为星期"+dayOfWeek);
-        return timeStaffNumList;
-        //return check(timeStaffNumList);
+        //return timeStaffNumList;
+        return check(timeStaffNumList);
     }
     public ArrayList<Employee> transTo(List<EmployeeVO> employeeVOs){
         ArrayList<Employee> employees=new ArrayList<>();
