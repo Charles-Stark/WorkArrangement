@@ -1,6 +1,6 @@
 <template>
-  <v-data-iterator :items="filteredItems" :page.sync="page" :search="search" :sort-by="keys[sortBy]"
-    :sort-desc="sortDesc" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
+  <v-data-iterator :items="filteredItems" :page.sync="page" :search="search" :sort-by="keys[sortBy]" :sort-desc="sortDesc"
+    hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
       <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
         <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
@@ -15,10 +15,10 @@
         <v-btn v-else class="mx-3" large color="secondary" depressed @click="checkUnread()">全部显示</v-btn>
         <template v-if="$vuetify.breakpoint.mdAndUp">
           <v-btn-toggle v-model="sortDesc" mandatory>
-            <v-btn large depressed color="secondary" :value="false"  :disabled="!sortBy">
+            <v-btn large depressed color="secondary" :value="false" :disabled="!sortBy">
               <v-icon>mdi-arrow-up</v-icon>
             </v-btn>
-            <v-btn large depressed color="secondary" :value="true"  :disabled="!sortBy">
+            <v-btn large depressed color="secondary" :value="true" :disabled="!sortBy">
               <v-icon>mdi-arrow-down</v-icon>
             </v-btn>
           </v-btn-toggle>
@@ -67,7 +67,8 @@
 
                 <v-btn outlined color="secondary" :disabled="item.approved != null" v-bind="attrs" v-on="on"
                   :value="item.approved" class="mt-1">
-                  <v-icon  v-text="item.approved ? 'mdi - check' :'mdi-close'"></v-icon>
+                  <v-icon
+                    v-text="item.approved === true ? 'mdi-check' : item.approved === false ? 'mdi-close' : ''"></v-icon>
                   <span v-if="item.approved === null">查看详情</span>
                   <span v-else-if="item.approved === true">已批准</span>
                   <span v-else>已拒绝</span>
@@ -101,10 +102,10 @@
                   <v-btn color="grey" text @click="close(item)" large>
                     返回
                   </v-btn>
-                  <v-btn color="error" text @click="approve()" large>
+                  <v-btn color="error" text @click="reject(item)" large>
                     拒绝
                   </v-btn>
-                  <v-btn color="success" text @click="reject()" large>
+                  <v-btn color="success" text @click="approve(item)" large>
                     批准
                   </v-btn>
                 </v-card-actions>
@@ -121,7 +122,6 @@
       <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"></v-pagination>
     </template>
   </v-data-iterator>
-
 </template>
 
 <script>
@@ -149,46 +149,46 @@ export default {
 
       items: [
         {
-            time: '2022/12/31',
-            id: 'A0001',
-            name: 'BBB',
-            reason: 'safadsgasgfadsfadgadfadsfasfjfadsjfhuiashfuiasuiavocnojquiobiasfas',
-            approved: true,
-            attachment: ''
+          time: '2023/4/8',
+          id: 'IJTECHZP',
+          name: '王琳',
+          reason: '身体不适，去医院看病',
+          approved: null,
+          attachment: ''
         },
         {
-            time: '2020/9/20',
-            id: 'A0002',
-            name: 'AA',
-            reason: 2,
-            approved: false,
-            attachment: ''
+          time: '2023/3/20',
+          id: 'ZTHHJMVR',
+          name: '赵静涵',
+          reason: '搬家',
+          approved: false,
+          attachment: ''
         },
         {
-            time: '2021/4/5',
-            id: 'A0003',
-            name: 'CC',
-            reason: 'safadsgasgfadsfadgadfadsfasfjfadsjfhuiashfjfhuiashfuiasuiavocsfadgadfadsfasfjfadsjfhuiashfuiasuiavocnojquiobiasfas',
-            approved: null,
-            attachment: ''
+          time: '2023/3/15',
+          id: 'HSQGZTN7',
+          name: '赵震宇',
+          reason: '处理家中事务',
+          approved: null,
+          attachment: ''
         },
         {
-            time: '2002/4/4',
-            id: 'A0004',
-            name: 'EE',
-            reason: 4,
-            approved: false,
-            attachment: ''
+          time: '2023/3/2',
+          id: 'I8SIBQJI',
+          name: '杨泽晨',
+          reason: '带长辈去医院回诊',
+          approved: false,
+          attachment: ''
         },
         {
-            time: '2022/4/3',
-            id: 'A0005',
-            name: 'DD',
-            reason: 5,
-            approved: null,
-            attachment: ''
+          time: '2023/2/28',
+          id: 'B3TTWVUJ',
+          name: '陈轩',
+          reason: '休息一天',
+          approved: null,
+          attachment: ''
         },
-        
+
       ],
     }
   },
@@ -208,6 +208,18 @@ export default {
 
   },
   methods: {
+    approve(item){
+      item.approved=true
+      item.dialog=false
+      this.$emit('msg', '处理成功')
+
+    },
+    reject(item){
+      item.approved=false
+      item.dialog=false
+      this.$emit('msg', '处理成功')
+
+    },
     nextPage() {
       if (this.page + 1 <= this.numberOfPages) this.page += 1
     },

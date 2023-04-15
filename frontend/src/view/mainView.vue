@@ -4,7 +4,7 @@
         <div>
             <full-page :options="options">
                 <div class="section" >
-                    <div class="section1" id="1">
+                    <div class="section1 mx-auto" id="1">
                         <div>
                             <div class="left-img"><img src="../assets/logo-sm.png" alt="智能排班图标"></div>
                             <div class="right-section1">
@@ -253,7 +253,7 @@ export default {
 .section1 .left-img{
     position: absolute;
     top: 20%;
-    left: 8%;
+    left: 16%;
     width: 100%;
     height: 100%;
     display: flex;
@@ -271,7 +271,7 @@ export default {
 .right-section1{
     position: absolute;
     top:22%;
-    left: 12%;
+    left: 24%;
 }
 .right-font{
     left: 10%;
@@ -321,7 +321,7 @@ export default {
     color:#fff;
     position: absolute;
     top:60%;
-    left: 20%;
+    left: 25%;
 
 }
 .section2 {

@@ -45,6 +45,12 @@ export var adminRoutes = {
         selectedItem: 1,
       }
     }, {
+      path: 'history',
+      component: () => import('../view/arrangementHistory'),
+      meta:{
+        title:'历史排班'
+      }
+    },{
       path: 'absences',
       component: () => import('../view/absenceNotis'),
       meta: {
@@ -112,7 +118,7 @@ export var employeeRoutes = {
         title: '通知中心',
         selectedItem: 3,
       }
-    },  {
+    }, {
       path: 'settings',
       component: () => import('../view/settingPage'),
       meta: {

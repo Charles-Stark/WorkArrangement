@@ -189,7 +189,7 @@ export default {
       this.onlyUnread = !this.onlyUnread
     },
     check() {
-      console.log(123)
+      this.$router.push('/controlpanel/absences')
     },
     setAllRead() {
       setAllRead().then(res => {
@@ -217,7 +217,20 @@ export default {
       }).catch(() => {
         this.$emit('msg', '网络错误')
       })
-    }
+    },
+    formatDate(value) { // 时间戳转换日期格式方法
+      if (value == null) {
+        return ''
+      } else {
+        const date = new Date(value)
+        const y = date.getFullYear()// 年
+        let MM = date.getMonth() + 1 // 月
+        MM = MM < 10 ? ('0' + MM) : MM
+        let d = date.getDate() // 日
+        d = d < 10 ? ('0' + d) : d
+        return y + '-' + MM + '-' + d
+      }
+    },
 
   },
 
@@ -226,6 +239,9 @@ export default {
       var notices = res.data.data
       notices.forEach(notice => {
         notice.avatar = require('../assets/defaultAvatar.png')
+        let time = new Date(notice.createAt)
+        notice.createAt = this.formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
+
       })
       this.notices = notices
       if (notices.length === 0) this.notices = []

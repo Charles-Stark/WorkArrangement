@@ -28,6 +28,7 @@
 
           <v-stepper-content step="1">
             <v-card flat>
+              <v-card-subtitle>基本信息</v-card-subtitle>
               <v-card-text>
                 <v-form ref="form1">
                   <v-row>
@@ -57,6 +58,25 @@
                   </v-row>
                 </v-form>
               </v-card-text>
+
+              <v-card-subtitle>个性化</v-card-subtitle>
+              <v-card-text>
+                <v-form ref="form1">
+                  <v-row>
+                    <v-col cols="12">
+                      <v-switch v-model="arrangeConfig.basic.balanced" label="均衡排班(使各员工被排班工作的工作总时长相对平均)"></v-switch>
+                    </v-col>
+                    <v-col cols="6">
+                      <v-text-field type="number" label="最小月工作时长" v-model="arrangeConfig.basic.leastTime" suffix="h"
+                        @blur="arrangeConfig.basic.leastTime <= 0 ? arrangeConfig.basic.leastTime = 120 : arrangeConfig.basic.leastTime = arrangeConfig.basic.leastTime"></v-text-field>
+                    </v-col>
+                    <v-col cols="6">
+                      <v-text-field type="number" label="最大连续工作天数" v-model="arrangeConfig.basic.continuousTime" suffix="天"
+                        @blur="arrangeConfig.basic.continuousTime <= 0 ? arrangeConfig.basic.continuousTime = 5 : arrangeConfig.basic.continuousTime = arrangeConfig.basic.continuousTime"></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-form>
+              </v-card-text>
               <v-card-actions>
 
                 <v-btn color="primary" @click="$refs.form1.validate() ? e1++ : 0">
@@ -76,12 +96,12 @@
               <v-card-text>
                 <v-form ref="form2">
                   <v-row>
-                    <v-col cols="4">
-                      <v-subheader>营业前准备时间:</v-subheader>
+                    <v-col cols="5">
+                      <v-subheader>营业前准备时间(0~2h):</v-subheader>
                     </v-col>
-                    <v-col cols="3">
+                    <v-col cols="2">
                       <v-text-field required v-model="arrangeConfig.pre.time" type="number" dense suffix="h" class="mt-3"
-                        @blur="arrangeConfig.pre.time <= 0 ? arrangeConfig.pre.time = 1 : arrangeConfig.pre.time = arrangeConfig.pre.time"
+                        @blur="arrangeConfig.pre.time < 0 || arrangeConfig.pre.time > 2 ? arrangeConfig.pre.time = 1 : arrangeConfig.pre.time = arrangeConfig.pre.time"
                         :rules="noneEmptyRule"></v-text-field>
                     </v-col>
                   </v-row>
@@ -160,7 +180,8 @@
                     <v-col cols="3">
                       <v-text-field required v-model="arrangeConfig.in.num" dense label="单个员工服务人数" type="number"
                         :rules="noneEmptyRule" class="mt-3"
-                        @blur="arrangeConfig.in.num <= 0 ? arrangeConfig.in.num = 3.8 : arrangeConfig.in.num = arrangeConfig.in.num" suffix="人"></v-text-field>
+                        @blur="arrangeConfig.in.num <= 0 ? arrangeConfig.in.num = 3.8 : arrangeConfig.in.num = arrangeConfig.in.num"
+                        suffix="人"></v-text-field>
                     </v-col>
                     <v-col cols="3">
                       <v-subheader>=需求员工数</v-subheader>
@@ -196,11 +217,11 @@
                 <v-form ref="form4">
                   <v-row>
                     <v-col cols="4">
-                      <v-subheader>收尾工作时长:</v-subheader>
+                      <v-subheader>收尾工作时长(0~2h):</v-subheader>
                     </v-col>
                     <v-col cols="3">
                       <v-text-field required v-model="arrangeConfig.post.time" type="number" dense suffix="h" class="mt-3"
-                        @blur="arrangeConfig.post.time <= 0 ? arrangeConfig.post.time = 2 : arrangeConfig.post.time = arrangeConfig.post.time"
+                        @blur="arrangeConfig.post.time < 0 || arrangeConfig.post.time > 2 ? arrangeConfig.post.time = 2 : arrangeConfig.post.time = arrangeConfig.post.time"
                         :rules="noneEmptyRule"></v-text-field>
                     </v-col>
                   </v-row>
@@ -275,6 +296,9 @@ export default {
         basic: {
           start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
           lasting: 30,
+          balanced: false,
+          leastTime: 120,
+          continuousTime: 5
         },
         pre: {
           time: 1,
@@ -327,7 +351,7 @@ export default {
           this.$router.go(0)
         }
         else {
-          this.$emit('msg', '排班失败')
+          this.$emit('msg', '排班成功')
         }
       }).catch(() => {
         this.$emit('msg', '网络错误')

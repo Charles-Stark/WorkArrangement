@@ -32,7 +32,7 @@
                     </v-col>
 
                     <v-col cols="12">
-                        <v-text-field label="班次时长" v-model="favor.durationOfShift" type="number"
+                        <v-text-field label="班次时长" v-model="favor.durationOfShift" type="number" suffix="小时"
                             @blur="favor.durationOfShift <= 0 ? favor.durationOfShift = '' : favor.durationOfShift = favor.durationOfShift"
                             required></v-text-field>
                     </v-col>

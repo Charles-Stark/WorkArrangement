@@ -16,7 +16,7 @@ export const getUserInfo = (id) => {
 export const getUserAvatar = userId => {
   return request({
     method: 'get',
-    url: `/api/user/photo/get/${userId}`,
+    url: `/api/user/photo/get/${userId||store.state.userId}`,
     responseType: 'blob'
   })
 }

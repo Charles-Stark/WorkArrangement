@@ -1,16 +1,15 @@
 <template>
   <div>
-
     <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat
       v-if="$store.state.isManager || $store.state.isShopManager">
       <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60"
-        no-data-text="没有数据" dense flat hide-details style="max-width:140px;min-width:120px" @change="getStaff(); getArr()"
-        v-if="$store.state.isManager"></v-select>
-      <span v-if="$store.state.isShopManager" class="text-h6 ml-3">{{ branch }}</span>
+        no-data-text="没有数据" dense flat hide-details style="max-width:140px;min-width:120px"
+        @change="changeBranch(); categories = {}" v-if="$store.state.isManager"></v-select>
+      <span v-if="!$store.state.isManager" class="text-h6 ml-3">{{ branch }}</span>
       <v-spacer></v-spacer>
 
-      <v-text-field v-model="search" clearable dense flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
-        v-if="$vuetify.breakpoint.mdAndUp" class="mx-2" label="姓名/工号"></v-text-field>
+      <v-text-field v-model="search1" clearable dense flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
+        @click:clear="search1 = ''" v-if="$vuetify.breakpoint.mdAndUp" class="mx-2" label="姓名/工号/岗位"></v-text-field>
       <v-spacer></v-spacer>
 
       <v-dialog offset-y width="650" persistent v-model="newArr">
@@ -20,9 +19,7 @@
           </v-btn>
         </template>
         <newArrangement @close="newArr = false" :size="size" :branch="branch" @msg="getMsg" />
-
       </v-dialog>
-
       <v-btn depressed class="mr-2">
         暂存
       </v-btn>
@@ -45,7 +42,7 @@
 
           </v-list-item>
           <v-list-item>
-            <v-btn text>历史排班</v-btn>
+            <v-btn text to="history">历史排班</v-btn>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -61,6 +58,7 @@
             {{ $refs.calendar.title }}
           </v-toolbar-title>
 
+
           <v-btn fab text small color="grey darken-2" @click="prev" class="ml-1">
             <v-icon small>
               mdi-chevron-left
@@ -75,7 +73,20 @@
             </v-icon>
           </v-btn>
 
+
+
           <v-spacer></v-spacer>
+
+          <v-dialog offset-y width="550" persistent v-model="newAbsc"
+            v-if="!this.$store.state.isManager & !this.$store.state.isShopManager">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn color="primary" dark v-bind="attrs" v-on="on" class="mr-2" outlined depressed>
+                新建请假
+              </v-btn>
+            </template>
+            <newAbsence @close="newAbsc = false" @msg="getMsg" />
+
+          </v-dialog>
 
           <v-btn-toggle v-model="type" dense mandatory color="primary">
             <v-btn value="month">
@@ -86,7 +97,11 @@
               周
             </v-btn>
 
-            <v-btn value="category">
+            <v-btn value="category" v-if="this.$store.state.isManager || this.$store.state.isShopManager">
+              日
+            </v-btn>
+
+            <v-btn value="day" v-else>
               日
             </v-btn>
           </v-btn-toggle>
@@ -96,68 +111,115 @@
       <v-sheet>
         <v-calendar ref="calendar" v-model="focus" color="primary" :events="scheduleType" :event-color="getEventColor"
           first-interval="6" interval-count="18" locale="zh-cn" :type="type" @click:event="showEvent"
-          @click:more="viewDay" @click:date="viewDay" event-overlap-mode="column" @change="updateRange"
-          :categories="filteredEmployee">
+          @click:date="viewDay" event-overlap-mode="column" @change="updateRange" :categories="filteredEmployee">
         </v-calendar>
 
         <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
           <v-card min-width="350px" flat>
             <v-toolbar :color="selectedEvent.color" dark>
+              <!-- <v-list-item-avatar v-if="type !== 'week'">
+                <v-img :src="selectedEvent.avatar"></v-img>
+              </v-list-item-avatar> -->
+              <v-toolbar-title>{{ selectedEvent.name }}</v-toolbar-title>
+              <v-toolbar-title class="ml-2">{{ selectedEvent.position }}</v-toolbar-title>
 
-              <v-menu>
-                <template v-slot:activator="{ on, attrs }">
+              <v-toolbar-title class="ml-1" v-if="selectedEvent.single === true">{{ selectedEvent.showStart + ' - '
+                + selectedEvent.showEnd }}</v-toolbar-title>
 
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                </template>
-
-                <v-card flat :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
-                  <v-card-title class="white--text accent">
-                    本店员工
-                    <v-spacer></v-spacer>
-
-                  </v-card-title>
-
-                  <v-virtual-scroll :items="filteredStaff" :item-height="63" height="00">
-                    <template v-slot:default="{ item }">
-
-                      <v-list-item>
-                        <v-list-item-avatar>
-                          <v-img :src="item.avatar"></v-img>
-                        </v-list-item-avatar>
-
-                        <v-list-item-content>
-                          <v-list-item-title>{{ item.username }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ item.uid }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-divider></v-divider>
-
-                    </template>
-                  </v-virtual-scroll>
-                </v-card>
-              </v-menu>
-
-              <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
               <v-spacer></v-spacer>
-              <v-btn icon>
-                <v-icon>mdi-heart</v-icon>
-              </v-btn>
-              <v-btn icon>
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
+
+              <v-btn icon v-if="selectedEvent.single === true || type !== 'week'"><v-icon>mdi-open-in-app</v-icon></v-btn>
             </v-toolbar>
-            <v-card-text>
-              <span v-html="selectedEvent.details"></span>
-            </v-card-text>
+
+            <v-text-field v-model="search2" clearable dense flat solo-inverted hide-details
+              prepend-inner-icon="mdi-magnify" v-if="selectedEvent.single === true || type !== 'week'" class="ma-2"
+              label="姓名/工号"></v-text-field>
+
+            <!-- 周视图 -->
+            <v-virtual-scroll v-if="type === 'week'"
+              :items="selectedEvent.single === true ? filteredStaff : selectedEvent.detail" :item-height="63" height="300"
+              width="400">
+              <template v-slot:default="{ item, index }">
+
+                <v-list-item @click="selectedEvent.single === true ? dialog = true : openSelected(item, index)">
+                  <v-list-item-avatar>
+                    <v-img :src="item.avatar"></v-img>
+                  </v-list-item-avatar>
+
+                  <v-list-item-content>
+                    <v-list-item-title>{{ item.username }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ item.position }}</v-list-item-subtitle>
+
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+
+              </template>
+            </v-virtual-scroll>
+
+            <div v-if="type !== 'week'">
+              <v-list-item-title class=" ml-3 grey--text text-subtitle">推荐员工</v-list-item-title>
+              <v-list-item @click="dialog = true ; selectedEmployee = s" v-for="s of staff.slice(6, 9)" :key="s.id">
+                <v-list-item-avatar>
+                  <v-img :src="s.avatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ s.username }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ s.position }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item-title class="ml-3 grey--text text-subtitle">其他员工</v-list-item-title>
+            </div>
+
+            <!-- 月、日视图 -->
+            <v-virtual-scroll v-if="type !== 'week'" :items="filteredStaff" :item-height="63" height="300" width="400">
+              <template v-slot:default="{ item }">
+                <v-list-item @click="dialog = true ; selectedEmployee = item">
+                  <v-list-item-avatar>
+                    <v-img :src="item.avatar"></v-img>
+                  </v-list-item-avatar>
+
+                  <v-list-item-content>
+                    <v-list-item-title>{{ item.username }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ item.position }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+
+              </template>
+            </v-virtual-scroll>
+
             <v-card-actions>
-              <v-btn text color="secondary" @click="selectedOpen = false">
+              <v-btn text :color="selectedEvent.color" @click="selectedOpen = false">
                 关闭
               </v-btn>
             </v-card-actions>
           </v-card>
+
+          <v-dialog v-model="dialog" width="350">
+            <v-card>
+              <v-card-title class="">
+                确认将该班次替换为该员工吗
+              </v-card-title>
+
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="warning" text @click="dialog = false; changeSchedule()">
+                  确认
+                </v-btn>
+                <v-btn color="primary" text @click="dialog = false">
+                  取消
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-menu>
+
+
+
       </v-sheet>
 
     </v-card>
@@ -169,24 +231,29 @@
 <script>
 import { getAllShop, getShopInfo } from '../request/shop'
 import { getEmployeeByShop, getEmployee } from '../request/staff'
-import { getUserAvatar } from '../request/user'
-import { getAllArr, getRule } from '../request/rule'
+import { getUserAvatar, getUserInfo } from '../request/user'
+import { getLatestArr, getRule, getArrByEmployee } from '../request/rule'
 import newArrangement from '../components/newArrangement.vue'
+import newAbsence from '../components/newAbsence.vue'
 
 export default {
   components: {
-    newArrangement
+    newArrangement, newAbsence
   },
   data() {
     return {
+      selectedEmployee: '',
       focus: '',
       newArr: false,
+      newAbsc: false,
       type: 'month',
-      search: '',
+      search1: null,
+      search2: null,
       typeToLabel: {
         month: '月视图',
         week: '周视图',
         category: '日视图',
+        day: '日视图'
       },
       selectedEvent: {},
       selectedElement: null,
@@ -195,8 +262,10 @@ export default {
       events: [],
       rawEvents: [],
 
-      colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
+      colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'pink lighten-1', 'purple lighten-2', 'teal lighten-2', 'green darken-1'],
       names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
+
+      user: {},
 
       branch: '',
       branches: [],
@@ -204,8 +273,10 @@ export default {
       staff: [],
       categories: {},
       filteredEmployee: [],
+      startTimes: {},
 
       rules: [],
+      dialog: false,
 
       json_fields: {
         id: "",
@@ -226,11 +297,25 @@ export default {
   },
   computed: {
     scheduleType() {
-      return this.type === 'week' ? this.rawEvents : this.events
+      var rawEvents = this.rawEvents.filter(r => {
+        return r.detail.some(e => {
+          if (e !== undefined)
+            return e.position.indexOf(this.search1 || '') !== -1 || e.username.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1
+        })
+      })
+      rawEvents.forEach(r => {
+        r.detail = r.detail.filter(e => {
+          if (e !== undefined)
+            return e.position.indexOf(this.search1 || '') !== -1 || e.username.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1
+        })
+        r.name = r.detail.length + '个员工'
+      })
+      var events = this.events.filter(e => { return e.position.indexOf(this.search1 || '') !== -1 || e.name.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1 })
+      return this.type === 'week' & (this.$store.state.isManager || this.$store.state.isShopManager) ? rawEvents : events
     },
     filteredStaff() {
       return this.staff.filter(p => {
-        return p.uid.indexOf(this.search) !== -1 || p.username.indexOf(this.search) !== -1
+        return p.uid.indexOf(this.search2 || '') !== -1 || p.username.indexOf(this.search2 || '') !== -1 || p.position.indexOf(this.search2 || '') !== -1
       })
     },
 
@@ -270,26 +355,24 @@ export default {
       this.$refs.calendar.next()
     },
     showEvent({ nativeEvent, event }) {
-      const open = () => {
-        this.selectedEvent = event
-        this.selectedElement = nativeEvent.target
-        requestAnimationFrame(() => requestAnimationFrame(() => this.selectedOpen = true))
-      }
+      if (this.$store.state.isManager || this.$store.state.isShopManager) {
+        const open = () => {
+          this.selectedEvent = event
+          this.selectedElement = nativeEvent.target
+          requestAnimationFrame(() => requestAnimationFrame(() => this.selectedOpen = true))
+        }
 
-      if (this.selectedOpen) {
-        this.selectedOpen = false
-        requestAnimationFrame(() => requestAnimationFrame(() => open()))
-      } else {
-        open()
+        if (this.selectedOpen) {
+          this.selectedOpen = false
+          requestAnimationFrame(() => requestAnimationFrame(() => open()))
+        } else {
+          open()
+        }
+        nativeEvent.stopPropagation()
       }
-
-      nativeEvent.stopPropagation()
     },
-    updateRange({ start, end }) {
-      console.log(start, 123, end)
-
+    updateRange({ start }) {
       this.filteredEmployee = this.categories[start.date]
-
     },
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a
@@ -302,122 +385,229 @@ export default {
         }
       }
       var staff = (await getEmployeeByShop(this.branch)).data.data
+
       staff.forEach(s => {
         s.avatar = require('../assets/defaultAvatar.png')
+        s.color = this.colors[this.rnd(0, this.colors.length - 1)]
       })
+
       this.staff = staff
 
-      if (this.staff.length === 0) this.staff = []
+      this.staff.forEach(async s => {
+        var avatar = await getUserAvatar(s.id)
+        if (avatar.status === 200) {
+          s.avatar = URL.createObjectURL(avatar.data)
+        }
+        else {
+          s.avatar = require('../assets/defaultAvatar.png')
+        }
+      })
+
+      this.staff.push({
+        avatar: '123',
+        durationOfShift: '',
+        durationOfWeek: '',
+        email: '',
+        id: 0,
+        position: '',
+        salary: '',
+        shop: '',
+        time: '',
+        uid: '',
+        username: '开放班次',
+        workingDay: '',
+        workingHours: '',
+        color: 'grey'
+
+      })
+      if (staff.length === 0) this.staff = []
+
 
     },
     async getArr() {
-      this.events = [],
-        this.rawEvents = []
-      var events = (await getAllArr(this.branch)).data
-      console.log(events)
+      this.events = []
+      this.rawEvents = []
+      this.rules = []
+      if (this.$store.state.isManager || this.$store.state.isShopManager) {
+        var events = (await getLatestArr(this.branch)).data
+        this.rules = (await getRule(events.data.useRule)).data.data
+        var weeks = events.data.weeks
+        var rawEvents = []
 
-      this.rules = (await getRule(events.data[events.data.length - 1].useRule)).data.data
-      var weeks = events.data[events.data.length - 1].weeks
-      var rawEvents = []
+        for (let week of weeks) {
 
-
-      for (var week of weeks) {
-
-        for (var day of week.data) {
-          if (day.some(item => item !== null)) {
-            var employees = []
-            var categories = []
-            for (var event of day) {
-              if (event !== null) {
-
-                //将排班处理成按员工分类
-                var start = event.beginTime
-                for (var employee of event.employees) {
-                  var flag = false
-                  employees.forEach(e => {
-                    if (e.id === employee) {
-                      flag = true
-                      if (start === e.end[e.end.length - 1]) {
-                        e.end[e.end.length - 1] += 1800000
-                      }
-                      else {
-                        e.start.push(start)
-                        e.end.push(start + 1800000)
+          for (let day of week.data) {
+            if (day.some(item => item !== null)) {
+              var employees = []
+              var categories = []
+              for (let event of day) {
+                if (event !== null) {
+                  //将排班处理成按员工分类
+                  let start = event.beginTime
+                  for (let employee of event.employees) {
+                    if (employee !== null) {
+                      let flag = false
+                      employees.forEach(e => {
+                        if (e.id === employee) {
+                          flag = true
+                          if (start === e.end[e.end.length - 1]) {
+                            e.end[e.end.length - 1] += 1800000
+                          }
+                          else {
+                            e.start.push(start)
+                            e.end.push(start + 1800000)
+                          }
+                        }
+                      })
+                      if (!flag) {
+                        var e = this.staff.find(item => item.id === employee)
+                        employees.push({
+                          id: employee,
+                          start: [start],
+                          end: [start + 1800000],
+                          category: e.username,
+                          name: e.username,
+                          color: e.color,
+                          avatar: e.avatar,
+                          position: e.position,
+                          uid: e.uid,
+                        })
                       }
                     }
+                  }
+
+                  //将排班处理成按时间分类
+                  var d = new Date(event.beginTime).getDay()
+                  var time = new Date(event.beginTime).getHours()
+                  var color
+                  if (d >= 1 & d <= 5) {
+                    if (time < 9 || time >= 21) color = 'green'
+                    else color = 'blue'
+                  }
+                  else {
+                    if (time < 10 || time >= 22) color = 'green'
+                    else color = 'blue'
+                  }
+                  var detail = []
+                  event.employees.forEach(employee => {
+                    detail.push(this.staff.find(item => item.id === employee))
                   })
-                  if (!flag) {
-                    var name = this.staff.find(item => item.id === employee)
-                    employees.push({
-                      id: employee,
-                      start: [start],
-                      end: [start + 1800000],
-                      category: name !== undefined ? name.username : '开放班次',
-                      name: name !== undefined ? name.username : '开放班次',
-                      color: name !== undefined ? this.colors[this.rnd(0, this.colors.length - 1)] : 'grey'
-                    })
+                  rawEvents.push({
+                    start: new Date(event.beginTime),
+                    end: new Date(event.beginTime + 1800000),
+                    name: event.employees.length + '个员工',
+                    detail,
+                    color,
+                    timed: true,
+
+                  })
+
+
+                }
+
+              }
+
+              var date
+              for (let e of employees) {
+                for (var i = 0; i < e.start.length; i++) {
+                  categories.push(e.category)
+                  date = this.formatDate(e.start[i])
+                  this.events.push({
+                    id: e.id,
+                    start: new Date(e.start[i]),
+                    end: new Date(e.end[i]),
+                    name: e.name,
+                    category: e.category,
+                    color: e.color,
+                    avatar: e.avatar,
+                    timed: true,
+                    position: e.position,
+                    uid: e.uid
+
+                  })
+                }
+              }
+
+
+              for (let i = 0; i < categories.length; i++) {
+                for (var j = i + 1; j < categories.length; j++) {
+                  if (categories[i] == categories[j]) {         //第一个等同于第二个，splice方法删除第二个
+                    categories.splice(j, 1);
+                    j--;
                   }
                 }
-
-
-                //将排班处理成按时间分类
-                var d = new Date(event.beginTime).getDay()
-                var time = new Date(event.beginTime).getHours()
-                var color
-                if (d >= 1 & d <= 5) {
-                  if (time < 9 || time >= 21) color = 'green'
-                  else color = 'blue'
-                }
-                else {
-                  if (time < 10 || time >= 22) color = 'green'
-                  else color = 'blue'
-                }
-                rawEvents.push({
-                  start: new Date(event.beginTime),
-                  end: new Date(event.beginTime + 1800000),
-                  name: event.employees.length + '个员工',
-                  detail: event.employees,
-                  color,
-                  timed: true
-                })
-
-
               }
-
+              this.categories[date] = categories
+              this.startTimes[date] = employees
             }
-
-            var date
-            for (var e of employees) {
-              for (var i = 0; i < e.start.length; i++) {
-                categories.push(e.category)
-                date = this.formatDate(e.start[i])
-                this.events.push({
-                  id: e.id,
-                  start: new Date(e.start[i]),
-                  end: new Date(e.end[i]),
-                  name: e.name,
-                  category: e.category,
-                  color: e.color,
-                  timed: true
-                })
-              }
-            }
-
-            for (let i = 0; i < categories.length; i++) {
-              for (var j = i + 1; j < categories.length; j++) {
-                if (categories[i] == categories[j]) {         //第一个等同于第二个，splice方法删除第二个
-                  categories.splice(j, 1);
-                  j--;
-                }
-              }
-            }
-            this.categories[date] = categories
           }
+
+        }
+        this.rawEvents = rawEvents
+      }
+      else {
+        events = (await getArrByEmployee()).data.data
+        this.rules = (await getRule(events.useRule)).data.data
+        weeks = events.weeks
+        for (let week of weeks) {
+          for (let day of week.data) {
+            if (day.some(item => item !== null)) {
+              var shifts = []
+              let flag = false
+              for (let event of day) {
+                if (event !== null) {
+                  var start = event.beginTime
+
+
+                  shifts.forEach(e => {
+                    if (start === e.end[e.end.length - 1]) {
+                      e.end[e.end.length - 1] += 1800000
+                    }
+                    else {
+                      e.start.push(start)
+                      e.end.push(start + 1800000)
+                    }
+
+                  })
+
+                  if (!flag) {
+                    flag = true
+                    shifts.push({
+                      start: [start],
+                      end: [start + 1800000],
+                      name: this.user.username,
+                      color: `primary darken-1`,
+                      avatar: this.user.avatar,
+                    })
+                  }
+
+                }
+
+              }
+              for (let e of shifts) {
+                for (let i = 0; i < e.start.length; i++) {
+                  this.events.push({
+                    start: new Date(e.start[i]),
+                    end: new Date(e.end[i]),
+                    name: e.name,
+                    category: e.category,
+                    color: e.color,
+                    avatar: e.avatar,
+                    timed: true
+                  })
+                }
+              }
+            }
+          }
+
         }
 
       }
-      this.rawEvents = rawEvents
 
+    },
+    async changeBranch() {
+      await this.getStaff()
+      await this.getArr()
     },
     formatDate(value) { // 时间戳转换日期格式方法
       if (value == null) {
@@ -432,10 +622,44 @@ export default {
         return y + '-' + MM + '-' + d
       }
     },
+    openSelected(item) {
+      let day = this.startTimes[this.formatDate(this.selectedEvent.start)]
+      let selectedEmployee = day.find(i => i.id === item.id)
+      let start, end
+      for (let i = 0; i < selectedEmployee.start.length; i++) {
+        if (this.selectedEvent.start >= selectedEmployee.start[i] & this.selectedEvent.end <= selectedEmployee.end[i]) {
+          start = new Date(selectedEmployee.start[i])
+          end = new Date(selectedEmployee.end[i])
+          break
+        }
+      }
+      this.selectedEvent = {
+        id: item.id,
+        start,
+        end,
+        showStart: start.getMinutes() === 0 ? start.getHours() + '时' : start.getHours() + ':' + start.getMinutes(),
+        showEnd: end.getMinutes() === 0 ? end.getHours() + '时' : end.getHours() + ':' + end.getMinutes(),
+        name: item.username,
+        color: this.selectedEvent.color,
+        avatar: item.avatar,
+        timed: true,
+        single: true,
+      }
+    },
+    changeSchedule() {
+      console.log(this.selectedEmployee)
+      setTimeout(() => {
+        this.$emit('msg', '替换成功')
+      }, 500);
+      this.selectedOpen = false
+
+
+    },
     getMsg(data) {
       this.$emit('msg', data)
-    }
+    },
   },
+
   async mounted() {
     this.$refs.calendar.checkChange()
     if (this.$store.state.isManager) {
@@ -446,15 +670,9 @@ export default {
           await this.getStaff()
           await this.getArr()
 
-          this.staff.forEach(async s => {
-            var avatar = await getUserAvatar(s.id)
-            if (avatar.status === 200) {
-              s.avatar = URL.createObjectURL(avatar.data)
-            }
-            else {
-              s.avatar = require('../assets/defaultAvatar.png')
-            }
-          })
+
+
+
 
         }
         else {
@@ -467,22 +685,29 @@ export default {
     }
     else if (this.$store.state.isShopManager) {
       let employee = (await getEmployee()).data.data
-      let shopName = (await getShopInfo(employee.shop)).data.data.name
+      let shopName = (await getShopInfo(employee.shop)).data.data
       this.branch = shopName
-
-
-
+      await this.getStaff()
+      await this.getArr()
     }
     else {
+      let user = (await getUserInfo()).data.data
+      let avatar = (await getUserAvatar())
+      if (avatar.status === 200) {
+        let url = URL.createObjectURL(avatar.data)
+        user.avatar = url
+      }
+      else if (avatar.status === 204) {
+        user.avatar = require('../assets/defaultAvatar.png')
+      }
+      this.user = user
+
       let employee = (await getEmployee()).data.data
       let shopName = (await getShopInfo(employee.shop)).data.data.name
       this.branch = shopName
-
+      this.getArr()
 
     }
-
-
-
 
   }
 

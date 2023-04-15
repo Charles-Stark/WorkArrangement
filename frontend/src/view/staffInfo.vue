@@ -132,9 +132,6 @@
 
           </template>
 
-
-
-
         </v-toolbar>
 
         <v-tabs background-color="transparent" v-model="branch" v-if="$store.state.isManager">
@@ -186,10 +183,7 @@
                   </v-btn>
                 </template>
 
-
-
                 <v-card>
-
 
                   <v-tabs v-model="tabs">
                     <v-tab>
