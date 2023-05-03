@@ -1,5 +1,6 @@
 package com.example.backend.Service;
 
+import java.sql.Time;
 import java.util.*;
 
 import com.example.backend.POJO.*;
@@ -28,12 +29,17 @@ public class Arranger {
     private List<Prefer> preference;
     private List<Staff> staffList;
     private Map<Staff,Float> matchingDegree;
+    private String prepare,closing;
     public void setRule(Rule rule){
+        prepare=null;
+        closing=null;
         if (rule==null) return;
         if(rule.getPrepareTime()!=null) prepareTime = rule.getPrepareTime();
         if(rule.getClosingTime()!=null) closingTime = rule.getClosingTime();
         if(rule.getNumberOnDuty()!=null) this.numberOnDuty=rule.getNumberOnDuty();
         if(rule.getMaxServiceNumber()!=null) this.maxServiceNumber=rule.getMaxServiceNumber();
+        if(rule.getClosingPosition()!=null) closing=rule.getClosingPosition();
+        if(rule.getPreparePosition()!=null) prepare=rule.getPreparePosition();
     }
     private Staff findStaff(Long id){
         if(staffList.get(0).getClass()== Staff.class)
@@ -62,7 +68,11 @@ public class Arranger {
             workUnits=new ArrayList<>();
             for(int i=index;i<index+unitNum&&i<flowUnits.size();i++){
                 Date begin=flowUnits.get(i).getBeginAt();
-                workUnits.add(new TimeStaffNum.WorkUnit(begin,new LinkedList<>(),flowUnits.get(i).getFlow()/maxServiceNumber));
+                TimeStaffNum.WorkUnit unit ;
+                if(flowUnits.get(i).getFlow()==-1) unit=new WorkUnit(begin,new LinkedList<>(),0,prepare);
+                else if(flowUnits.get(i).getFlow()==-2) unit=new WorkUnit(begin,new LinkedList<>(),0,closing);
+                else unit=new TimeStaffNum.WorkUnit(begin,new LinkedList<>(),flowUnits.get(i).getFlow()/maxServiceNumber);
+                workUnits.add(unit);
             }
         }
         @Data
@@ -71,12 +81,22 @@ public class Arranger {
             private LinkedList<Staff> staffs;
             private int minStaffNum;
             private int currentNum;
+            private String position;
             public WorkUnit(Date beginTime, LinkedList<Staff> staffs, double min){
                 this.beginTime=beginTime;
                 this.staffs=staffs;
                 minStaffNum=(int)min;
                 if(beginTime!=null&&minStaffNum==0) minStaffNum=numberOnDuty;
                 currentNum=0;
+                position=null;
+            }
+            public WorkUnit(Date beginTime, LinkedList<Staff> staffs, double min,String position){
+                this.beginTime=beginTime;
+                this.staffs=staffs;
+                minStaffNum=(int)min;
+                if(beginTime!=null&&minStaffNum==0) minStaffNum=numberOnDuty;
+                currentNum=0;
+                this.position=position;
             }
             public void add(Staff s){
                 if(s==null) return;
@@ -104,6 +124,9 @@ public class Arranger {
             public boolean contains(Staff staff){
                 if(staffs==null) return false;
                 return staffs.contains(staff);
+            }
+            public boolean isFull(){
+                return minStaffNum<=currentNum;
             }
             public void move(Staff staff, List<TimeStaffNum> timeStaffNumList, int index){
                 TimeStaffNum.WorkUnit newUnit=null;
@@ -206,6 +229,7 @@ public class Arranger {
         }
         public void add(Staff s){
             currentStaffNum+=1;
+            if(staff.contains(s)) return;
             staff.add(s);
             for(TimeStaffNum.WorkUnit workUnit:workUnits) workUnit.add(s);
         }
@@ -240,6 +264,7 @@ public class Arranger {
     private class Staff{       //方便使用，可换成employee
         private double dayWorkTime,weekWorkTime,continuousWorkTime;
         private Long id;
+        private String position;
         private Prefer prefer;
 
         public Staff(Long id){
@@ -247,6 +272,7 @@ public class Arranger {
             dayWorkTime=0;
             weekWorkTime=0;
             continuousWorkTime=0;
+            position=null;
         }
         public Staff(Employee e){
             this(e.getId());
@@ -254,6 +280,7 @@ public class Arranger {
             prefer=new Prefer(preference);
             if(prefer.durationOfShift==null) prefer.durationOfShift=8;
             if(prefer.durationOfWeek==null) prefer.durationOfWeek=40;
+            position=e.getPosition();
         }
         public Staff(){}
         public boolean isTired(){
@@ -268,7 +295,7 @@ public class Arranger {
             continuousWorkTime+=time;
             if(continuousWorkTime<0) continuousWorkTime=0;
         }
-        public void setOpenClasses(){id=0l;}
+        public void setOpenClasses(){id= 0L;}
         public boolean isMiddle(List<TimeStaffNum> timeStaffNumList, int indexOfList, TimeStaffNum.WorkUnit unit){
             int indexOfUnits=timeStaffNumList.get(indexOfList).workUnits.indexOf(unit);
             if(indexOfList==0&&indexOfUnits==0||indexOfList==timeStaffNumList.size()-1&&indexOfUnits==unitNum-1) return false;
@@ -296,6 +323,7 @@ public class Arranger {
                     for(int j=units.size()-1;j>-1;j--){
                         if(!units.get(j).contains(this))
                             for(Staff s:units.get(j).staffs){
+                                if(units.get(j).position!=null&&units.get(j).position.equals(s.position)) continue;
                                 if(s.dayWorkTime<min.dayWorkTime) min=s;
                                 else if(s.dayWorkTime==min.dayWorkTime&&s.weekWorkTime<min.weekWorkTime) min=s;
                             }
@@ -400,7 +428,7 @@ public class Arranger {
             }
             return false;
         }
-        public void extend(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits,int length){
+        public void extend(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits,int length){  //当前位置 length<=2
             if(length<0||index>=timeStaffNumList.size()-2){
                 if(length<0) length=-length;
                 if(indexOfUnits==0){
@@ -408,9 +436,26 @@ public class Arranger {
                     indexOfUnits=unitNum;
                 }
                 if(index==0) return;
-                timeStaffNumList.get(index).workUnits.get(indexOfUnits-1).add(this);
-                length--;
-                if(length>0) extend(timeStaffNumList,index,indexOfUnits,-length);
+                if(timeStaffNumList.get(index).workUnits.get(indexOfUnits-1).contains(this)) extend(timeStaffNumList, index, indexOfUnits-1, -length);
+                else {
+                    if(indexOfUnits<=1){
+                        if(timeStaffNumList.get(index-1).workUnits.get(unitNum-length).contains(this)) return;
+                        else{
+                            timeStaffNumList.get(index).workUnits.get(indexOfUnits-1).add(this);
+                            length--;
+                            if(length>0) extend(timeStaffNumList,index,indexOfUnits,-length);
+                        }
+                    }
+                    else{
+                        if(indexOfUnits==2&&length==2&&timeStaffNumList.get(index-1).workUnits.get(unitNum-1).contains(this)) return;
+                        else if((indexOfUnits!=2||length!=2)&&timeStaffNumList.get(index).workUnits.get(indexOfUnits-length-1).contains(this)) return;
+                        else{
+                            timeStaffNumList.get(index).workUnits.get(indexOfUnits-1).add(this);
+                            length--;
+                            if(length>0) extend(timeStaffNumList,index,indexOfUnits,-length);
+                        }
+                    }
+                }
             }
             else{
                 if(indexOfUnits==3) {
@@ -418,9 +463,23 @@ public class Arranger {
                     indexOfUnits=-1;
                 }
                 if(index==timeStaffNumList.size()) return;
-                timeStaffNumList.get(index).workUnits.get(indexOfUnits+1).add(this);
-                length--;
-                if(length>0) extend(timeStaffNumList,index,indexOfUnits,length);
+                if(indexOfUnits>=2){
+                    if(timeStaffNumList.get(index+1).workUnits.get(indexOfUnits-3+length).contains(this)) extend(timeStaffNumList,index,indexOfUnits,-length);
+                    else {
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnits+1).add(this);
+                        length--;
+                        if(length>0) extend(timeStaffNumList,index,indexOfUnits,length);
+                    }
+                }
+                else{
+                    if(indexOfUnits==1&&length==2&&timeStaffNumList.get(index+1).workUnits.get(0).contains(this)) extend(timeStaffNumList, index, indexOfUnits, -length);
+                    else if((indexOfUnits!=1||length!=2)&&timeStaffNumList.get(index).workUnits.get(length+indexOfUnits+1).contains(this)) extend(timeStaffNumList,index,indexOfUnits,-length);
+                    else{
+                        timeStaffNumList.get(index).workUnits.get(indexOfUnits+1).add(this);
+                        length--;
+                        if(length>0) extend(timeStaffNumList,index,indexOfUnits,length);
+                    }
+                }
             }
         }
         public double getContinuousWorkTime(List<TimeStaffNum> timeStaffNumList,int index,int indexOfUnits){
@@ -488,6 +547,7 @@ public class Arranger {
             return continuousWorkTime;
         }
     }
+
     private class Prefer {
         private Long id;
         private List<Integer> workingDay;
@@ -634,23 +694,43 @@ public class Arranger {
             for(Staff staff:staffList) staff.dayWorkTime=0;
         }
     }
+    public List<TimeStaffNum> setSpecialPosition(List<TimeStaffNum> timeStaffNumList){
+        ArrayList<Staff> choice=new ArrayList<>();
+        for(Staff staff:staffList) {
+            if(prepare!=null&&prepare.equals(staff.position)) choice.add(staff);
+            if(closing!=null&&closing.equals(staff.position)) choice.add(staff);
+        }
+        for(TimeStaffNum timeStaffNum:timeStaffNumList){
+            for(TimeStaffNum.WorkUnit unit:timeStaffNum.workUnits){
+                if(unit.position!=null){
+                    while(!unit.isFull())
+                        for(Staff staff:choice){
+                            if(unit.position.equals(staff.position)&&!staff.isTired()) timeStaffNum.add(staff);
+                        }
+                }
+            }
+        }
+        return timeStaffNumList;
+    }
     public List<TimeStaffNum> check(List<TimeStaffNum> timeStaffNumList){
         List<Staff> staffList=new LinkedList();
         for(int i = 0;i<timeStaffNumList.size();i++){
             int k=0;
             for(TimeStaffNum.WorkUnit workUnit:timeStaffNumList.get(i).workUnits){
                 if(workUnit.beginTime!=null){
+                    Set<Staff> staffSet=new HashSet<>(workUnit.staffs);
+                    workUnit.staffs=new LinkedList<>(staffSet);
                     for(int j=0;j<workUnit.staffs.size();j++){
                         Staff staff=workUnit.staffs.get(j);
                         if(!staffList.contains(staff)){
                             double time= staff.getContinuousWorkTime(timeStaffNumList,i,k);
                             if(time<=1) {
-                                if (staff.id == 0l) continue;
+                                if (staff.id == 0L) continue;
                                 if(!staff.connect(timeStaffNumList,i,k)){
                                     if(time==1&&staff.dayWorkTime<=staff.prefer.durationOfShift-1&&staff.weekWorkTime<=staff.prefer.durationOfWeek-1) staff.extend(timeStaffNumList,i,k,2);
                                     else {
                                         workUnit.remove(staff);
-                                        workUnit.add(new Staff(0l));
+                                        workUnit.add(new Staff(0L));
                                         j--;
                                     }
                                 }
@@ -658,7 +738,7 @@ public class Arranger {
                                 if(staff.dayWorkTime<=staff.prefer.durationOfShift-2+time&&staff.weekWorkTime<=staff.prefer.durationOfWeek-2+time) staff.extend(timeStaffNumList,i,k, (int) ((2-time)*2));
                                 else{
                                     workUnit.remove(staff);
-                                    workUnit.add(new Staff(0l));
+                                    workUnit.add(new Staff(0L));
                                     j--;
                                 }
                             }else staffList.add(staff);
@@ -683,13 +763,13 @@ public class Arranger {
         ArrayList<Flow.FlowUnit> units = flow.getFlowUnits();
         Flow.FlowUnit last=units.get(0);
         for(int i=0;i<prepareTime*2;i++){
-            Flow.FlowUnit unit = new Flow.FlowUnit(new Date(last.getBeginAt().getTime()-1800000),new Date(last.getEndAt().getTime()-1800000),0);
+            Flow.FlowUnit unit = new Flow.FlowUnit(new Date(last.getBeginAt().getTime()-1800000),new Date(last.getEndAt().getTime()-1800000),-1);
             units.add(0,unit);
             last=unit;
         }
         last=units.get(units.size()-1);
         for(int i=0;i<closingTime*2;i++){
-            Flow.FlowUnit unit = new Flow.FlowUnit(new Date(last.getBeginAt().getTime()+1800000),new Date(last.getEndAt().getTime()+1800000),0);
+            Flow.FlowUnit unit = new Flow.FlowUnit(new Date(last.getBeginAt().getTime()+1800000),new Date(last.getEndAt().getTime()+1800000),-2);
             units.add(unit);
             last=unit;
         }
@@ -755,6 +835,10 @@ public class Arranger {
         int index=0;
         int t=0,last1= timeStaffNumList.size()-1;
         matchingDegree=new HashMap<>();
+        /*
+        timeStaffNumList=setSpecialPosition(timeStaffNumList);      //特定岗位的时间段优先排班
+
+         */
         while(!timeStaffNumList.get(last1).isFull()) {
             if(t>500) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index+",还需要"+(timeStaffNumList.get(index).minStaffNum-timeStaffNumList.get(index).currentStaffNum));
             matchingDegree.clear();
