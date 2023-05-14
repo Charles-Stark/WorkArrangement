@@ -351,7 +351,7 @@ export default {
           this.$router.go(0)
         }
         else {
-          this.$emit('msg', '排班成功')
+          this.$emit('msg', '排班失败')
         }
       }).catch(() => {
         this.$emit('msg', '网络错误')

@@ -6,7 +6,7 @@
       <v-toolbar-title>{{ $router.currentRoute.meta.title }}</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-menu offset-y allow-overflow max-height="600" max-width="400">
+      <v-menu offset-y allow-overflow min-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-badge :value="noti" :content="noti" overlap bordered dot>
             <v-btn icon v-bind="attrs" v-on="on">
@@ -17,7 +17,8 @@
         </template>
 
         <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length !== 0">
-          <v-list-title class="text-h4 ml-2 mt-2">通知</v-list-title>
+          <v-list-title class="text-h4 ma-4">通知</v-list-title>
+          <v-divider class="mt-2"></v-divider>
           <div v-for="notice of notices" :key="notice.id">
             <v-list-item @click="1">
 
@@ -267,7 +268,21 @@ export default {
       this.snackBar = true
     },
     check() {
-    }
+    },
+
+    formatDate(value) { // 时间戳转换日期格式方法
+      if (value == null) {
+        return ''
+      } else {
+        const date = new Date(value)
+        const y = date.getFullYear()// 年
+        let MM = date.getMonth() + 1 // 月
+        MM = MM < 10 ? ('0' + MM) : MM
+        let d = date.getDate() // 日
+        d = d < 10 ? ('0' + d) : d
+        return y + '-' + MM + '-' + d
+      }
+    },
 
   },
 
@@ -307,6 +322,8 @@ export default {
         }
 
 
+        let time = new Date(notice.createAt)
+        notice.createAt = this.formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
       }
       this.notices = notices
       if (notices.length === 0) this.notices = []

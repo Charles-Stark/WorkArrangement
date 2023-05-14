@@ -2,44 +2,50 @@
     <div>
         <v-card class="part2">
             <div class="title2">
-                <img src="../assets/标题2.png" alt="门店数据概览">
+                <img src="../assets/titile1-1.png" alt="门店客户信息">
             </div>
             <!-- 折线图 -->
             <e-charts class="chart1" :option="option1" />
         </v-card>
-        <div class="part3">
 
+        <div class="part3">
             <v-card class="part4">
+                <div class="title2">
+                    <img src="../assets/titile1-2.png" alt="门店销售详情">
+                </div>
                 <e-charts class="chart2" :option="option2" />
             </v-card>
 
             <v-card class="part5">
+                <div class="title2">
+                    <img src="../assets/titile1-3.png" alt="门店部门业绩">
+                </div>
                 <e-charts class="chart3" :option="option3" />
             </v-card>
         </div>
-        <v-card class="part1">
+        <!-- <v-card class="part1">
             <div class="title1">
                 <img src="../assets/标题1.png" alt="门店风采展示">
             </div>
-            <!-- 轮播图 -->
+            轮播图
             <div class="rim1">
                 <div class="card-loop">
                     <transition-group>
                         <div v-for="(item, idx) in loopModules" :key="idx" class="loop-item" :style="item.style"
                             @click="handleLoop(idx)">
                             <img :src="baseData[idx].cover" :alt="baseData[idx].cover" />
-                            <!-- <p class="title">{{ baseData[idx].title }}</p> -->
+                            <p class="title">{{ baseData[idx].title }}</p>
                             <transition name="fade" enter-active-class="animate__animated animate__fadeInUp"
                                 leave-active-class="animate__animated animate__fadeOutDown">
                                 <div v-show="idx === loopCenterIdx">
-                                    <!-- <p class="tool"></p> -->
+                                    <p class="tool"></p>
                                 </div>
                             </transition>
                         </div>
                     </transition-group>
                 </div>
             </div>
-        </v-card>
+        </v-card> -->
 
     </div>
 </template>
@@ -54,20 +60,6 @@ import loop3 from '../assets/shoe3.jpg';
 import loop4 from '../assets/shoe4.jpg';
 import loop5 from '../assets/shoe5.jpg';
 
-/**
- * 根据 id 获取下标
- * @params arr object[]
- * @params id number
- * @result number n>=-1
- */
-const findIdxById = (arr, id) => {
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i] === id) {
-            return i;
-        }
-    }
-    return -1;
-};
 
 export default {
     data() {
@@ -418,15 +410,15 @@ export default {
 <style lang="scss" scoped>
 
 .part1 {
-    width: 95%;
-    margin: 20px auto;
-    padding: 30px;
-    height: 400px;
+    width: 100%;
+    margin: 1vw auto;
+    padding: 2vw;
+    height: 40vh;
     background-color: rgba(201, 229, 234,0.1);
 }
 
 .title1 {
-    width: 200px;
+    width: 20vw;
 
     img {
         width: 100%;
@@ -434,10 +426,10 @@ export default {
 }
 
 .part2 {
-    width: 95%;
-    margin: 10px auto;
-    padding: 30px;
-    height: 350px;
+    width: 80vw;
+    margin: 2vh auto;
+    // padding: 3vw;
+    height: 38vh;
     // background-color: rgb(248, 240, 230);
     background-color: rgba(201, 229, 234,0.1);
 }
@@ -447,41 +439,44 @@ export default {
     //   img{
     //   height: 100%;
     // }
-    width: 200px;
+    width: 25vw;
+    display: flex;
 
     img {
         width: 100%;
+        justify-content: center;
     }
 }
 
 .part3 {
     // display:inline-block;
-    width: 95%;
+    width: 80vw;
     margin: 20px auto;
-    height: 360px;
+    height: 44vh;
+    display: flex;
+    justify-content: center;
     // background-color: rgb(248, 240, 230);
     // background-color: rgb(248, 240, 230);
 
     .part4 {
-        display: inline-block;
         // background-color: bisque;
         // background-color: rgb(248, 240, 230);
         background-color: rgba(201, 229, 234,0.1);
         width: 49.5%;
         height: 100%;
         margin: auto;
-        display:inline-block;
+        // display:inline-block;
     }
 
     .part5 {
-        display: inline-block;
+        // display: inline-block;
         // background-color: rgb(248, 240, 230);
         // background-color: aquamarine;
         background-color: rgba(201, 229, 234,0.1);
         width: 49.5%;
         height: 100%;
         margin: auto;
-        display:inline-block;
+        // display:inline-block;
         margin-left:1%;
     }
 }
@@ -547,21 +542,27 @@ export default {
 
 //柱状图
 .chart1 {
-    margin-top: -50px;
-    height: 300px;
-    width: 90%;
+    // margin-top: -50px;
+    height: 30vh;
+    width: 100%;
 }
 
 
 //面积图
 .chart2 {
-    margin-top: 30px;
-    height: 300px;
-    width: 80%;
+    // margin-top: 30px;
+    height: 80%;
+    width: 100%;
 }
 
 //饼图
 .chart3{
-    width: 80%;
+    height: 80%;
+    width: 100%;
+}
+
+v-card{
+    display: flex;
+    justify-content: center;
 }
 </style>

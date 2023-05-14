@@ -5,7 +5,7 @@
       <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60"
         no-data-text="没有数据" dense flat hide-details style="max-width:140px;min-width:120px"
         @change="changeBranch(); categories = {}" v-if="$store.state.isManager"></v-select>
-      <span v-if="!$store.state.isManager" class="text-h6 ml-3">{{ branch }}</span>
+      <span v-if="!$store.state.isManager" class="text-h6 ml-3">{{ shopName }}</span>
       <v-spacer></v-spacer>
 
       <v-text-field v-model="search1" clearable dense flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
@@ -47,10 +47,7 @@
         </v-list>
       </v-menu>
     </v-toolbar>
-
-
-
-    <v-card class="py-3 px-5" flat :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
+    <v-card v-if="ready" class="py-3 px-5" flat :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
       <v-sheet>
         <v-toolbar flat color="transparent">
 
@@ -223,9 +220,33 @@
       </v-sheet>
 
     </v-card>
+    <v-container v-else style="height: 800px;">
+      <v-row
+        class="fill-height"
+        align-content="center"
+        justify="center"
+      >
+        <v-col
+          class="text-h5 text-center"
+          cols="12"
+        >
+          正在加载排班表
+        </v-col>
+        <v-col cols="6">
+          <v-progress-linear
+            color="deep-purple accent-4"
+            indeterminate
+            rounded
+            height="6"
+          ></v-progress-linear>
+        </v-col>
+      </v-row>
+    </v-container>
 
 
   </div>
+
+
 </template>
 
 <script>
@@ -247,6 +268,7 @@ export default {
       newArr: false,
       newAbsc: false,
       type: 'month',
+      ready:false,
       search1: null,
       search2: null,
       typeToLabel: {
@@ -274,7 +296,7 @@ export default {
       categories: {},
       filteredEmployee: [],
       startTimes: {},
-
+      shopName:"",
       rules: [],
       dialog: false,
 
@@ -403,6 +425,7 @@ export default {
         }
       })
 
+
       this.staff.push({
         avatar: '123',
         durationOfShift: '',
@@ -430,12 +453,11 @@ export default {
       this.rules = []
       if (this.$store.state.isManager || this.$store.state.isShopManager) {
         var events = (await getLatestArr(this.branch)).data
+        console.log(events)
         this.rules = (await getRule(events.data.useRule)).data.data
         var weeks = events.data.weeks
         var rawEvents = []
-
         for (let week of weeks) {
-
           for (let day of week.data) {
             if (day.some(item => item !== null)) {
               var employees = []
@@ -499,7 +521,6 @@ export default {
                     detail,
                     color,
                     timed: true,
-
                   })
 
 
@@ -603,9 +624,10 @@ export default {
         }
 
       }
-
+      this.ready=true
     },
     async changeBranch() {
+      this.ready=false
       await this.getStaff()
       await this.getArr()
     },
@@ -661,7 +683,7 @@ export default {
   },
 
   async mounted() {
-    this.$refs.calendar.checkChange()
+    // this.$refs.calendar.checkChange()
     if (this.$store.state.isManager) {
       getAllShop().then(async res => {
         this.branches = res.data.data
@@ -669,11 +691,6 @@ export default {
           this.branch = this.branches[0].id
           await this.getStaff()
           await this.getArr()
-
-
-
-
-
         }
         else {
           this.$emit('msg', '没有店铺信息')
@@ -685,8 +702,9 @@ export default {
     }
     else if (this.$store.state.isShopManager) {
       let employee = (await getEmployee()).data.data
-      let shopName = (await getShopInfo(employee.shop)).data.data
-      this.branch = shopName
+      let shop = (await getShopInfo(employee.shop)).data.data
+      this.branch = shop.id
+      this.shopName=shop.name
       await this.getStaff()
       await this.getArr()
     }
@@ -703,10 +721,10 @@ export default {
       this.user = user
 
       let employee = (await getEmployee()).data.data
-      let shopName = (await getShopInfo(employee.shop)).data.data.name
-      this.branch = shopName
+      let shop= (await getShopInfo(employee.shop)).data.data
+      this.branch = shop.id
+      this.shopName=shop.name
       this.getArr()
-
     }
 
   }
