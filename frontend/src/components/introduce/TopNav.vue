@@ -93,7 +93,7 @@ export default {
 body {
     /* 默认最小高度 2屏 */
     min-height: 200vh;
-    background-color: #560945;
+    background-color: #56094597;
 }
 
 
@@ -114,7 +114,7 @@ header {
     /* 动画过渡 */
     transition: 0.6s;
     font-size: 25px;
-    background-color: #1c022d;
+    background-color: #1c022d89;
 }
 
 

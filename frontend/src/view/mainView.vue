@@ -27,8 +27,8 @@
       </section>
       </div>
 
-      <div class="sec" id="2">
-          <div class="section1">
+      <div class="sec">
+          <div class="section1" id="2">
             <FlipImage></FlipImage>
             <h1>基于业务预测和劳动力管理模型，结合高效排班算法</h1>
             <h2>为您提供专业准确便捷的智能排班解决方案</h2>
@@ -213,7 +213,7 @@ section::before {
   width: 100%;
   height: 100px;
   background: linear-gradient(to top, #1c0522, transparent);
-  z-index: 1000;
+  z-index: 888;
 }
 
 section img {

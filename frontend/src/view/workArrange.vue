@@ -36,8 +36,11 @@
         </template>
         <v-list>
           <v-list-item>
-            <download-excel name="排班导出结果.xls">
-              <v-btn text>导出/打印</v-btn>
+            <download-excel
+                :data="json_data"
+                :fields="json_fields"
+                name="排班导出结果.xls">
+              <v-btn text @click="GetExcel">导出/打印</v-btn>
             </download-excel>
 
           </v-list-item>
@@ -300,20 +303,33 @@ export default {
       rules: [],
       dialog: false,
 
+      /*以下三个data是打印使用*/
       json_fields: {
-        id: "",
-        employees: "",
-        beginTime: "",
-        shop: "",
-        manager: "",
-        createAt: "",
-        isActive: "",
-        useRule: "",
-        startAt: "",
-        endAt: "",
-        week: "",
+        "排班序号":"id",
+        "店铺序号":"shop",
+        "管理员序号":"manager",
+        "创建时间":"createAt",
+        "是否生效":"isActive",
+        "使用规则序号":"useRule",
+        "表生效时间":"startAt",
+        "表结束时间":"endAt",
+        "work_emp":"work_emp"
+      },
+      json_data: [
+        {
+          id:"",
+          shop:"",
+          manager:"",
+          createAt:"",
+          isActive:"",
+          useRule:"",
+          startAt:"",
+          endAt:"",
+          work_emp:"",
+        }
+      ],
+      something_data:[],
 
-      }
 
     }
   },
@@ -342,24 +358,34 @@ export default {
     },
 
 
-    json_data() {
-      return {
-        "排班表id": this.json_fields.id,
-        "员工id": this.json_fields.employees,
-        "开始工作时间": this.json_fields.beginTime,
-        "店铺id": this.json_fields.shop,
-        "管理员id": this.json_fields.manager,
-        "创建时间": this.json_fields.createAt,
-        "是否正在使用": this.json_fields.isActive,
-        "使用的排班规则id": this.json_fields.useRule,
-        "开始启用时间": this.json_fields.startAt,
-        "结束使用时间": this.json_fields.endAt,
-        "工作详细": this.json_fields.week,
-      }
-    }
+    
 
   },
   methods: {
+    GetExcel(){
+      if(this.something_data!=null){
+        console.log(this.something_data)
+        console.log(typeof this.something_data)
+        console.log(this.something_data.length)
+        console.log(this.something_data.id)
+          this.json_data[0].id = this.something_data.id
+          this.json_data[0].shop = this.something_data.shop
+          this.json_data[0].manager = this.something_data.position
+          this.json_data[0].createAt = this.something_data.createAt
+          this.json_data[0].isActive = this.something_data.isActive
+          this.json_data[0].useRule = this.something_data.useRule
+          this.json_data[0].startAt = this.something_data.startAt
+          this.json_data[0].endAt = this.something_data.endAt
+          for(var i = 0 ;i<this.something_data.week.length ; i++){    //week
+            for(var j = 0 ;j<this.something_data.week.data.length ; j++){   //day
+              for(var x = 0 ;x<this.something_data.week.data.employees.length ; x++){   //day_employees
+              
+              }
+            }
+          }
+        
+      }
+    },
     viewDay({ date }) {
       this.focus = date
       this.type = 'category'
@@ -407,7 +433,6 @@ export default {
         }
       }
       var staff = (await getEmployeeByShop(this.branch)).data.data
-
       staff.forEach(s => {
         s.avatar = require('../assets/defaultAvatar.png')
         s.color = this.colors[this.rnd(0, this.colors.length - 1)]
@@ -453,7 +478,7 @@ export default {
       this.rules = []
       if (this.$store.state.isManager || this.$store.state.isShopManager) {
         var events = (await getLatestArr(this.branch)).data
-        console.log(events)
+        this.something_data = events.data
         this.rules = (await getRule(events.data.useRule)).data.data
         var weeks = events.data.weeks
         var rawEvents = []
