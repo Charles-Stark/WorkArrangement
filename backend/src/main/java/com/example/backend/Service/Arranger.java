@@ -56,6 +56,11 @@ public class Arranger {
         if(index>0) return timeStaffNums.get(index-1).contains(staff);
         return false;
     }
+    public boolean isFull(List<TimeStaffNum> timeStaffNumList){
+        for(TimeStaffNum timeStaffNum:timeStaffNumList)
+            if(!timeStaffNum.isFull()) return false;
+        return true;
+    }
     public class TimeStaffNum {     //记录时间段中员工数量
         private int minStaffNum;   // 最少员工数
         private Date startTime;
@@ -571,7 +576,17 @@ public class Arranger {
                 }
             }
         }
-
+        public void init(){
+            continuousWorkDay=0;
+            monthWorkTime=0;
+            dayWorkTime=0;
+            weekWorkTime=0;
+            continuousWorkTime=0;
+        }
+        public List<Staff> init(List<Staff> staffs){
+            for(Staff staff:staffs) staff.init();
+            return staffs;
+        }
     }
 
     private class Prefer {
@@ -737,6 +752,7 @@ public class Arranger {
                     while(!unit.isFull())
                         for(Staff staff:choice){
                             if(unit.position.equals(staff.position)&&!staff.isTired()) timeStaffNum.add(staff);
+                            if(unit.isFull()) break;
                         }
                 }
             }
@@ -821,6 +837,14 @@ public class Arranger {
     }
     public List<ArrayList<TimeStaffNum>> arrangeMonth(long shopId,List<Flow> flows,long ruleId){
         List<ArrayList<Arranger.TimeStaffNum>> timeStaffNumList = new ArrayList<>();
+        Rule rule = (Rule) ruleService.getRule(ruleId).getData();
+        setRule(rule);
+        List<EmployeeVO> employeeVoList = (List<EmployeeVO>) employeeService.getEmployeeByShop(shopId).getData();
+        List<Employee> employeeList = transTo(employeeVoList);
+        if(employeeList ==null) return null;
+        List<Preference> preferenceList = findPreference(employeeList);
+        preference=new Prefer().toPrefer(preferenceList);
+        staffList=new Staff().toStaff(employeeList);
         for (int i = 0; i < (flows.size() - 1) / 7 + 1; i++) {
             if (i * 7 + 7 > flows.size())
                 timeStaffNumList.addAll(arrangeWeek(shopId, flows.subList(i * 7, flows.size()), ruleId));
@@ -831,14 +855,6 @@ public class Arranger {
     }
     public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId) throws RuntimeException{
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
-        Rule rule = (Rule) ruleService.getRule(ruleId).getData();
-        setRule(rule);
-        List<EmployeeVO> employeeVoList = (List<EmployeeVO>) employeeService.getEmployeeByShop(shopId).getData();
-        List<Employee> employeeList = transTo(employeeVoList);
-        if(employeeList ==null) return null;
-        List<Preference> preferenceList = findPreference(employeeList);
-        preference=new Prefer().toPrefer(preferenceList);
-        staffList=new Staff().toStaff(employeeList);
         System.out.println("开始排班，本周排班起始星期为星期"+getDayOfWeek(flowsOfWeek.get(0).getDate()));
         int errorTime=0;
         for(int i=0;i< flowsOfWeek.size();i++) {
@@ -863,7 +879,7 @@ public class Arranger {
                     System.out.println("本次排班起始星期为星期"+getDayOfWeek(flowsOfWeek.get(0).getDate()));
                     i=-1;
                     timeStaffNumList.clear();
-                    staffList=new Staff().toStaff(employeeList);
+                    staffList=new Staff().init(staffList);
                 }
                 else {
                     System.out.println("重新开始本日排班");
@@ -888,7 +904,7 @@ public class Arranger {
 
         timeStaffNumList=setSpecialPosition(timeStaffNumList);      //特定岗位的时间段优先排班
 
-        while(!timeStaffNumList.get(last1).isFull()) {
+        while(index<=last1) {
             if(t>500) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index+",还需要"+(timeStaffNumList.get(index).minStaffNum-timeStaffNumList.get(index).currentStaffNum));
             matchingDegree.clear();
             TimeStaffNum timeStaffNum=timeStaffNumList.get(index);
