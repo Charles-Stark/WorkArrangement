@@ -332,19 +332,19 @@ export default {
         manager: this.$store.state.userId,
         prepareTime: this.arrangeConfig.pre.time,
         prepareWorkloadPerPerson: this.arrangeConfig.pre.workLoad,
-        preparePosition: this.arrangeConfig.pre.position.toString(),
+        preparePosition: this.arrangeConfig.pre.position.length!==0 ? this.arrangeConfig.pre.position.toString() : null,
         maxServiceNumber: this.arrangeConfig.in.num,
-        servicePosition: this.arrangeConfig.in.position.toString(),
+        servicePosition: this.arrangeConfig.in.position.length!==0 ? this.arrangeConfig.in.position.toString() : null,
         numberOnDuty: this.arrangeConfig.in.attendance,
         closingTime: this.arrangeConfig.post.time,
         closingWorkloadPerPersonU: this.arrangeConfig.post.workLoad,
         closingWorkloadPerPersonV: this.arrangeConfig.post.offset,
-        closingPosition: this.arrangeConfig.post.position.toString(),
+        closingPosition: this.arrangeConfig.post.position.length!==0 ? this.arrangeConfig.post.position.toString() : null,
         startDate: this.arrangeConfig.basic.start + ' 00:00:00',
         lastingDays: this.arrangeConfig.basic.lasting,
-        balance:this.arrangeConfig.basic.balanced,
-        minimumWorkingHourPerMonth:this.arrangeConfig.basic.leastTime,
-        maximumContinuousWorkingDays:this.arrangeConfig.basic.continuousTime
+        balance: this.arrangeConfig.basic.balanced,
+        minimumWorkingHourPerMonth: this.arrangeConfig.basic.leastTime,
+        maximumContinuousWorkingDays: this.arrangeConfig.basic.continuousTime
       }).then((res) => {
         if (res.data.code === 0) {
           this.$emit('msg', '排班成功')
