@@ -305,15 +305,20 @@ export default {
 
       /*以下三个data是打印使用*/
       json_fields: {
-        "排班序号":"id",
+        "月排班序号":"id",
         "店铺序号":"shop",
         "管理员序号":"manager",
-        "创建时间":"createAt",
-        "是否生效":"isActive",
-        "使用规则序号":"useRule",
-        "表生效时间":"startAt",
-        "表结束时间":"endAt",
-        "work_emp":"work_emp"
+        "月排班表创建时间":"createAt",
+        "月排班表是否生效":"isActive",
+        "该月使用规则序号":"useRule",
+        "月排班表生效时间":"startAt",
+        "月排班表结束时间":"endAt",
+        "周排班表序号":"WeekId",
+        "周排班表开始时间":"WeekStartAt",
+        "周排班表结束时间":"WeekEndAt",
+        "天排班表序号":"DayId",
+        "开始时间" : "beginTime",
+        "工作员工序号":"employeesId"
       },
       json_data: [
         {
@@ -325,7 +330,12 @@ export default {
           useRule:"",
           startAt:"",
           endAt:"",
-          work_emp:"",
+          WeekId:"",
+          WeekStartAt:"",
+          WeekEndAt:"",
+          DayId:"",
+          beginTime:"",
+          employeesId:"",
         }
       ],
       something_data:[],
@@ -363,28 +373,45 @@ export default {
   },
   methods: {
     GetExcel(){
-      if(this.something_data!=null){
-        console.log(this.something_data)
-        console.log(typeof this.something_data)
-        console.log(this.something_data.length)
-        console.log(this.something_data.id)
-          this.json_data[0].id = this.something_data.id
-          this.json_data[0].shop = this.something_data.shop
-          this.json_data[0].manager = this.something_data.position
-          this.json_data[0].createAt = this.something_data.createAt
-          this.json_data[0].isActive = this.something_data.isActive
-          this.json_data[0].useRule = this.something_data.useRule
-          this.json_data[0].startAt = this.something_data.startAt
-          this.json_data[0].endAt = this.something_data.endAt
-          for(var i = 0 ;i<this.something_data.week.length ; i++){    //week
-            for(var j = 0 ;j<this.something_data.week.data.length ; j++){   //day
-              for(var x = 0 ;x<this.something_data.week.data.employees.length ; x++){   //day_employees
-              
-              }
+      /*
+      * 一天：32              this.something_data.weeks[0].data[0].length
+      * 一周：7*32            this.something_data.weeks[0].data.length * this.something_data.weeks[0].data[0].length
+      * 一个月：7*32*5         this.something_data.weeks.length * this.something_data.weeks[0].data.length * this.something_data.weeks[0].data[0].length
+      * */
+
+      for (var i = 0 ; i<this.something_data.weeks.length; i++){//周
+        for (var j = 0 ;j < this.something_data.weeks[0].data.length; j++){//天
+          for(var x = 0 ; x < this.something_data.weeks[0].data[0].length; x++){//时
+            /*console.log("i="+i)
+            console.log(this.something_data.weeks.length)
+            console.log("j="+j)
+            console.log( this.something_data.weeks[0].data.length)
+            console.log("x="+x)
+            console.log(this.something_data.weeks[0].data[0].length)
+            console.log(this.something_data.weeks[i].data[j][x].beginTime)
+            console.log(this.something_data.weeks[i].data[j][x].employees)*/
+            let weeksdatas = {
+              "id": this.something_data.id,"shop":this.something_data.shop,"manager":this.something_data.manager,
+              "createAt": this.something_data.createAt,"isActive":this.something_data.isActive,"useRule":this.something_data.useRule,
+              "startAt":this.something_data.startAt,"endAt":this.something_data.endAt,
+              "WeekId":i+1,"WeekStartAt":this.something_data.weeks[i].startAt,"WeekEndAt":this.something_data.weeks[i].endAt,
+              "DayId":j+1,"beginTime":this.something_data.weeks[i].data[j][x].beginTime,"employeesId":this.something_data.weeks[i].data[j][x].employees}
+            this.json_data.push(weeksdatas)
+            if (this.something_data.weeks[i].data[j][x].beginTime==null){
+              let weeksdatas = {
+                "id": this.something_data.id,"shop":this.something_data.shop,"manager":this.something_data.manager,
+                "createAt": this.something_data.createAt,"isActive":this.something_data.isActive,"useRule":this.something_data.useRule,
+                "startAt":this.something_data.startAt,"endAt":this.something_data.endAt,
+                "WeekId":i+1,"WeekStartAt":this.something_data.weeks[i].startAt,"WeekEndAt":this.something_data.weeks[i].endAt,
+                "DayId":j+1,"beginTime":"该班次为开放班次","employeesId":this.something_data.weeks[i].data[j][x].employees}
+              this.json_data.push(weeksdatas)
             }
+
           }
-        
+        }
       }
+
+
     },
     viewDay({ date }) {
       this.focus = date
@@ -479,6 +506,7 @@ export default {
       if (this.$store.state.isManager || this.$store.state.isShopManager) {
         var events = (await getLatestArr(this.branch)).data
         this.something_data = events.data
+        console.log(this.something_data)
         this.rules = (await getRule(events.data.useRule)).data.data
         var weeks = events.data.weeks
         var rawEvents = []
