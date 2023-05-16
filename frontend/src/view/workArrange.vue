@@ -20,35 +20,13 @@
         </template>
         <newArrangement @close="newArr = false" :size="size" :branch="branch" @msg="getMsg" />
       </v-dialog>
-      <v-btn depressed class="mr-2">
-        暂存
-      </v-btn>
-      <v-btn depressed class="mr-2">
-        发布
-      </v-btn>
 
-      <v-menu offset-y>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn v-bind="attrs" v-on="on" depressed>
-            <span class="ml-2">更多</span>
-            <v-icon>mdi-menu-down</v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item>
-            <download-excel
-                :data="json_data"
-                :fields="json_fields"
-                name="排班导出结果.xls">
-              <v-btn text @click="GetExcel">导出/打印</v-btn>
-            </download-excel>
+      <v-btn text to="history">历史排班</v-btn>
 
-          </v-list-item>
-          <v-list-item>
-            <v-btn text to="history">历史排班</v-btn>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+      <download-excel :data="json_data" :fields="json_fields" name="排班导出结果.xls">
+        <v-btn text @click="GetExcel">导出/打印</v-btn>
+      </download-excel>
+
     </v-toolbar>
     <v-card v-if="ready" class="py-3 px-5" flat :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
       <v-sheet>
@@ -72,8 +50,6 @@
               mdi-chevron-right
             </v-icon>
           </v-btn>
-
-
 
           <v-spacer></v-spacer>
 
@@ -159,7 +135,7 @@
 
             <div v-if="type !== 'week'">
               <v-list-item-title class=" ml-3 grey--text text-subtitle">推荐员工</v-list-item-title>
-              <v-list-item @click="dialog = true ; selectedEmployee = s" v-for="s of staff.slice(6, 9)" :key="s.id">
+              <v-list-item @click="dialog = true; selectedEmployee = s" v-for="s of staff.slice(6, 9)" :key="s.id">
                 <v-list-item-avatar>
                   <v-img :src="s.avatar"></v-img>
                 </v-list-item-avatar>
@@ -175,7 +151,7 @@
             <!-- 月、日视图 -->
             <v-virtual-scroll v-if="type !== 'week'" :items="filteredStaff" :item-height="63" height="300" width="400">
               <template v-slot:default="{ item }">
-                <v-list-item @click="dialog = true ; selectedEmployee = item">
+                <v-list-item @click="dialog = true; selectedEmployee = item">
                   <v-list-item-avatar>
                     <v-img :src="item.avatar"></v-img>
                   </v-list-item-avatar>
@@ -224,32 +200,18 @@
 
     </v-card>
     <v-container v-else style="height: 800px;">
-      <v-row
-        class="fill-height"
-        align-content="center"
-        justify="center"
-      >
-        <v-col
-          class="text-h5 text-center"
-          cols="12"
-        >
+      <v-row class="fill-height" align-content="center" justify="center">
+        <v-col class="text-h5 text-center" cols="12">
           正在加载排班表
         </v-col>
         <v-col cols="6">
-          <v-progress-linear
-            color="deep-purple accent-4"
-            indeterminate
-            rounded
-            height="6"
-          ></v-progress-linear>
+          <v-progress-linear color="deep-purple accent-4" indeterminate rounded height="6"></v-progress-linear>
         </v-col>
       </v-row>
     </v-container>
 
 
   </div>
-
-
 </template>
 
 <script>
@@ -271,7 +233,7 @@ export default {
       newArr: false,
       newAbsc: false,
       type: 'month',
-      ready:false,
+      ready: false,
       search1: null,
       search2: null,
       typeToLabel: {
@@ -299,46 +261,46 @@ export default {
       categories: {},
       filteredEmployee: [],
       startTimes: {},
-      shopName:"",
+      shopName: "",
       rules: [],
       dialog: false,
 
       /*以下三个data是打印使用*/
       json_fields: {
-        "月排班序号":"id",
-        "店铺序号":"shop",
-        "管理员序号":"manager",
-        "月排班表创建时间":"createAt",
-        "月排班表是否生效":"isActive",
-        "该月使用规则序号":"useRule",
-        "月排班表生效时间":"startAt",
-        "月排班表结束时间":"endAt",
-        "周排班表序号":"WeekId",
-        "周排班表开始时间":"WeekStartAt",
-        "周排班表结束时间":"WeekEndAt",
-        "天排班表序号":"DayId",
-        "开始时间" : "beginTime",
-        "工作员工序号":"employeesId"
+        "月排班序号": "id",
+        "店铺序号": "shop",
+        "管理员序号": "manager",
+        "月排班表创建时间": "createAt",
+        "月排班表是否生效": "isActive",
+        "该月使用规则序号": "useRule",
+        "月排班表生效时间": "startAt",
+        "月排班表结束时间": "endAt",
+        "周排班表序号": "WeekId",
+        "周排班表开始时间": "WeekStartAt",
+        "周排班表结束时间": "WeekEndAt",
+        "天排班表序号": "DayId",
+        "开始时间": "beginTime",
+        "工作员工序号": "employeesId"
       },
       json_data: [
         {
-          id:"",
-          shop:"",
-          manager:"",
-          createAt:"",
-          isActive:"",
-          useRule:"",
-          startAt:"",
-          endAt:"",
-          WeekId:"",
-          WeekStartAt:"",
-          WeekEndAt:"",
-          DayId:"",
-          beginTime:"",
-          employeesId:"",
+          id: "",
+          shop: "",
+          manager: "",
+          createAt: "",
+          isActive: "",
+          useRule: "",
+          startAt: "",
+          endAt: "",
+          WeekId: "",
+          WeekStartAt: "",
+          WeekEndAt: "",
+          DayId: "",
+          beginTime: "",
+          employeesId: "",
         }
       ],
-      something_data:[],
+      something_data: [],
 
 
     }
@@ -368,20 +330,20 @@ export default {
     },
 
 
-    
+
 
   },
   methods: {
-    GetExcel(){
+    GetExcel() {
       /*
       * 一天：32              this.something_data.weeks[0].data[0].length
       * 一周：7*32            this.something_data.weeks[0].data.length * this.something_data.weeks[0].data[0].length
       * 一个月：7*32*5         this.something_data.weeks.length * this.something_data.weeks[0].data.length * this.something_data.weeks[0].data[0].length
       * */
 
-      for (var i = 0 ; i<this.something_data.weeks.length; i++){//周
-        for (var j = 0 ;j < this.something_data.weeks[0].data.length; j++){//天
-          for(var x = 0 ; x < this.something_data.weeks[0].data[0].length; x++){//时
+      for (var i = 0; i < this.something_data.weeks.length; i++) {//周
+        for (var j = 0; j < this.something_data.weeks[0].data.length; j++) {//天
+          for (var x = 0; x < this.something_data.weeks[0].data[0].length; x++) {//时
             /*console.log("i="+i)
             console.log(this.something_data.weeks.length)
             console.log("j="+j)
@@ -391,21 +353,22 @@ export default {
             console.log(this.something_data.weeks[i].data[j][x].beginTime)
             console.log(this.something_data.weeks[i].data[j][x].employees)*/
             let weeksdatas = {
-              "id": this.something_data.id,"shop":this.something_data.shop,"manager":this.something_data.manager,
-              "createAt": this.something_data.createAt,"isActive":this.something_data.isActive,"useRule":this.something_data.useRule,
-              "startAt":this.something_data.startAt,"endAt":this.something_data.endAt,
-              "WeekId":i+1,"WeekStartAt":this.something_data.weeks[i].startAt,"WeekEndAt":this.something_data.weeks[i].endAt,
-              "DayId":j+1,"beginTime":this.something_data.weeks[i].data[j][x].beginTime,"employeesId":this.something_data.weeks[i].data[j][x].employees}
-            this.json_data.push(weeksdatas)
-            if (this.something_data.weeks[i].data[j][x].beginTime==null){
-              let weeksdatas = {
-                "id": this.something_data.id,"shop":this.something_data.shop,"manager":this.something_data.manager,
-                "createAt": this.something_data.createAt,"isActive":this.something_data.isActive,"useRule":this.something_data.useRule,
-                "startAt":this.something_data.startAt,"endAt":this.something_data.endAt,
-                "WeekId":i+1,"WeekStartAt":this.something_data.weeks[i].startAt,"WeekEndAt":this.something_data.weeks[i].endAt,
-                "DayId":j+1,"beginTime":"该班次为开放班次","employeesId":this.something_data.weeks[i].data[j][x].employees}
-              this.json_data.push(weeksdatas)
+              "id": this.something_data.id,
+              "shop": this.something_data.shop,
+              "manager": this.something_data.manager,
+              "createAt": this.formatDate(this.something_data.createAt),
+              "isActive": this.something_data.isActive,
+              "useRule": this.something_data.useRule,
+              "startAt": this.formatDate(this.something_data.startAt),
+              "endAt": this.formatDate(this.something_data.endAt),
+              "WeekId": i + 1,
+              "WeekStartAt": this.formatDate(this.something_data.weeks[i].startAt),
+              "WeekEndAt": this.formatDate(this.something_data.weeks[i].endAt),
+              "DayId": j + 1,
+              "beginTime": this.formatDate(this.something_data.weeks[i].data[j][x].beginTime),
+              "employeesId": this.something_data.weeks[i].data[j][x].employees
             }
+            this.json_data.push(weeksdatas)
 
           }
         }
@@ -677,10 +640,10 @@ export default {
         }
 
       }
-      this.ready=true
+      this.ready = true
     },
     async changeBranch() {
-      this.ready=false
+      this.ready = false
       await this.getStaff()
       await this.getArr()
     },
@@ -757,7 +720,7 @@ export default {
       let employee = (await getEmployee()).data.data
       let shop = (await getShopInfo(employee.shop)).data.data
       this.branch = shop.id
-      this.shopName=shop.name
+      this.shopName = shop.name
       await this.getStaff()
       await this.getArr()
     }
@@ -774,9 +737,9 @@ export default {
       this.user = user
 
       let employee = (await getEmployee()).data.data
-      let shop= (await getShopInfo(employee.shop)).data.data
+      let shop = (await getShopInfo(employee.shop)).data.data
       this.branch = shop.id
-      this.shopName=shop.name
+      this.shopName = shop.name
       this.getArr()
     }
 

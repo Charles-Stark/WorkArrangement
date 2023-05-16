@@ -124,7 +124,7 @@
                   </v-row>
                   <v-row>
                     <v-col class="ml-3">
-                      <v-select :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="限制职位(非必要)"
+                      <v-select multiple :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="限制职位(非必要)"
                         v-model="arrangeConfig.pre.position" clearable></v-select>
                     </v-col>
                   </v-row>
@@ -189,7 +189,7 @@
                   </v-row>
                   <v-row>
                     <v-col class="ml-3">
-                      <v-select :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="限制职位(非必要)"
+                      <v-select multiple :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="限制职位(非必要)"
                         v-model="arrangeConfig.in.position" clearable></v-select>
                     </v-col>
                   </v-row>
@@ -254,7 +254,7 @@
                   </v-row>
                   <v-row>
                     <v-col class="ml-3">
-                      <v-select :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="限制职位(非必要)"
+                      <v-select multiple :items="['门店经理', '副经理', '小组长', '收银', '导购', '库房']" label="限制职位(非必要)"
                         v-model="arrangeConfig.post.position" clearable></v-select>
                     </v-col>
                   </v-row>
@@ -303,18 +303,18 @@ export default {
         pre: {
           time: 1,
           workLoad: 100,
-          position: null
+          position: []
         },
         in: {
           num: 3.8,
-          position: null,
+          position: [],
           attendance: 1
         },
         post: {
           time: 2,
           workLoad: 80,
           offset: 1,
-          position: null,
+          position: [],
         }
       },
 
@@ -325,9 +325,6 @@ export default {
     }
   },
   props: ['size', 'branch'],
-  computed: {
-
-  },
   methods: {
     submit() {
       createArr({
@@ -335,20 +332,23 @@ export default {
         manager: this.$store.state.userId,
         prepareTime: this.arrangeConfig.pre.time,
         prepareWorkloadPerPerson: this.arrangeConfig.pre.workLoad,
-        preparePosition: this.arrangeConfig.pre.position,
+        preparePosition: this.arrangeConfig.pre.position.toString(),
         maxServiceNumber: this.arrangeConfig.in.num,
-        servicePosition: this.arrangeConfig.in.position,
+        servicePosition: this.arrangeConfig.in.position.toString(),
         numberOnDuty: this.arrangeConfig.in.attendance,
         closingTime: this.arrangeConfig.post.time,
         closingWorkloadPerPersonU: this.arrangeConfig.post.workLoad,
         closingWorkloadPerPersonV: this.arrangeConfig.post.offset,
-        closingPosition: this.arrangeConfig.post.position,
+        closingPosition: this.arrangeConfig.post.position.toString(),
         startDate: this.arrangeConfig.basic.start + ' 00:00:00',
         lastingDays: this.arrangeConfig.basic.lasting,
+        balance:this.arrangeConfig.basic.balanced,
+        minimumWorkingHourPerMonth:this.arrangeConfig.basic.leastTime,
+        maximumContinuousWorkingDays:this.arrangeConfig.basic.continuousTime
       }).then((res) => {
         if (res.data.code === 0) {
           this.$emit('msg', '排班成功')
-          this.$router.go(0)
+          // this.$router.go(0)
         }
         else {
           this.$emit('msg', '排班失败')

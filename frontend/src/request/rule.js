@@ -20,6 +20,9 @@ import store from '../store/index'
 // closingPosition: string 收尾时限制职位
 // startDate: Date 开始日期 格式：yyyy - MM - dd HH: mm: ss, 例：2023 - 03 - 12 00: 00: 00
 // lastingDays: int 排班表持续时间
+// balance: boolean 是否均衡排班
+// minimumWorkingHourPerMonth: int 最小月工作时长
+// maximumContinuousWorkingDays: int 最大连续工作天数
 // }
 export const createArr = params => {
   return request({

@@ -56,16 +56,19 @@
             </v-container>
           </v-card-text>
         </v-card>
+
+        <v-snackbar v-model="snackBar" style="z-index: 10010;">
+          {{ snackBarText }}
+          <template v-slot:action="{ attrs }">
+            <v-btn color="error" icon v-bind="attrs" @click="snackBar = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </template>
+        </v-snackbar>
+        
       </v-dialog>
 
-      <v-snackbar v-model="snackBar" style="z-index: 10010;">
-        {{ snackBarText }}
-        <template v-slot:action="{ attrs }">
-          <v-btn color="error" icon v-bind="attrs" @click="snackBar = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </template>
-      </v-snackbar>
+
 
     </v-row>
   </div>
@@ -74,7 +77,7 @@
 <script>
 import loginBox from './loginBox.vue';
 import registerBox from './registerBox.vue';
-import { getUserInfo, getUserAvatar,logout } from '../../request/user'
+import { getUserInfo, getUserAvatar, logout } from '../../request/user'
 export default {
   components: { loginBox, registerBox },
   data: () => ({
@@ -93,7 +96,7 @@ export default {
       this.snackBarText = data
       this.snackBar = true
     },
-    logout(){
+    logout() {
       logout().then(res => {
         if (res.data.code === 0) {
           this.$store.commit('deleteLoginInfo')
@@ -111,25 +114,25 @@ export default {
   },
 
   mounted() {
-    if (this.$store.state.userId!==null & this.$store.state.token!==null) {
+    if (this.$store.state.userId !== null & this.$store.state.token !== null) {
       getUserInfo().then(async res => {
-        var user={}
+        var user = {}
         if (res.data.code === 0) {
           user.userName = res.data.data.username
           user.email = res.data.data.email
 
-          var avatar=await getUserAvatar(this.$store.state.userId)
-          if(avatar.status===200){
-            user.avatar=URL.createObjectURL(avatar.data)
+          var avatar = await getUserAvatar(this.$store.state.userId)
+          if (avatar.status === 200) {
+            user.avatar = URL.createObjectURL(avatar.data)
           }
-          else{
-            user.avatar=require('../../assets/defaultAvatar.png')
+          else {
+            user.avatar = require('../../assets/defaultAvatar.png')
           }
-      this.logined=true
+          this.logined = true
 
         }
 
-        this.user=user
+        this.user = user
 
       }).catch(() => {
         this.getMsg('网络错误')
@@ -138,7 +141,7 @@ export default {
 
 
     }
-    
+
   }
 
 

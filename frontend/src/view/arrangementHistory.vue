@@ -14,12 +14,12 @@
                 <v-card-actions class="mr-5">
 
 
-                    <v-dialog v-model="dialog" width="1400" fullscreen>
+                    <v-dialog v-model="s.dialog" width="1400" fullscreen>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" color="primary" outlined>查看</v-btn>
                         </template>
 
-                        <historyArr />
+                        <historyArr :shop="s.shop" :id="s.id" @close="s.dialog=false"/>
 
                     </v-dialog>
 
@@ -74,6 +74,7 @@ export default {
                     s.createAt = this.formatDate(s.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
                     s.startAt = this.formatDate(s.startAt)
                     s.endAt = this.formatDate(s.endAt)
+                    s.dialog=false
                 })
                 this.schedules = schedules.reverse()
 
