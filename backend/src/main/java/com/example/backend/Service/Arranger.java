@@ -31,7 +31,7 @@ public class Arranger {
     private List<Prefer> preference;
     private List<Staff> staffList;
     private Map<Staff,Float> matchingDegree;
-    private String prepare,closing;
+    private ArrayList<String> prepare=new ArrayList<>(),closing=new ArrayList<>();
     private boolean balanced=false;
     public void setRule(Rule rule){
         prepare=null;
@@ -41,8 +41,14 @@ public class Arranger {
         if(rule.getClosingTime()!=null) closingTime = rule.getClosingTime();
         if(rule.getNumberOnDuty()!=null) this.numberOnDuty=rule.getNumberOnDuty();
         if(rule.getMaxServiceNumber()!=null) this.maxServiceNumber=rule.getMaxServiceNumber();
-        if(rule.getClosingPosition()!=null) closing=rule.getClosingPosition();
-        if(rule.getPreparePosition()!=null) prepare=rule.getPreparePosition();
+        if(rule.getClosingPosition()!=null) {
+            String[] positions=rule.getClosingPosition().split(",");
+            closing.addAll(Arrays.asList(positions));
+        }
+        if(rule.getPreparePosition()!=null) {
+            String[] positions=rule.getPreparePosition().split(",");
+            prepare.addAll(Arrays.asList(positions));
+        }
     }
     private Staff findStaff(Long id){
         if(staffList.get(0).getClass()== Staff.class)
@@ -89,7 +95,7 @@ public class Arranger {
             private LinkedList<Staff> staffs;
             private int minStaffNum;
             private int currentNum;
-            private String position;
+            private ArrayList<String> position;
             public WorkUnit(Date beginTime, LinkedList<Staff> staffs, double min){
                 this.beginTime=beginTime;
                 this.staffs=staffs;
@@ -98,7 +104,7 @@ public class Arranger {
                 currentNum=0;
                 position=null;
             }
-            public WorkUnit(Date beginTime, LinkedList<Staff> staffs, double min,String position){
+            public WorkUnit(Date beginTime, LinkedList<Staff> staffs, double min,ArrayList<String> position){
                 this.beginTime=beginTime;
                 this.staffs=staffs;
                 minStaffNum=(int)min;
@@ -334,7 +340,7 @@ public class Arranger {
                     for(int j=units.size()-1;j>-1;j--){
                         if(!units.get(j).contains(this))
                             for(Staff s:units.get(j).staffs){
-                                if(units.get(j).position!=null&&units.get(j).position.equals(s.position)) continue;
+                                if(units.get(j).position!=null&&units.get(j).position.contains(s.position)) continue;
                                 if(s.dayWorkTime<min.dayWorkTime) min=s;
                                 else if(s.dayWorkTime==min.dayWorkTime&&s.weekWorkTime<min.weekWorkTime) min=s;
                             }
@@ -743,15 +749,15 @@ public class Arranger {
     public List<TimeStaffNum> setSpecialPosition(List<TimeStaffNum> timeStaffNumList){
         ArrayList<Staff> choice=new ArrayList<>();
         for(Staff staff:staffList) {
-            if(prepare!=null&&prepare.equals(staff.position)) choice.add(staff);
-            if(closing!=null&&closing.equals(staff.position)) choice.add(staff);
+            if(prepare!=null&&prepare.contains(staff.position)) choice.add(staff);
+            if(closing!=null&&closing.contains(staff.position)) choice.add(staff);
         }
         for(TimeStaffNum timeStaffNum:timeStaffNumList){
             for(TimeStaffNum.WorkUnit unit:timeStaffNum.workUnits){
                 if(unit.position!=null){
                     while(!unit.isFull())
                         for(Staff staff:choice){
-                            if(unit.position.equals(staff.position)&&!staff.isTired()) timeStaffNum.add(staff);
+                            if(unit.position.contains(staff.position)&&!staff.isTired()) timeStaffNum.add(staff);
                             if(unit.isFull()) break;
                         }
                 }
