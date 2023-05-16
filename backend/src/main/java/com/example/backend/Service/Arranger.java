@@ -45,6 +45,7 @@ public class Arranger {
         if(rule.getClosingTime()!=null) closingTime = rule.getClosingTime();
         if(rule.getNumberOnDuty()!=null) this.numberOnDuty=rule.getNumberOnDuty();
         if(rule.getMaxServiceNumber()!=null) this.maxServiceNumber=rule.getMaxServiceNumber();
+        if(rule.getBalance()!=null) this.balanced=rule.getBalance();
         if(rule.getClosingPosition()!=null) {
             String[] positions=rule.getClosingPosition().trim().split(",");
             closing.addAll(Arrays.asList(positions));
