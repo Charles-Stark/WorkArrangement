@@ -18,4 +18,6 @@ public interface ScheduleService {
 
     long createSchedule(long shop, long manager, long rule, Date startAt, Date endAt, int lastingDays);
 
+    ResultVO<Object> deleteSchedule(long id);
+
 }

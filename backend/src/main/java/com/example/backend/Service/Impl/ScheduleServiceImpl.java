@@ -84,17 +84,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         try {
             long scheduleId = employeeToScheduleMapper.selectById(employeeId).getScheduleId();
             Schedule schedule = scheduleMapper.selectById(scheduleId);
-            Schedule resultSchedule = new Schedule(
-                    schedule.getId(),
-                    schedule.getShop(),
-                    schedule.getManager(),
-                    schedule.getCreateAt(),
-                    schedule.getIsActive(),
-                    schedule.getUseRule(),
-                    schedule.getStartAt(),
-                    schedule.getEndAt(),
-                    null
-            );
+            Schedule resultSchedule = new Schedule(schedule.getId(), schedule.getShop(), schedule.getManager(), schedule.getCreateAt(), schedule.getIsActive(), schedule.getUseRule(), schedule.getStartAt(), schedule.getEndAt(), null);
 
             ArrayList<Schedule.Week> weeks = new ArrayList<>();
 
@@ -189,4 +179,15 @@ public class ScheduleServiceImpl implements ScheduleService {
             return -1;
         }
     }
+
+    @Override
+    public ResultVO<Object> deleteSchedule(long id) {
+        try {
+            scheduleMapper.deleteById(id);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "删除失败", null);
+        }
+        return new ResultVO<>(0, "删除成功", null);
+    }
+
 }
