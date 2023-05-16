@@ -14,7 +14,7 @@
                 <v-card-actions class="mr-5">
 
 
-                    <v-dialog v-model="dialog" width="1400">
+                    <v-dialog v-model="dialog" width="1400" fullscreen>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" color="primary" outlined>查看</v-btn>
                         </template>

@@ -172,7 +172,7 @@
       <router-view @msg="getMsg"></router-view>
     </v-main>
 
-    <v-snackbar v-model="snackBar">
+    <v-snackbar v-model="snackBar" style="z-index: 1001;">
       {{ snackBarText }}
       <template v-slot:action="{ attrs }">
         <v-btn color="error" icon v-bind="attrs" @click="snackBar = false">

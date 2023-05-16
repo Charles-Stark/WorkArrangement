@@ -54,7 +54,7 @@
               </v-btn>
             </v-col>
 
-            <Vcode :show="showCheckCode" @success="pswLogin()" @close="close" />
+            <Vcode :show="showCheckCode" @success="pswLogin()" @close="close" style="z-index: 1001;" />
 
           </template>
         </v-row>

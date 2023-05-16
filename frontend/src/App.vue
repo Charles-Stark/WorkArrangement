@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { adminRoutes, managerRoutes, employeeRoutes } from './router'
+import { adminRoutes, employeeRoutes } from './router'
 import { getUserInfo } from './request/user'
 
 
