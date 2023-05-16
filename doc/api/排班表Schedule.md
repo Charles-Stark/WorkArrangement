@@ -230,7 +230,7 @@ id: long 店铺id
 
 发送请求如下
 
-GET请求 /api/schedule/delete/{id}
+POST请求 /api/schedule/delete/{id}
 
 ```yaml
 id: long 排班表id

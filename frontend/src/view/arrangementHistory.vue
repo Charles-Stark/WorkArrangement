@@ -19,12 +19,38 @@
                             <v-btn v-bind="attrs" v-on="on" color="primary" outlined>查看</v-btn>
                         </template>
 
-                        <historyArr :shop="s.shop" :id="s.id" @close="s.dialog=false"/>
+                        <historyArr :shop="s.shop" :id="s.id" @close="s.dialog = false" />
 
                     </v-dialog>
 
+                    <v-dialog v-model="s.deleteDialog" width="450">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn color="error" @click="s.deleteDialog = true" v-bind="attrs" v-on="on"
+                                class="ml-1">删除</v-btn>
+                        </template>
 
-                    <v-btn color="error" class="ml-1">删除</v-btn>
+                        <v-card>
+                            <v-card-title class="text-h5">
+                                删除排班
+                            </v-card-title>
+
+                            <v-card-text>
+                                确定要删除该条排班数据吗，此操作不可撤销
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="primary" text @click="s.deleteDialog = false">
+                                    取消
+                                </v-btn>
+                                <v-btn color="error" text @click="deleteArr(s.id)">
+                                    确认删除
+                                </v-btn>
+
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+
                 </v-card-actions>
             </v-row>
         </v-card>
@@ -32,7 +58,7 @@
 </template>
 <script>
 import { getAllShop } from '../request/shop'
-import { getAllArr } from '../request/rule'
+import { getAllArr, deleteArr } from '../request/rule'
 import historyArr from '../components/historyArr.vue'
 
 
@@ -60,6 +86,19 @@ export default {
                 return y + '-' + MM + '-' + d
             }
         },
+        deleteArr(id) {
+            deleteArr(id).then(res => {
+                if (res.data.code === 0) {
+                    this.$emit('msg', '删除成功')
+                    this.$router.go(0)
+                }
+                else if (res.data.code === 1) {
+                    this.$emit('msg', '删除失败')
+                }
+            }).catch(() => {
+                this.$emit('msg', '网络错误')
+            })
+        }
     },
     mounted() {
         getAllShop().then(async res => {
@@ -74,7 +113,8 @@ export default {
                     s.createAt = this.formatDate(s.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
                     s.startAt = this.formatDate(s.startAt)
                     s.endAt = this.formatDate(s.endAt)
-                    s.dialog=false
+                    s.dialog = false
+                    s.deleteDialog = false
                 })
                 this.schedules = schedules.reverse()
 

@@ -71,3 +71,11 @@ export const getRule = id => {
     url: `/api/rule/get/${id}`,
   })
 }
+
+//获取某个排班的规则
+export const deleteArr = id => {
+  return request({
+    method: 'post',
+    url: `/api/schedule/delete/${id}`,
+  })
+}
