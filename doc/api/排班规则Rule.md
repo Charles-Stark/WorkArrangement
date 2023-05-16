@@ -23,6 +23,9 @@ closingWorkloadPerPersonV: double 人均收尾工作量v
 closingPosition: string 收尾时限制职位(可选)
 startDate: Date 开始日期 格式：yyyy-MM-dd HH:mm:ss, 例：2023-03-12 00:00:00
 lastingDays: int 排班表持续时间
+balance: boolean 是否均衡排班
+minimumWorkingHourPerMonth: int 最小月工作时长
+maximumContinuousWorkingDays: int 最大连续工作天数
 ```
 
 ```json
@@ -41,7 +44,10 @@ lastingDays: int 排班表持续时间
     "closingTime": 2.0,
     "closingWorkloadPerPersonU": 80.0,
     "closingWorkloadPerPersonV": 1.0,
-    "closingPosition": null
+    "closingPosition": null,
+    "balance": false,
+    "minimumWorkingHourPerMonth": 120,
+    "maximumContinuousWorkingDays": 5
   }
 }
 ```
@@ -95,9 +101,9 @@ id: long 规则id
   "code": 0,
   "message": "获取排班规则成功",
   "data": {
-    "id": 2,
+    "id": 64,
     "shop": 1,
-    "prepareTime": 1.5,
+    "prepareTime": 1.0,
     "prepareWorkloadPerPerson": 100.0,
     "preparePosition": null,
     "maxServiceNumber": 3.8,
@@ -106,7 +112,10 @@ id: long 规则id
     "closingTime": 2.0,
     "closingWorkloadPerPersonU": 80.0,
     "closingWorkloadPerPersonV": 1.0,
-    "closingPosition": null
+    "closingPosition": null,
+    "balance": false,
+    "minimumWorkingHourPerMonth": 120,
+    "maximumContinuousWorkingDays": 5
   }
 }
 ```
@@ -146,7 +155,10 @@ shopId: long 门店id
       "closingTime": 2.0,
       "closingWorkloadPerPersonU": 80.0,
       "closingWorkloadPerPersonV": 1.0,
-      "closingPosition": null
+      "closingPosition": null,
+      "balance": false,
+      "minimumWorkingHourPerMonth": 120,
+      "maximumContinuousWorkingDays": 5
     },
     {
       "id": 5,
@@ -160,7 +172,10 @@ shopId: long 门店id
       "closingTime": 2.0,
       "closingWorkloadPerPersonU": 80.0,
       "closingWorkloadPerPersonV": 1.0,
-      "closingPosition": null
+      "closingPosition": null,
+      "balance": false,
+      "minimumWorkingHourPerMonth": 120,
+      "maximumContinuousWorkingDays": 5
     }
   ]
 }
