@@ -137,15 +137,16 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 调用排班算法，排班并存入schedule
             List<Flow> flows = flowService.getFlowByShop(shop, startAt, lastingDays).getData();
             /*
+            List<List<Arranger.TimeStaffNum>> timeStaffNumList = new ArrayList<>();
             for (int i = 0; i < (flows.size() - 1) / 7 + 1; i++) {
                 if (i * 7 + 7 > flows.size())
                     timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i * 7, flows.size()), rule));
                 else timeStaffNumList.addAll(arranger.arrangeWeek(shop, flows.subList(i * 7, (i + 1) * 7), rule));
                 System.out.println("完成本周排班，起始日期为" + flows.get(i).getDate());
             }
-
-             */
+            */
             List<List<Arranger.TimeStaffNum>> timeStaffNumList = new ArrayList<>(arranger.arrangeMonth(shop, flows, rule));
+
             long scheduleId = arranger.outPut(timeStaffNumList, shop, rule, manager);
 
             Schedule schedule = scheduleMapper.selectById(scheduleId);

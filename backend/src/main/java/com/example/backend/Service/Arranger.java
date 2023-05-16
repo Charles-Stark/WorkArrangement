@@ -31,11 +31,12 @@ public class Arranger {
     private List<Prefer> preference;
     private List<Staff> staffList;
     private Map<Staff,Float> matchingDegree;
-    private ArrayList<String> prepare=new ArrayList<>(),closing=new ArrayList<>();
+    private ArrayList<String> prepare,closing,service;
     private boolean balanced=false;
     public void setRule(Rule rule){
-        prepare=null;
-        closing=null;
+        prepare=new ArrayList<>();
+        closing=new ArrayList<>();
+        service=new ArrayList<>();
         if (rule==null) return;
         if(rule.getPrepareTime()!=null) prepareTime = rule.getPrepareTime();
         if(rule.getClosingTime()!=null) closingTime = rule.getClosingTime();
@@ -48,6 +49,10 @@ public class Arranger {
         if(rule.getPreparePosition()!=null) {
             String[] positions=rule.getPreparePosition().split(",");
             prepare.addAll(Arrays.asList(positions));
+        }
+        if(rule.getServicePosition()!=null) {
+            String[] positions=rule.getServicePosition().split(",");
+            service.addAll(Arrays.asList(positions));
         }
     }
     private Staff findStaff(Long id){
@@ -755,11 +760,10 @@ public class Arranger {
         for(TimeStaffNum timeStaffNum:timeStaffNumList){
             for(TimeStaffNum.WorkUnit unit:timeStaffNum.workUnits){
                 if(unit.position!=null){
-                    while(!unit.isFull())
-                        for(Staff staff:choice){
-                            if(unit.position.contains(staff.position)&&!staff.isTired()) timeStaffNum.add(staff);
-                            if(unit.isFull()) break;
-                        }
+                    for(Staff staff:choice){
+                        if(unit.position.contains(staff.position)&&!staff.isTired()) timeStaffNum.add(staff);
+                        if(unit.isFull()) break;
+                    }
                 }
             }
         }
