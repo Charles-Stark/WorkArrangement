@@ -37,21 +37,24 @@ public class Arranger {
         prepare=new ArrayList<>();
         closing=new ArrayList<>();
         service=new ArrayList<>();
+        prepare.add("prepare");
+        closing.add("closing");
+        service.add("service");
         if (rule==null) return;
         if(rule.getPrepareTime()!=null) prepareTime = rule.getPrepareTime();
         if(rule.getClosingTime()!=null) closingTime = rule.getClosingTime();
         if(rule.getNumberOnDuty()!=null) this.numberOnDuty=rule.getNumberOnDuty();
         if(rule.getMaxServiceNumber()!=null) this.maxServiceNumber=rule.getMaxServiceNumber();
         if(rule.getClosingPosition()!=null) {
-            String[] positions=rule.getClosingPosition().split(",");
+            String[] positions=rule.getClosingPosition().trim().split(",");
             closing.addAll(Arrays.asList(positions));
         }
         if(rule.getPreparePosition()!=null) {
-            String[] positions=rule.getPreparePosition().split(",");
+            String[] positions=rule.getPreparePosition().trim().split(",");
             prepare.addAll(Arrays.asList(positions));
         }
         if(rule.getServicePosition()!=null) {
-            String[] positions=rule.getServicePosition().split(",");
+            String[] positions=rule.getServicePosition().trim().split(",");
             service.addAll(Arrays.asList(positions));
         }
     }
@@ -90,7 +93,7 @@ public class Arranger {
                 TimeStaffNum.WorkUnit unit ;
                 if(flowUnits.get(i).getFlow()==-1) unit=new WorkUnit(begin,new LinkedList<>(),0,prepare);
                 else if(flowUnits.get(i).getFlow()==-2) unit=new WorkUnit(begin,new LinkedList<>(),0,closing);
-                else unit=new TimeStaffNum.WorkUnit(begin,new LinkedList<>(),flowUnits.get(i).getFlow()/maxServiceNumber);
+                else unit=new TimeStaffNum.WorkUnit(begin,new LinkedList<>(),flowUnits.get(i).getFlow()/maxServiceNumber,service);
                 workUnits.add(unit);
             }
         }
@@ -345,7 +348,7 @@ public class Arranger {
                     for(int j=units.size()-1;j>-1;j--){
                         if(!units.get(j).contains(this))
                             for(Staff s:units.get(j).staffs){
-                                if(units.get(j).position!=null&&units.get(j).position.contains(s.position)) continue;
+                                if(units.get(j).position!=null&&!units.get(j).position.get(0).equals("service")&&units.get(j).position.contains(s.position)) continue;
                                 if(s.dayWorkTime<min.dayWorkTime) min=s;
                                 else if(s.dayWorkTime==min.dayWorkTime&&s.weekWorkTime<min.weekWorkTime) min=s;
                             }
@@ -911,6 +914,10 @@ public class Arranger {
         int index=0;
         int t=0,last1= timeStaffNumList.size()-1;
         matchingDegree=new HashMap<>();
+        ArrayList<Staff> profit=new ArrayList<>();
+        for(Staff staff:staffList)
+            if(service.contains(staff.position))
+                profit.add(staff);
 
         timeStaffNumList=setSpecialPosition(timeStaffNumList);      //特定岗位的时间段优先排班
 
@@ -926,6 +933,7 @@ public class Arranger {
             start = m.group().substring(0, 5);
             String end = getEndTime(start);
             for (Staff staff : staffList) {
+                if(!profit.contains(staff)) continue;
                 staff.prefer.mateTime(start,end,dayOfWeek,staff);
                 if (timeStaffNum.isFull()) break;
             }
