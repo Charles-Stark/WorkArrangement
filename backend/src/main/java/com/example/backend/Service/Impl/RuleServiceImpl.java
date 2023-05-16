@@ -7,6 +7,7 @@ import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.RuleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -23,8 +24,8 @@ public class RuleServiceImpl implements RuleService {
     private ScheduleService scheduleService;
 
     @Override
-    public ResultVO<Object> addRule(Long shop, long manager, Double prepareTime, Double prepareWorkloadPerPerson, String preparePosition, Double maxServiceNumber, String servicePosition, Integer numberOnDuty, Double closingTime, Double closingWorkloadPerPersonU, Double closingWorkloadPerPersonV, String closingPosition, Date startingDate, int lastingDays) {
-        Rule rule = new Rule(null, shop, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition);
+    public ResultVO<Object> addRule(Long shop, long manager, Double prepareTime, Double prepareWorkloadPerPerson, String preparePosition, Double maxServiceNumber, String servicePosition, Integer numberOnDuty, Double closingTime, Double closingWorkloadPerPersonU, Double closingWorkloadPerPersonV, String closingPosition, Date startingDate, int lastingDays, boolean balance, int minimumWorkingHourPerMonth, int maximumContinuousWorkingDays) {
+        Rule rule = new Rule(null, shop, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition, balance, minimumWorkingHourPerMonth, maximumContinuousWorkingDays);
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("shop", shop);
         try {

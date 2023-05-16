@@ -29,8 +29,11 @@ public class RuleController {
                                     @RequestParam(value = "closingWorkloadPerPersonV", required = false) double closingWorkloadPerPersonV,
                                     @RequestParam(value = "closingPosition", required = false) String closingPosition,
                                     @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
-                                    @RequestParam("lastingDays") int lastingDays) {
-        return ruleService.addRule(shop, manager, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition, startDate, lastingDays);
+                                    @RequestParam("lastingDays") int lastingDays,
+                                    @RequestParam("balance") boolean balance,
+                                    @RequestParam("minimumWorkingHourPerMonth") int minimumWorkingHourPerMonth,
+                                    @RequestParam("maximumContinuousWorkingDays") int maximumContinuousWorkingDays) {
+        return ruleService.addRule(shop, manager, prepareTime, prepareWorkloadPerPerson, preparePosition, maxServiceNumber, servicePosition, numberOnDuty, closingTime, closingWorkloadPerPersonU, closingWorkloadPerPersonV, closingPosition, startDate, lastingDays, balance, minimumWorkingHourPerMonth, maximumContinuousWorkingDays);
     }
 
     @PostMapping("/delete")

@@ -9,7 +9,7 @@ public interface RuleService {
     ResultVO<Object> addRule(Long shop, long manager, Double prepareTime, Double prepareWorkloadPerPerson, String preparePosition,
                              Double maxServiceNumber, String servicePosition, Integer numberOnDuty, Double closingTime,
                              Double closingWorkloadPerPersonU, Double closingWorkloadPerPersonV, String closingPosition,
-                             Date startingDate, int lastingDays);
+                             Date startingDate, int lastingDays, boolean balance, int minimumWorkingHourPerMonth, int maximumContinuousWorkingDays);
 
     ResultVO<Object> deleteRule(Long id);
 

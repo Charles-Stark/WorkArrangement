@@ -21,5 +21,8 @@ public class Rule {
     private Double closingWorkloadPerPersonU;
     private Double closingWorkloadPerPersonV;
     private String closingPosition;
+    private Boolean balance;  // 均衡排班
+    private Integer minimumWorkingHourPerMonth;  // 最小月工作时长
+    private Integer maximumContinuousWorkingDays;  // 最大连续工作天数
 
 }
