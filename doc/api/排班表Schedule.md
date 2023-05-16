@@ -223,3 +223,31 @@ id: long 店铺id
   "data": null
 }
 ```
+
+## 删除排班表
+
+删除排班表。
+
+发送请求如下
+
+GET请求 /api/schedule/delete/{id}
+
+```yaml
+id: long 排班表id
+```
+
+```json
+{
+  "code": 0,
+  "message": "删除成功",
+  "data": null
+}
+```
+
+```json
+{
+  "code": -1,
+  "message": "删除失败",
+  "data": null
+}
+```
