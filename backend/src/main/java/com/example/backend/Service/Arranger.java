@@ -916,9 +916,11 @@ public class Arranger {
         int t=0,last1= timeStaffNumList.size()-1;
         matchingDegree=new HashMap<>();
         ArrayList<Staff> profit=new ArrayList<>();
-        for(Staff staff:staffList)
-            if(service.contains(staff.position))
-                profit.add(staff);
+        if(service.size()==1) profit.addAll(staffList);
+        else
+            for(Staff staff:staffList)
+                if(service.contains(staff.position))
+                    profit.add(staff);
 
         timeStaffNumList=setSpecialPosition(timeStaffNumList);      //特定岗位的时间段优先排班
 
