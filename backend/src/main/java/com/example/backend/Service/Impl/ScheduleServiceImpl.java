@@ -162,6 +162,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                     }
                 }
             }
+            employees.removeIf(Objects::isNull);
+            employees.removeIf(Objects -> Objects == 0);
             for (Long employee : employees) {
                 // 产生了新排班表，创建通知
                 notificationService.notifyWhenNewScheduleCreated(scheduleId, manager, employee);
