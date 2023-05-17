@@ -923,7 +923,7 @@ public class Arranger {
                 if(service.contains(staff.position))
                     profit.add(staff);
 
-        timeStaffNumList=setSpecialPosition(timeStaffNumList);      //特定岗位的时间段优先排班
+        timeStaffNumList=setSpecialPosition(timeStaffNumList);      //准备时间和收尾时间，指定岗位优先排班
 
         while(index<=last1) {
             if(t>500) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index+",还需要"+(timeStaffNumList.get(index).minStaffNum-timeStaffNumList.get(index).currentStaffNum));
