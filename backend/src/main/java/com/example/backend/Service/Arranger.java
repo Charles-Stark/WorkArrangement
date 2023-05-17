@@ -341,7 +341,7 @@ public class Arranger {
         }
         //寻找在当前时间段附近的工作时间最小的员工;index>0 向前;index<0 向后;
         private Staff findNearMin(List<TimeStaffNum> timeStaffNumList, int index){
-            Staff min=new Staff();
+            Staff min=this;
             min.setDayWorkTime(40);
             if(index>0) {
                 for(int i=index-1;i>-1;i--){
@@ -363,6 +363,7 @@ public class Arranger {
                     for (TimeStaffNum.WorkUnit unit : units) {
                         if (!unit.contains(this))
                             for (Staff s : unit.staffs) {
+                                if(unit.position!=null&&!unit.position.get(0).equals("service")&&unit.position.contains(s.position)) continue;
                                 if (s.dayWorkTime < min.dayWorkTime) min = s;
                                 else if (s.dayWorkTime == min.dayWorkTime && s.weekWorkTime < min.weekWorkTime) min = s;
                             }
