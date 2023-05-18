@@ -785,6 +785,11 @@ public class Arranger {
                     workUnit.staffs=new LinkedList<>(staffSet);
                     for(int j=0;j<workUnit.staffs.size();j++){
                         Staff staff=workUnit.staffs.get(j);
+                        if(staff.id==null) {
+                            workUnit.remove(staff);
+                            j--;
+                            continue;
+                        }
                         if(!staffList.contains(staff)){
                             double time= staff.getContinuousWorkTime(timeStaffNumList,i,k);
                             try {
