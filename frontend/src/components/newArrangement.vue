@@ -348,7 +348,7 @@ export default {
       }).then((res) => {
         if (res.data.code === 0) {
           this.$emit('msg', '排班成功')
-          // this.$router.go(0)
+          this.$router.go(0)
         }
         else {
           this.$emit('msg', '排班失败')

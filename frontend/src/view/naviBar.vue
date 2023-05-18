@@ -253,7 +253,6 @@ export default {
           this.$store.commit('deleteLoginInfo')
           this.getMsg('退出登录成功，正在重定向...')
           this.$router.push('/')
-          this.$router.go(0)
         }
         else {
           this.getMsg('退出登录失败')
