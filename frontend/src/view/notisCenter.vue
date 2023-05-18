@@ -1,6 +1,6 @@
 <template>
-  <v-data-iterator :items="filteredItems" :page.sync="page" :search="search" hide-default-footer no-results-text="没有搜索结果"
-    no-data-text="没有数据">
+  <v-data-iterator v-if="notices.length !== 0 & ready" :items="filteredItems" :page.sync="page" :search="search" hide-default-footer
+    no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
       <v-toolbar rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
         <v-btn v-if="onlyUnread === false" class="mx-3" large depressed @click="checkUnread()">显示未读</v-btn>
@@ -104,13 +104,6 @@
 
       </v-list>
 
-      <v-row v-else>
-        <v-col cols="12" v-for="index of 6" :key="index">
-          <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line,divider"></v-skeleton-loader>
-        </v-col>
-      </v-row>
-
-
     </template>
 
     <template v-slot:footer v-if="ready & notices.length !== 0">
@@ -118,11 +111,25 @@
     </template>
 
   </v-data-iterator>
+  <v-container v-else-if="!ready">
+    <v-row>
+      <v-col cols="12" v-for="index of 6" :key="index">
+        <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line,divider"></v-skeleton-loader>
+      </v-col>
+    </v-row>
+  </v-container>
+  <v-container v-else style="height: 80vh;">
+    <v-row class="fill-height" align-content="center" justify="center">
+      <v-col class="text-h5 text-center" cols="12">
+        没有通知
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
 import { getNotis, setAllRead, deleteNoti } from '../request/notis'
-import { getUserAvatar, getUserInfo } from '../request/user'
+import { getUserAvatar } from '../request/user'
 export default {
   data() {
     return {
@@ -241,7 +248,6 @@ export default {
         notice.avatar = require('../assets/defaultAvatar.png')
         let time = new Date(notice.createAt)
         notice.createAt = this.formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
-
       })
       this.notices = notices
       if (notices.length === 0) this.notices = []

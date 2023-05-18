@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="branches.length !== 0">
     <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat
       v-if="$store.state.isManager || $store.state.isShopManager">
       <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60"
@@ -199,19 +199,27 @@
       </v-sheet>
 
     </v-card>
-    <v-container v-else style="height: 800px;">
-      <v-row class="fill-height" align-content="center" justify="center">
-        <v-col class="text-h5 text-center" cols="12">
-          正在加载排班表
-        </v-col>
-        <v-col cols="6">
-          <v-progress-linear color="deep-purple accent-4" indeterminate rounded height="6"></v-progress-linear>
-        </v-col>
-      </v-row>
-    </v-container>
-
-
   </div>
+  <v-container v-else-if="!ready" style="height: 80vh;">
+    <v-row class="fill-height" align-content="center" justify="center">
+      <v-col class="text-h5 text-center" cols="12">
+        正在加载排班表
+      </v-col>
+      <v-col cols="6">
+        <v-progress-linear color="primary accent-4" indeterminate rounded height="6"></v-progress-linear>
+      </v-col>
+    </v-row>
+  </v-container>
+  <v-container v-else style="height: 80vh;">
+    <v-row class="fill-height" align-content="center" justify="center">
+      <v-col class="text-h5 text-center" cols="12">
+        没有店铺信息
+      </v-col>
+      <v-col cols="12" class="text-center">
+        <v-btn outlined color="primary" to="/controlpanel/branches">点击跳转到分店页<v-icon>mdi-arrow-right</v-icon></v-btn>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -262,7 +270,6 @@ export default {
       filteredEmployee: [],
       startTimes: {},
       shopName: "",
-      rules: [],
       dialog: false,
 
       /*以下三个data是打印使用*/
@@ -430,6 +437,7 @@ export default {
 
       this.staff = staff
 
+
       this.staff.forEach(async s => {
         var avatar = await getUserAvatar(s.id)
         if (avatar.status === 200) {
@@ -463,184 +471,185 @@ export default {
 
     },
     async getArr() {
-      this.events = []
-      this.rawEvents = []
-      this.rules = []
-      if (this.$store.state.isManager || this.$store.state.isShopManager) {
-        var events = (await getLatestArr(this.branch)).data
-        this.something_data = events.data
-        console.log(this.something_data)
-        this.rules = (await getRule(events.data.useRule)).data.data
-        var weeks = events.data.weeks
-        var rawEvents = []
-        for (let week of weeks) {
-          for (let day of week.data) {
-            if (day.some(item => item !== null)) {
-              var employees = []
-              var categories = []
-              for (let event of day) {
-                if (event !== null) {
-                  //将排班处理成按员工分类
-                  let start = event.beginTime
-                  for (let employee of event.employees) {
-                    if (employee !== null) {
-                      let flag = false
-                      employees.forEach(e => {
-                        if (e.id === employee) {
-                          flag = true
-                          if (start === e.end[e.end.length - 1]) {
-                            e.end[e.end.length - 1] += 1800000
+      try {
+        this.events = []
+        this.rawEvents = []
+        if (this.$store.state.isManager || this.$store.state.isShopManager) {
+          var events = (await getLatestArr(this.branch)).data
+          this.something_data = events.data
+          var weeks = events.data.weeks
+          var rawEvents = []
+          for (let week of weeks) {
+            for (let day of week.data) {
+              if (day.some(item => item !== null)) {
+                var employees = []
+                var categories = []
+                for (let event of day) {
+                  if (event !== null) {
+                    //将排班处理成按员工分类
+                    let start = event.beginTime
+                    for (let employee of event.employees) {
+                      if (employee !== null) {
+                        let flag = false
+                        employees.forEach(e => {
+                          if (e.id === employee) {
+                            flag = true
+                            if (start === e.end[e.end.length - 1]) {
+                              e.end[e.end.length - 1] += 1800000
+                            }
+                            else {
+                              e.start.push(start)
+                              e.end.push(start + 1800000)
+                            }
                           }
-                          else {
-                            e.start.push(start)
-                            e.end.push(start + 1800000)
-                          }
-                        }
-                      })
-                      if (!flag) {
-                        var e = this.staff.find(item => item.id === employee)
-                        employees.push({
-                          id: employee,
-                          start: [start],
-                          end: [start + 1800000],
-                          category: e.username,
-                          name: e.username,
-                          color: e.color,
-                          avatar: e.avatar,
-                          position: e.position,
-                          uid: e.uid,
                         })
+                        if (!flag) {
+                          var e = this.staff.find(item => item.id === employee)
+                          employees.push({
+                            id: employee,
+                            start: [start],
+                            end: [start + 1800000],
+                            category: e.username,
+                            name: e.username,
+                            color: e.color,
+                            avatar: e.avatar,
+                            position: e.position,
+                            uid: e.uid,
+                          })
+                        }
                       }
                     }
-                  }
 
-                  //将排班处理成按时间分类
-                  var d = new Date(event.beginTime).getDay()
-                  var time = new Date(event.beginTime).getHours()
-                  var color
-                  if (d >= 1 & d <= 5) {
-                    if (time < 9 || time >= 21) color = 'green'
-                    else color = 'blue'
-                  }
-                  else {
-                    if (time < 10 || time >= 22) color = 'green'
-                    else color = 'blue'
-                  }
-                  var detail = []
-                  event.employees.forEach(employee => {
-                    detail.push(this.staff.find(item => item.id === employee))
-                  })
-                  rawEvents.push({
-                    start: new Date(event.beginTime),
-                    end: new Date(event.beginTime + 1800000),
-                    name: event.employees.length + '个员工',
-                    detail,
-                    color,
-                    timed: true,
-                  })
-
-
-                }
-
-              }
-
-              var date
-              for (let e of employees) {
-                for (var i = 0; i < e.start.length; i++) {
-                  categories.push(e.category)
-                  date = this.formatDate(e.start[i])
-                  this.events.push({
-                    id: e.id,
-                    start: new Date(e.start[i]),
-                    end: new Date(e.end[i]),
-                    name: e.name,
-                    category: e.category,
-                    color: e.color,
-                    avatar: e.avatar,
-                    timed: true,
-                    position: e.position,
-                    uid: e.uid
-
-                  })
-                }
-              }
-
-
-              for (let i = 0; i < categories.length; i++) {
-                for (var j = i + 1; j < categories.length; j++) {
-                  if (categories[i] == categories[j]) {         //第一个等同于第二个，splice方法删除第二个
-                    categories.splice(j, 1);
-                    j--;
-                  }
-                }
-              }
-              this.categories[date] = categories
-              this.startTimes[date] = employees
-            }
-          }
-
-        }
-        this.rawEvents = rawEvents
-      }
-      else {
-        events = (await getArrByEmployee()).data.data
-        this.rules = (await getRule(events.useRule)).data.data
-        weeks = events.weeks
-        for (let week of weeks) {
-          for (let day of week.data) {
-            if (day.some(item => item !== null)) {
-              var shifts = []
-              let flag = false
-              for (let event of day) {
-                if (event !== null) {
-                  var start = event.beginTime
-
-
-                  shifts.forEach(e => {
-                    if (start === e.end[e.end.length - 1]) {
-                      e.end[e.end.length - 1] += 1800000
+                    //将排班处理成按时间分类
+                    var d = new Date(event.beginTime).getDay()
+                    var time = new Date(event.beginTime).getHours()
+                    var color
+                    if (d >= 1 & d <= 5) {
+                      if (time < 9 || time >= 21) color = 'green'
+                      else color = 'blue'
                     }
                     else {
-                      e.start.push(start)
-                      e.end.push(start + 1800000)
+                      if (time < 10 || time >= 22) color = 'green'
+                      else color = 'blue'
                     }
-
-                  })
-
-                  if (!flag) {
-                    flag = true
-                    shifts.push({
-                      start: [start],
-                      end: [start + 1800000],
-                      name: this.user.username,
-                      color: `primary darken-1`,
-                      avatar: this.user.avatar,
+                    var detail = []
+                    event.employees.forEach(employee => {
+                      detail.push(this.staff.find(item => item.id === employee))
                     })
+                    rawEvents.push({
+                      start: new Date(event.beginTime),
+                      end: new Date(event.beginTime + 1800000),
+                      name: event.employees.length + '个员工',
+                      detail,
+                      color,
+                      timed: true,
+                    })
+
+
                   }
 
                 }
 
+                var date
+                for (let e of employees) {
+                  for (var i = 0; i < e.start.length; i++) {
+                    categories.push(e.category)
+                    date = this.formatDate(e.start[i])
+                    this.events.push({
+                      id: e.id,
+                      start: new Date(e.start[i]),
+                      end: new Date(e.end[i]),
+                      name: e.name,
+                      category: e.category,
+                      color: e.color,
+                      avatar: e.avatar,
+                      timed: true,
+                      position: e.position,
+                      uid: e.uid
+
+                    })
+                  }
+                }
+
+                for (let i = 0; i < categories.length; i++) {
+                  for (var j = i + 1; j < categories.length; j++) {
+                    if (categories[i] == categories[j]) {         //第一个等同于第二个，splice方法删除第二个
+                      categories.splice(j, 1);
+                      j--;
+                    }
+                  }
+                }
+                this.categories[date] = categories
+                this.startTimes[date] = employees
               }
-              for (let e of shifts) {
-                for (let i = 0; i < e.start.length; i++) {
-                  this.events.push({
-                    start: new Date(e.start[i]),
-                    end: new Date(e.end[i]),
-                    name: e.name,
-                    category: e.category,
-                    color: e.color,
-                    avatar: e.avatar,
-                    timed: true
-                  })
+            }
+
+          }
+          this.rawEvents = rawEvents
+        }
+        else {
+          events = (await getArrByEmployee()).data.data
+          this.rules = (await getRule(events.useRule)).data.data
+          weeks = events.weeks
+          for (let week of weeks) {
+            for (let day of week.data) {
+              if (day.some(item => item !== null)) {
+                var shifts = []
+                let flag = false
+                for (let event of day) {
+                  if (event !== null) {
+                    var start = event.beginTime
+
+
+                    shifts.forEach(e => {
+                      if (start === e.end[e.end.length - 1]) {
+                        e.end[e.end.length - 1] += 1800000
+                      }
+                      else {
+                        e.start.push(start)
+                        e.end.push(start + 1800000)
+                      }
+
+                    })
+
+                    if (!flag) {
+                      flag = true
+                      shifts.push({
+                        start: [start],
+                        end: [start + 1800000],
+                        name: this.user.username,
+                        color: `primary darken-1`,
+                        avatar: this.user.avatar,
+                      })
+                    }
+
+                  }
+
+                }
+                for (let e of shifts) {
+                  for (let i = 0; i < e.start.length; i++) {
+                    this.events.push({
+                      start: new Date(e.start[i]),
+                      end: new Date(e.end[i]),
+                      name: e.name,
+                      category: e.category,
+                      color: e.color,
+                      avatar: e.avatar,
+                      timed: true
+                    })
+                  }
                 }
               }
             }
+
           }
 
         }
-
+        this.ready = true
       }
-      this.ready = true
+      catch (e) {
+        this.$emit('msg', '暂无排班信息')
+      }
     },
     async changeBranch() {
       this.ready = false
@@ -707,9 +716,11 @@ export default {
           this.branch = this.branches[0].id
           await this.getStaff()
           await this.getArr()
+
         }
         else {
-          this.$emit('msg', '没有店铺信息')
+          this.branches = []
+          this.ready = true
         }
       }).catch((err) => {
         console.log(err)

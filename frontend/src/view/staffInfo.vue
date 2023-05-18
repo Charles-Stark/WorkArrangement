@@ -1,8 +1,7 @@
 <template>
   <div>
-
-    <v-data-iterator :items="staff" :search="search" :page.sync="page" hide-default-footer no-results-text="没有搜索结果"
-      :sort-by="keys[sortBy]" :sort-desc="sortDesc" no-data-text="没有数据">
+    <v-data-iterator v-if="branches.length !== 0" :items="staff" :search="search" :page.sync="page" hide-default-footer
+      no-results-text="没有搜索结果" :sort-by="keys[sortBy]" :sort-desc="sortDesc" no-data-text="没有员工">
       <template v-slot:header>
         <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
@@ -141,8 +140,6 @@
       </template>
 
       <template v-slot:default="props">
-
-
 
         <div class="mx-10" v-if="ready">
           <v-row class="mt-3">
@@ -283,12 +280,6 @@
 
         </div>
 
-        <v-row v-else>
-          <v-col cols="12" v-for="index of 6" :key="index">
-            <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line,divider"></v-skeleton-loader>
-          </v-col>
-        </v-row>
-
       </template>
 
       <template v-slot:footer v-if="ready & staff.length !== 0">
@@ -296,6 +287,23 @@
       </template>
 
     </v-data-iterator>
+    <v-container v-else-if="!ready">
+      <v-row>
+        <v-col cols="12" v-for="index of 6" :key="index">
+          <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line,divider"></v-skeleton-loader>
+        </v-col>
+      </v-row>
+    </v-container>
+    <v-container v-else style="height: 80vh;">
+      <v-row class="fill-height" align-content="center" justify="center">
+        <v-col class="text-h5 text-center" cols="12">
+          没有店铺信息
+        </v-col>
+        <v-col cols="12" class="text-center">
+          <v-btn outlined color="primary" to="/controlpanel/branches">点击跳转到分店页<v-icon>mdi-arrow-right</v-icon></v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -305,7 +313,7 @@ import { createEmployee, editEmployeeInfo, deleteEmployee, getEmployeeByShop, ge
 import editFavor from '../components/editFavor.vue'
 export default {
   components: {
-    editFavor
+    editFavor,
   },
   data() {
     return {
@@ -472,9 +480,9 @@ export default {
           this.getStaff(this.branches[this.branch].id)
         }
         else {
-          this.ready = true
           this.staff = []
-          this.$emit('msg', '没有店铺信息')
+          this.ready = true
+
         }
       }
       if (this.$store.state.isShopManager) {
