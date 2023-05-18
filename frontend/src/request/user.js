@@ -27,7 +27,7 @@ export const pswReset = (email, password, verify) => {
   return request({
     method: 'post',
     url: 'api/user/password/reset',
-    params: {
+    data: {
       email,
       password,
       verify
@@ -40,7 +40,7 @@ export const getOTP = email => {
   return request({
     method: 'post',
     url: 'api/user/login/sendCode',
-    params: {
+    data: {
       email
     }
   })
@@ -51,7 +51,7 @@ export const OTPLogin = (email, verify) => {
   return request({
     method: 'post',
     url: 'api/user/login/code',
-    params: {
+    data: {
       email,
       verify
     }
@@ -63,7 +63,7 @@ export const pswLogin = (email, password) => {
   return request({
     method: 'post',
     url: 'api/user/login/password',
-    params: {
+    data: {
       email,
       password
     }
@@ -76,7 +76,7 @@ export const getRegisterOTP = email => {
   return request({
     method: 'post',
     url: 'api/user/register/sendCode',
-    params: {
+    data: {
       email
     }
   })
@@ -87,7 +87,7 @@ export const register = (email, password, username, verify) => {
   return request({
     method: 'post',
     url: 'api/user/register',
-    params: {
+    data: {
       email,
       password,
       username,
@@ -101,7 +101,7 @@ export const updateName = username => {
   return request({
     method: 'post',
     url: `api/user/info/username/update/${store.state.userId}`,
-    params: {
+    data: {
       username
     }
   })
@@ -121,7 +121,7 @@ export const updateEmail = (email, verify) => {
   return request({
     method: 'post',
     url: 'api/user/email/reset',
-    params: {
+    data: {
       id: store.state.userId,
       email,
       verify
@@ -134,7 +134,7 @@ export const getEmailOTP = email => {
   return request({
     method: 'post',
     url: 'api/user/email/reset/sendCode',
-    params: {
+    data: {
       email
     }
   })
@@ -145,7 +145,7 @@ export const logout = () => {
   return request({
     method: 'post',
     url: 'api/user/logout',
-    params: {
+    data: {
       id: store.state.userId
     }
   })

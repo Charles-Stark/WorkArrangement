@@ -26,6 +26,7 @@ public class UserController {
     private static final long MAX_PHOTO_SIZE = 2 * 1024 * 1024;  // 用户头像大小限制 2MB
 
     private static final Map<String, String> ALLOWED_PHOTO_TYPES = new HashMap<>();
+
     static {
         ALLOWED_PHOTO_TYPES.put("FFD8FF", "image/jpeg");
         ALLOWED_PHOTO_TYPES.put("89504E", "image/png");
@@ -41,38 +42,33 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResultVO<Map<String, Object>> register(@RequestParam("email") String email,
-                                                  @RequestParam("password") String password,
-                                                  @RequestParam("username") String username,
-                                                  @RequestParam("verify") String verify) {
-        return userService.register(email, password, username, verify);
+    public ResultVO<Map<String, Object>> register(@RequestBody Map<String, String> data) {
+        return userService.register(data.get("email"), data.get("password"), data.get("username"), data.get("verify"));
     }
 
     @PostMapping("/register/sendCode")
-    public ResultVO<Object> sendCodeWhenRegister(@RequestParam("email") String email) {
-        return userService.sendCodeWhenRegister(email);
+    public ResultVO<Object> sendCodeWhenRegister(@RequestBody Map<String, String> data) {
+        return userService.sendCodeWhenRegister(data.get("email"));
     }
 
     @PostMapping("/login/sendCode")
-    public ResultVO<Object> sendCodeWhenLogin(@RequestParam("email") String email) {
-        return userService.sendCodeWhenLogin(email);
+    public ResultVO<Object> sendCodeWhenLogin(@RequestBody Map<String, String> data) {
+        return userService.sendCodeWhenLogin(data.get("email"));
     }
 
     @PostMapping("/email/reset/sendCode")
-    public ResultVO<Object> sendCodeWhenChangingEmail(@RequestParam("email") String email) {
-        return userService.sendCodeWhenChangingEmail(email);
+    public ResultVO<Object> sendCodeWhenChangingEmail(@RequestBody Map<String, String> data) {
+        return userService.sendCodeWhenChangingEmail(data.get("email"));
     }
 
     @PostMapping("/login/password")
-    public ResultVO<Map<String, Object>> loginByPassword(@RequestParam("email") String email,
-                                                         @RequestParam("password") String password) {
-        return userService.loginByPassword(email, password);
+    public ResultVO<Map<String, Object>> loginByPassword(@RequestBody Map<String, String> data) {
+        return userService.loginByPassword(data.get("email"), data.get("password"));
     }
 
     @PostMapping("/login/code")
-    public ResultVO<Map<String, Object>> loginByCode(@RequestParam("email") String email,
-                                                     @RequestParam("verify") String verify) {
-        return userService.loginByCode(email, verify);
+    public ResultVO<Map<String, Object>> loginByCode(@RequestBody Map<String, String> data) {
+        return userService.loginByCode(data.get("email"), data.get("verify"));
     }
 
     @GetMapping("/info/get/{id}")
@@ -124,17 +120,17 @@ public class UserController {
     }
 
     @PostMapping("/photo/upload/{id}")
-    public ResultVO<Object> uploadUserPhoto(@PathVariable long id, @RequestParam("photo") MultipartFile multipartFile) {
+    public ResultVO<Object> uploadUserPhoto(@PathVariable long id, @RequestParam("photo") MultipartFile photo) {
         try {
-            if (multipartFile.getSize() > MAX_PHOTO_SIZE) {
+            if (photo.getSize() > MAX_PHOTO_SIZE) {
                 return new ResultVO<>(-1, "图片过大", null);
             }
-            String magicNumber = MagicNumberUtil.getMagicNumber(multipartFile.getBytes(), 6);
+            String magicNumber = MagicNumberUtil.getMagicNumber(photo.getBytes(), 6);
             if (!ALLOWED_PHOTO_TYPES.containsKey(magicNumber)) {
                 return new ResultVO<>(-1, "类型不符", null);
             }
 
-            User user = new User(id, null, null, null, multipartFile.getBytes(), ALLOWED_PHOTO_TYPES.get(magicNumber), null);
+            User user = new User(id, null, null, null, photo.getBytes(), ALLOWED_PHOTO_TYPES.get(magicNumber), null);
             userMapper.updateById(user);
             return new ResultVO<>(0, "修改头像成功", null);
         } catch (Exception e) {
@@ -143,9 +139,9 @@ public class UserController {
     }
 
     @PostMapping("/info/username/update/{id}")
-    public ResultVO<Map<String, Object>> updateUsername(@PathVariable long id, @RequestParam("username") String username) {
+    public ResultVO<Map<String, Object>> updateUsername(@PathVariable long id, @RequestBody Map<String, String> data) {
         try {
-            User user = new User(id, null, null, username, null, null, null);
+            User user = new User(id, null, null, data.get("username"), null, null, null);
             userMapper.updateById(user);
             return new ResultVO<>(0, "修改用户名成功", null);
         } catch (Exception e) {
@@ -154,21 +150,17 @@ public class UserController {
     }
 
     @PostMapping("/password/reset")
-    public ResultVO<Map<String, Object>> resetPassword(@RequestParam("email") String email,
-                                                       @RequestParam("password") String password,
-                                                       @RequestParam("verify") String verify) {
-        return userService.resetPassword(email, password, verify);
+    public ResultVO<Map<String, Object>> resetPassword(@RequestBody Map<String, String> data) {
+        return userService.resetPassword(data.get("email"), data.get("password"), data.get("verify"));
     }
 
     @PostMapping("/email/reset")
-    public ResultVO<Object> resetEmail(@RequestParam("id") Long id,
-                                       @RequestParam("email") String email,
-                                       @RequestParam("verify") String verify) {
-        return userService.resetEmail(id, email, verify);
+    public ResultVO<Object> resetEmail(@RequestBody Map<String, String> data) {
+        return userService.resetEmail(Long.valueOf(data.get("id")), data.get("email"), data.get("verify"));
     }
 
     @PostMapping("/logout")
-    public ResultVO<Object> logout(@RequestParam("id") long id) {
+    public ResultVO<Object> logout(@RequestBody Map<String, String> data) {
         return new ResultVO<>(0, "退出登陆成功", null);
     }
 
