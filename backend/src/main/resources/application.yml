@@ -21,10 +21,13 @@ spring:
       mail:
         smtp:
           auth: true
+          ssl:
+            enable: true
           starttls:
             enable: true
             required: true
       debug: true
+    port: 465
   # Redis数据库配置
   redis:
     host: localhost
