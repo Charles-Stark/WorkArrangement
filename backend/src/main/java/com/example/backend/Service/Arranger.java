@@ -859,8 +859,8 @@ public class Arranger {
         for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
             timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
         }
-        System.out.println("上班时间:"+flow.getFlowUnits().get(0).getBeginAt());
-        System.out.println("下班时间:"+flow.getFlowUnits().get(flow.getFlowUnits().size()-1).getEndAt());
+        System.out.println("首班时间:"+flow.getFlowUnits().get(0).getBeginAt());
+        System.out.println("末班时间:"+flow.getFlowUnits().get(flow.getFlowUnits().size()-1).getEndAt());
         return timeStaffNumList;
     }
     public List<ArrayList<TimeStaffNum>> arrangeMonth(long shopId,List<Flow> flows,long ruleId){
@@ -889,11 +889,6 @@ public class Arranger {
             try {
                 Flow flow=flowsOfWeek.get(i);
                 timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
-            }catch (IndexOutOfBoundsException e){
-                System.out.println("重新开始本日排班");
-                i--;
-                errorTime++;
-                countWorkTime(timeStaffNumList);
             }catch (RuntimeException e){
                 System.out.println(e);
                 errorTime++;
@@ -1091,11 +1086,16 @@ public class Arranger {
             i=nextI;
             t++;
         }
-        System.out.println("完成本次排班,星期为星期"+dayOfWeek);
-
         timeStaffNumList=check(timeStaffNumList);
         for(Staff staff:staffList) staff.setContinuousWorkDay(timeStaffNumList);
-        //return timeStaffNumList;
+        int size1=timeStaffNumList.size();
+        int size2=timeStaffNumList.get(size1-1).workUnits.size();
+        System.out.println("完成本次排班,星期为星期"+dayOfWeek);
+        System.out.println("首班开始时间:"+timeStaffNumList.get(0).startTime);
+        System.out.println("员工数:"+timeStaffNumList.get(0).workUnits.get(0).currentNum);
+        System.out.println("末班开始时间:"+timeStaffNumList.get(size1-1).workUnits.get(size2-1).beginTime);
+        System.out.println("员工数:"+timeStaffNumList.get(size1-1).workUnits.get(size2-1).currentNum);
+        System.out.println("------------------------------------------------");
         return timeStaffNumList;
     }
     public ArrayList<Employee> transTo(List<EmployeeVO> employeeVOs){
@@ -1134,5 +1134,5 @@ public class Arranger {
         System.out.println("新的排班数据已创建,id="+schedule.getId());
         return schedule.getId();
     }
-
 }
+//前端23:00之后的排班显示异常
