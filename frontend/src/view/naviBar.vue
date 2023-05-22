@@ -243,10 +243,6 @@ export default {
       this.$vuetify.theme.dark = localStorage.dark
     },
 
-    jumpToNoti() {
-      alert("~~~")
-    },
-
     logout() {
       logout().then(res => {
         if (res.data.code === 0) {

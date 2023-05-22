@@ -476,6 +476,7 @@ export default {
         this.rawEvents = []
         if (this.$store.state.isManager || this.$store.state.isShopManager) {
           var events = (await getLatestArr(this.branch)).data
+          console.log(events)
           this.something_data = events.data
           var weeks = events.data.weeks
           var rawEvents = []
@@ -494,12 +495,29 @@ export default {
                         employees.forEach(e => {
                           if (e.id === employee) {
                             flag = true
+
+                            let time = new Date(start)
+
+
                             if (start === e.end[e.end.length - 1]) {
-                              e.end[e.end.length - 1] += 1800000
+
+                              if (time.getMinutes() === 30 && time.getHours() === 23) {
+                                console.log(time)
+                                e.end[e.end.length - 1] += 1740000
+                              }
+                              else {
+                                e.end[e.end.length - 1] += 1800000
+                              }
                             }
                             else {
                               e.start.push(start)
-                              e.end.push(start + 1800000)
+                              if (time.getMinutes() === 30 && time.getHours() === 23) {
+                                console.log(time)
+                                e.end.push(start + 1740000)
+                              }
+                              else {
+                                e.end.push(start + 1800000)
+                              }
                             }
                           }
                         })
@@ -522,23 +540,35 @@ export default {
 
                     //将排班处理成按时间分类
                     var d = new Date(event.beginTime).getDay()
-                    var time = new Date(event.beginTime).getHours()
+                    var t = new Date(event.beginTime).getHours()
                     var color
                     if (d >= 1 & d <= 5) {
-                      if (time < 9 || time >= 21) color = 'green'
+                      if (t < 9 || t >= 21) color = 'green'
                       else color = 'blue'
                     }
                     else {
-                      if (time < 10 || time >= 22) color = 'green'
+                      if (t < 10 || t >= 22) color = 'green'
                       else color = 'blue'
                     }
                     var detail = []
+
                     event.employees.forEach(employee => {
                       detail.push(this.staff.find(item => item.id === employee))
                     })
+
+                    let beginTime = new Date(event.beginTime)
+                    let endTime
+                    if (beginTime.getMinutes() === 30 && beginTime.getHours() === 23) {
+                      endTime = event.beginTime + 1740000
+                    }
+                    else {
+                      endTime = event.beginTime + 1800000
+                    }
+
+
                     rawEvents.push({
                       start: new Date(event.beginTime),
-                      end: new Date(event.beginTime + 1800000),
+                      end: endTime,
                       name: event.employees.length + '个员工',
                       detail,
                       color,
