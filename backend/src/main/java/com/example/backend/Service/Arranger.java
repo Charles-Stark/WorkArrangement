@@ -33,7 +33,7 @@ public class Arranger {
     private Map<Staff,Float> matchingDegree;
     private ArrayList<String> prepare,closing,service;
     private boolean balanced=false;
-    public void setRule(Rule rule){
+    public void setRule(Rule rule){ //原始客流量预测包含1小时准备时间，不包含收尾时间，即时间为8:00-21:00，不包含21:00之后的半小时
         prepare=new ArrayList<>();
         closing=new ArrayList<>();
         service=new ArrayList<>();
@@ -849,10 +849,18 @@ public class Arranger {
             units.add(unit);
             last=unit;
         }
+        if(dayOfWeek>5){
+            for(Flow.FlowUnit unit:flow.getFlowUnits()){
+                unit.setBeginAt(new Date(unit.getBeginAt().getTime()+3600000));
+                unit.setEndAt(new Date(unit.getEndAt().getTime()+3600000));
+            }
+        }
         List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
         for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
             timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
         }
+        System.out.println("上班时间:"+flow.getFlowUnits().get(0).getBeginAt());
+        System.out.println("下班时间:"+flow.getFlowUnits().get(flow.getFlowUnits().size()-1).getEndAt());
         return timeStaffNumList;
     }
     public List<ArrayList<TimeStaffNum>> arrangeMonth(long shopId,List<Flow> flows,long ruleId){
@@ -915,8 +923,8 @@ public class Arranger {
         int dayOfWeek=getDayOfWeek(flow.getDate());
         for(Staff staff:staffList) staff.dayWorkTime=0;
         List<TimeStaffNum> timeStaffNumList;
-        timeStaffNumList=init(flow,dayOfWeek);
         System.out.println("开始本日排班，星期为星期"+dayOfWeek);
+        timeStaffNumList=init(flow,dayOfWeek);
         //获取初始结果
         int index=0;
         int t=0,last1= timeStaffNumList.size()-1;
