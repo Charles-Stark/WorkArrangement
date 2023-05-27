@@ -33,7 +33,7 @@ public class Arranger {
     private Map<Staff,Float> matchingDegree;
     private ArrayList<String> prepare,closing,service;
     private boolean balanced=false;
-    public void setRule(Rule rule){
+    public void setRule(Rule rule){ //原始客流量预测包含1小时准备时间，不包含收尾时间，即时间为8:00-21:00，不包含21:00之后的半小时
         prepare=new ArrayList<>();
         closing=new ArrayList<>();
         service=new ArrayList<>();
@@ -831,7 +831,6 @@ public class Arranger {
                 k++;
             }
         }
-
         return timeStaffNumList;
     }
     public List<TimeStaffNum> init(Flow flow1,int dayOfWeek){
@@ -849,10 +848,18 @@ public class Arranger {
             units.add(unit);
             last=unit;
         }
+        if(dayOfWeek>5){
+            for(Flow.FlowUnit unit:flow.getFlowUnits()){
+                unit.setBeginAt(new Date(unit.getBeginAt().getTime()+3600000));
+                unit.setEndAt(new Date(unit.getEndAt().getTime()+3600000));
+            }
+        }
         List<TimeStaffNum> timeStaffNumList=new ArrayList<>();
         for(int i=0;i<flow.getFlowUnits().size();i+=unitNum){
             timeStaffNumList.add(new TimeStaffNum(flow.getFlowUnits(),i,atLeastNum(flow,i),unitNum));
         }
+        System.out.println("首班时间:"+flow.getFlowUnits().get(0).getBeginAt());
+        System.out.println("末班时间:"+flow.getFlowUnits().get(flow.getFlowUnits().size()-1).getEndAt());
         return timeStaffNumList;
     }
     public List<ArrayList<TimeStaffNum>> arrangeMonth(long shopId,List<Flow> flows,long ruleId){
@@ -881,11 +888,6 @@ public class Arranger {
             try {
                 Flow flow=flowsOfWeek.get(i);
                 timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
-            }catch (IndexOutOfBoundsException e){
-                System.out.println("重新开始本日排班");
-                i--;
-                errorTime++;
-                countWorkTime(timeStaffNumList);
             }catch (RuntimeException e){
                 System.out.println(e);
                 errorTime++;
@@ -915,8 +917,8 @@ public class Arranger {
         int dayOfWeek=getDayOfWeek(flow.getDate());
         for(Staff staff:staffList) staff.dayWorkTime=0;
         List<TimeStaffNum> timeStaffNumList;
-        timeStaffNumList=init(flow,dayOfWeek);
         System.out.println("开始本日排班，星期为星期"+dayOfWeek);
+        timeStaffNumList=init(flow,dayOfWeek);
         //获取初始结果
         int index=0;
         int t=0,last1= timeStaffNumList.size()-1;
@@ -972,6 +974,8 @@ public class Arranger {
                     //强抓壮丁
                     if(t>20) {
                         if(staff!=null&& !hasSelected(staff, timeStaffNumList, index) &&!staff.isTired()) timeStaffNum.add(staff);
+                    }else if(t>200){
+                        if(staff!=null&&!staff.isTired()) timeStaffNum.add(staff);
                     }
                     if (timeStaffNum.isFull()) break;
                 }
@@ -1083,11 +1087,16 @@ public class Arranger {
             i=nextI;
             t++;
         }
-        System.out.println("完成本次排班,星期为星期"+dayOfWeek);
-
         timeStaffNumList=check(timeStaffNumList);
         for(Staff staff:staffList) staff.setContinuousWorkDay(timeStaffNumList);
-        //return timeStaffNumList;
+        int size1=timeStaffNumList.size();
+        int size2=timeStaffNumList.get(size1-1).workUnits.size();
+        System.out.println("完成本次排班,星期为星期"+dayOfWeek);
+        System.out.println("首班开始时间:"+timeStaffNumList.get(0).startTime);
+        System.out.println("员工数:"+timeStaffNumList.get(0).workUnits.get(0).currentNum);
+        System.out.println("末班开始时间:"+timeStaffNumList.get(size1-1).workUnits.get(size2-1).beginTime);
+        System.out.println("员工数:"+timeStaffNumList.get(size1-1).workUnits.get(size2-1).currentNum);
+        System.out.println("------------------------------------------------");
         return timeStaffNumList;
     }
     public ArrayList<Employee> transTo(List<EmployeeVO> employeeVOs){
@@ -1126,5 +1135,5 @@ public class Arranger {
         System.out.println("新的排班数据已创建,id="+schedule.getId());
         return schedule.getId();
     }
-
 }
+//前端23:00之后的排班显示异常
