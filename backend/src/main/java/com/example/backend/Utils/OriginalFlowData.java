@@ -5,9 +5,9 @@ public class OriginalFlowData {
     static public double[] data = new double[26];
 
     public OriginalFlowData() {
-        data[0] = 0.1;
-        data[1] = 0.1;
-        data[2] = 1.3;
+        data[0] = 0.1;  // 8:00 - 8:30
+        data[1] = 0.1;  // 8:30 - 9:00
+        data[2] = 1.3;  // 9:00 - 9:30
         data[3] = 5.7;
         data[4] = 11.1;
         data[5] = 13.4;
