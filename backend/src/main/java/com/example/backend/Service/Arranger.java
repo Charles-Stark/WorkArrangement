@@ -974,6 +974,8 @@ public class Arranger {
                     //强抓壮丁
                     if(t>20) {
                         if(staff!=null&& !hasSelected(staff, timeStaffNumList, index) &&!staff.isTired()) timeStaffNum.add(staff);
+                    }else if(t>200){
+                        if(staff!=null&&!staff.isTired()) timeStaffNum.add(staff);
                     }
                     if (timeStaffNum.isFull()) break;
                 }
