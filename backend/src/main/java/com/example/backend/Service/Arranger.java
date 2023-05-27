@@ -1183,8 +1183,9 @@ public class Arranger {
     //关于参数：weekNum：在该组排班中，该周是第几周；dayNum：在该周中，这是第几天，halfHourNum：在该天中，第几个半小时
     //关于输出结果：结果为员工的id，前3个为推荐员工（这个3是写死的，不管总最终结果如何至少是3个），后面是其他可供选择的员工（若总可供选择的员工数小于3个则没有其他员工）
     //推荐员工和其他员工中间有个id值为-1间隔
-    public LinkedList<Long> getSuitableEmployees(long scheduleId,int weekNum,int dayNum,int halfHourNum,long shopId){
+    public LinkedList<Long> getSuitableEmployees(long scheduleId,int weekNum,int dayNum,int halfHourNum){
         Schedule schedule=scheduleMapper.selectById(scheduleId);
+        long shopId=schedule.getShop();
         LinkedList<Employee> employees=new LinkedList<>();
         ArrayList<Schedule.Week> weeks=schedule.getWeeks();
         Schedule.WorkUnit[][] week=weeks.get(weekNum).getData();
@@ -1222,7 +1223,7 @@ public class Arranger {
         int t=0;
         LinkedList<Long> employeeList=new LinkedList<>();
         for(Staff staff:keySetList){
-            if(t==3) employeeList.add(-1l);
+            if(t==3) employeeList.add(-1L);
             employeeList.add(staff.id);
             t++;
         }

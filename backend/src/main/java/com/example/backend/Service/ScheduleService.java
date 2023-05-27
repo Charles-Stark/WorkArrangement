@@ -20,4 +20,6 @@ public interface ScheduleService {
 
     ResultVO<Object> deleteSchedule(long id);
 
+    ResultVO<Object> getRecommend(long id,int week,int day,int halfHour);
+
 }

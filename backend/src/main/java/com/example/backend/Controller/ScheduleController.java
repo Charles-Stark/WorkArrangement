@@ -42,4 +42,8 @@ public class ScheduleController {
         return scheduleService.deleteSchedule(id);
     }
 
+    @RequestMapping("/get/recommend/{id}")
+    public ResultVO<Object> getRecommend(@PathVariable long id,@RequestParam("week")int week,@RequestParam("day")int day,@RequestParam("halfHour")int halfHour){
+        return scheduleService.getRecommend(id,week,day,halfHour);
+    }
 }
