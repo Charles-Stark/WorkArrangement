@@ -831,7 +831,6 @@ public class Arranger {
                 k++;
             }
         }
-
         return timeStaffNumList;
     }
     public List<TimeStaffNum> init(Flow flow1,int dayOfWeek){
