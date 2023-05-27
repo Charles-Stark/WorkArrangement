@@ -362,7 +362,7 @@ export default {
               lasting: 1
             })).data.data[0].flowUnits
             shop1[i].flow = []
-            shop1[i].flow = [flow1[0].flow, flow1[3].flow, flow1[6].flow, flow1[9].flow, flow1[12].flow, flow1[15].flow, flow1[18].flow, flow1[21].flow, flow1[24].flow]
+            shop1[i].flow = [flow1[0].flow, flow1[3].flow, flow1[6].flow, flow1[9].flow, flow1[12].flow, flow1[15].flow, flow1[18].flow, flow1[21].flow]
             this.branches = shop1
           }
         }
@@ -377,7 +377,7 @@ export default {
           lasting: 1
         })).data.data[0].flowUnits
         shop2.flow = []
-        shop2.flow = [flow2[0].flow, flow2[3].flow, flow2[6].flow, flow2[9].flow, flow2[12].flow, flow2[15].flow, flow2[18].flow, flow2[21].flow, flow2[24].flow]
+        shop2.flow = [flow2[0].flow, flow2[3].flow, flow2[6].flow, flow2[9].flow, flow2[12].flow, flow2[15].flow, flow2[18].flow, flow2[21].flow]
         this.branches = []
         this.branches.push(shop2)
         this.ready = true

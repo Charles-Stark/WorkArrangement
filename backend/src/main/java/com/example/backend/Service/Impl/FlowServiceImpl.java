@@ -40,7 +40,7 @@ public class FlowServiceImpl implements FlowService {
 
                 List<Flow> res = flowMapper.selectByMap(searchingMap);
                 if (res.size() == 0) {
-                    generateFlow(shopId, simpleDateFormat.parse(sDate), 1);
+                    generateFlow(shopId, simpleDateFormat.parse(sDate), 30);
                     res = flowMapper.selectByMap(searchingMap);
                 }
                 flows.add(res.get(0));
@@ -66,7 +66,7 @@ public class FlowServiceImpl implements FlowService {
     @Override
     public void generateFlow(long shopId, Date startDate, int lastingDays) {
         Random random = new Random();
-        OriginalFlowData originalFlowData = new OriginalFlowData();//8:00-21:00，不后延
+        OriginalFlowData originalFlowData = new OriginalFlowData();
 
         for (int i = 0; i < lastingDays; i++) {
 
@@ -74,14 +74,14 @@ public class FlowServiceImpl implements FlowService {
 
             Calendar cal = Calendar.getInstance();
             cal.setTime(startDate);
-            cal.set(Calendar.HOUR_OF_DAY, 8);
+            cal.set(Calendar.HOUR_OF_DAY, 9);
             cal.set(Calendar.MINUTE, 0);
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
 
             long timestamp = cal.getTime().getTime();
 
-            for (int j = 0; j < 26; j++) {
+            for (int j = 2; j < 26; j++) {
                 flowUnits.add(new Flow.FlowUnit(new Date(timestamp),
                         new Date(timestamp + 1800000),
                         Double.parseDouble(String.format("%.2f", OriginalFlowData.data[j] * (random.nextDouble(FLOW_FLOATING_LOWER_BOUND, FLOW_FLOATING_UPPER_BOUND))))));
