@@ -5,6 +5,8 @@ import com.example.backend.Service.AbsenceService;
 import com.example.backend.Service.NotificationService;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.AbsenceMapper;
+import com.example.backend.mapper.EmployeeMapper;
+import com.example.backend.mapper.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +19,22 @@ public class AbsenceServiceImpl implements AbsenceService {
     private AbsenceMapper absenceMapper;
 
     @Autowired
+    private EmployeeMapper employeeMapper;
+
+    @Autowired
+    private ShopMapper shopMapper;
+
+    @Autowired
     private NotificationService notificationService;
 
     @Override
-    public ResultVO<Object> createAbsence(long employee, long manager, long shop, String reason, Date absenceDate, byte[] attachmentPhoto, String photoType) {
-        Absence absence = new Absence(null, employee, manager, shop, reason, attachmentPhoto, photoType, null, absenceDate, null);
+    public ResultVO<Object> createAbsence(long employee, String reason, Date absenceDate, byte[] attachmentPhoto, String photoType) {
         try {
+            long shop = employeeMapper.selectById(employee).getShop();
+            long manager = shopMapper.selectById(shop).getManager();
+
+            Absence absence = new Absence(null, employee, manager, shop, reason, attachmentPhoto, photoType, null, absenceDate, null);
+
             absenceMapper.insert(absence);
             notificationService.notifyWhenAbsenceCreated(absence.getId(), employee, manager);
             return new ResultVO<>(0, "申请提交成功", absenceMapper.selectById(absence.getId()));

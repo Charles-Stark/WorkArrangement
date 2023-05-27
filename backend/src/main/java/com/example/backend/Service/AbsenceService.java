@@ -6,7 +6,7 @@ import java.util.Date;
 
 public interface AbsenceService {
 
-    ResultVO<Object> createAbsence(long employee, long manager, long shop, String reason, Date absenceDate, byte[] attachmentPhoto, String photoType);
+    ResultVO<Object> createAbsence(long employee, String reason, Date absenceDate, byte[] attachmentPhoto, String photoType);
 
     ResultVO<Object> getAbsence(long id);
 

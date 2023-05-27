@@ -39,8 +39,6 @@ public class AbsenceController {
 
     @PostMapping("/create")
     public ResultVO<Object> createAbsence(@RequestParam("employee") long employee,
-                                          @RequestParam("manager") long manager,
-                                          @RequestParam("shop") long shop,
                                           @RequestParam("reason") String reason,
                                           @RequestParam("absenceDate") Date absenceDate,
                                           @RequestParam(value = "attachmentPhoto", required = false) MultipartFile attachmentPhoto) throws IOException {
@@ -52,9 +50,9 @@ public class AbsenceController {
             if (!ALLOWED_PHOTO_TYPES.containsKey(magicNumber)) {
                 return new ResultVO<>(-1, "图片类型不符", null);
             }
-            return absenceService.createAbsence(employee, manager, shop, reason, absenceDate, attachmentPhoto.getBytes(), ALLOWED_PHOTO_TYPES.get(magicNumber));
+            return absenceService.createAbsence(employee, reason, absenceDate, attachmentPhoto.getBytes(), ALLOWED_PHOTO_TYPES.get(magicNumber));
         }
-        return absenceService.createAbsence(employee, manager, shop, reason, absenceDate, null, null);
+        return absenceService.createAbsence(employee, reason, absenceDate, null, null);
     }
 
     @GetMapping("/get/{id}")
