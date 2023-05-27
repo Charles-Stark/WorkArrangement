@@ -2,13 +2,11 @@ package com.example.backend.Service.Impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.backend.POJO.Employee;
 import com.example.backend.POJO.EmployeeToSchedule;
 import com.example.backend.POJO.Flow;
 import com.example.backend.POJO.Schedule;
-import com.example.backend.Service.Arranger;
-import com.example.backend.Service.FlowService;
-import com.example.backend.Service.NotificationService;
-import com.example.backend.Service.ScheduleService;
+import com.example.backend.Service.*;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.VO.ScheduleVO;
 import com.example.backend.mapper.EmployeeToScheduleMapper;
@@ -192,5 +190,20 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         return new ResultVO<>(0, "删除成功", null);
     }
-
+    @Autowired
+    EmployeeService employeeService;
+    public ResultVO<Object> getRecommend(long id,int week,int day,int halfHour){
+        try{
+            scheduleMapper.selectById(id);
+        }catch (Exception e) {
+            return new ResultVO<>(-1, "删除失败", null);
+        }
+        LinkedList<Long> employees=new LinkedList<>();
+        employees=arranger.getSuitableEmployees(id,week,day,halfHour);
+        LinkedList<Employee> employeeLinkedList=new LinkedList<>();
+        for(long eid:employees){
+            employeeLinkedList.add((Employee) employeeService.getEmployee(eid).getData());
+        }
+        return new ResultVO<>(0,"获取成功",employeeLinkedList);
+    }
 }
