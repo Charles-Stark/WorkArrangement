@@ -1,6 +1,5 @@
 package com.example.backend.Service;
 
-import java.sql.Time;
 import java.util.*;
 
 import com.example.backend.POJO.*;
@@ -96,6 +95,16 @@ public class Arranger {
                 else if(flowUnits.get(i).getFlow()==-2) unit=new WorkUnit(begin,new LinkedList<>(),0,closing);
                 else unit=new TimeStaffNum.WorkUnit(begin,new LinkedList<>(),flowUnits.get(i).getFlow()/maxServiceNumber,service);
                 workUnits.add(unit);
+            }
+        }
+        public TimeStaffNum(List<Schedule.WorkUnit> hours){
+            minStaffNum=0;
+            currentStaffNum=0;
+            startTime= hours.get(0).getBeginTime();
+            staff=new ArrayList<>();
+            workUnits=new ArrayList<>();
+            for(Schedule.WorkUnit unit: hours){
+                workUnits.add(new WorkUnit(unit.getBeginTime(),new Staff().toStaff(unit.getEmployees()),unit.getEmployees().size()));
             }
         }
         @Data
@@ -319,6 +328,9 @@ public class Arranger {
             continuousWorkTime+=time;
             if(continuousWorkTime<0) continuousWorkTime=0;
         }
+        public Prefer getPrefer(){
+            return prefer;
+        }
         //员工的当前工作时间段中 该小段时间相对整段时间的位置是否在中间
         public boolean isMiddle(List<TimeStaffNum> timeStaffNumList, int indexOfList, TimeStaffNum.WorkUnit unit){
             int indexOfUnits=timeStaffNumList.get(indexOfList).workUnits.indexOf(unit);
@@ -378,6 +390,12 @@ public class Arranger {
             List<Staff> staffs=new ArrayList<>();
             for(Employee employee:employees) staffs.add(new Staff(employee));
             return staffs;
+        }
+        public LinkedList<Staff> toStaff(ArrayList<Long> employees){
+            List<Employee> employeeList=new ArrayList<>();
+            for(Long id:employees)
+                employeeList.add((Employee) employeeService.getEmployee(id).getData());
+            return new LinkedList<>(this.toStaff(employeeList));
         }
         public double getContinuousWorkTime(List<TimeStaffNum> timeStaffNumList, int index){
             int start=0,end= timeStaffNumList.size()-1;
@@ -745,7 +763,9 @@ public class Arranger {
             staff.dayWorkTime=0;
             staff.monthWorkTime=0;
         }
+        int t=0;
         for(ArrayList<TimeStaffNum> timeStaffNums:timeStaffNumList){
+            if(t%7==0) for(Staff staff:staffList) staff.weekWorkTime=0;
             for(TimeStaffNum timeStaffNum:timeStaffNums){
                 for(TimeStaffNum.WorkUnit workUnit:timeStaffNum.workUnits){
                     for(Staff staff:workUnit.staffs){
@@ -754,6 +774,7 @@ public class Arranger {
                 }
             }
             for(Staff staff:staffList) staff.dayWorkTime=0;
+            t++;
         }
     }
     public List<TimeStaffNum> setSpecialPosition(List<TimeStaffNum> timeStaffNumList){
@@ -936,7 +957,7 @@ public class Arranger {
             if(t>500) throw new RuntimeException("排班超时,搜索次数t="+t+",超时位置dayOfWeek="+dayOfWeek+",indexOfTimeList="+index+",还需要"+(timeStaffNumList.get(index).minStaffNum-timeStaffNumList.get(index).currentStaffNum));
             matchingDegree.clear();
             TimeStaffNum timeStaffNum=timeStaffNumList.get(index);
-            String start = timeStaffNumList.get(0).startTime.toString();
+            String start = timeStaffNum.startTime.toString();
             String regEx = "\\d+\\d+:+\\d+\\d+:+\\d+\\d";
             Pattern p = Pattern.compile(regEx);
             Matcher m = p.matcher(start);
@@ -1109,6 +1130,19 @@ public class Arranger {
         for(Staff staff:staffs) employees.add(staff.id);
         return employees;
     }
+    public ArrayList<ArrayList<TimeStaffNum>> scheduleToTimestaffnum(Schedule.WorkUnit[][] week){
+        ArrayList<ArrayList<TimeStaffNum>> timeStaffNumArrayList = new ArrayList<>();
+        for(Schedule.WorkUnit[] day:week) {
+            ArrayList<TimeStaffNum> timeStaffNumList = new ArrayList<>();
+            for (int i = 0; i < day.length; i += 4) {
+                if (i + 4 < day.length)
+                    timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, i + 4)));
+                else timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, i + 4)));
+            }
+            timeStaffNumArrayList.add(timeStaffNumList);
+        }
+        return timeStaffNumArrayList;
+    }
     //将排班信息转格式并存入数据库
     public long outPut(List<List<TimeStaffNum>> timeStaffNumList, long shopId, long ruleId, long managerId){
         ArrayList<Schedule.Week> weeks=new ArrayList<>();
@@ -1135,5 +1169,63 @@ public class Arranger {
         System.out.println("新的排班数据已创建,id="+schedule.getId());
         return schedule.getId();
     }
+    public List<Staff> getSelected(ArrayList<TimeStaffNum> timeStaffNums){
+        List<Staff> staffs=new ArrayList<>();
+        for(TimeStaffNum timeStaffNum:timeStaffNums){
+            for(TimeStaffNum.WorkUnit unit:timeStaffNum.workUnits){
+                for(Staff staff:unit.staffs){
+                    if(!staffs.contains(staff)) staffs.add(staff);
+                }
+            }
+        }
+        return staffs;
+    }
+    //关于参数：weekNum：在该组排班中，该周是第几周；dayNum：在该周中，这是第几天，halfHourNum：在该天中，第几个半小时
+    //关于输出结果：结果为员工的id，前3个为推荐员工（这个3是写死的，不管总最终结果如何至少是3个），后面是其他可供选择的员工（若总可供选择的员工数小于3个则没有其他员工）
+    //推荐员工和其他员工中间有个id值为-1间隔
+    public LinkedList<Long> getSuitableEmployees(long scheduleId,int weekNum,int dayNum,int halfHourNum,long shopId){
+        Schedule schedule=scheduleMapper.selectById(scheduleId);
+        LinkedList<Employee> employees=new LinkedList<>();
+        ArrayList<Schedule.Week> weeks=schedule.getWeeks();
+        Schedule.WorkUnit[][] week=weeks.get(weekNum).getData();
+        employees.addAll((List<Employee>) employeeService.getEmployeeByShop(shopId));
+
+        ArrayList<ArrayList<TimeStaffNum>> days = scheduleToTimestaffnum(week);
+        countWorkTime(days);
+        ArrayList<TimeStaffNum> day=days.get(dayNum);
+        List<Staff> staffs = new Staff().toStaff((List<Employee>) employeeService.getEmployeeByShop(shopId).getData());
+        int dayOfWeek=getDayOfWeek(day.get(0).startTime);
+        List<Staff> selected=getSelected(day);
+        staffs.removeAll(selected);
+//        Schedule.WorkUnit[] day=week[dayNum];
+//        for (int j = 0; j < day.length; j++) {
+//            if (day[j] != null) {
+//                employees.addAll(day[j].getEmployees());
+//            }
+//        }
+//        List<Employee> hasSelected=
+
+        matchingDegree.clear();
+        TimeStaffNum timeStaffNum=day.get(halfHourNum/4);
+        String start = timeStaffNum.startTime.toString();
+        String regEx = "\\d+\\d+:+\\d+\\d+:+\\d+\\d";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(start);
+        if(!m.find()) System.out.println("not match");
+        start = m.group().substring(0, 5);
+        String end = getEndTime(start);
+        for (Staff staff : staffs) {
+            staff.prefer.mateTime(start,end,dayOfWeek,staff);
+        }
+        List<Staff> keySetList= new ArrayList<>(matchingDegree.keySet());
+        keySetList.sort((a,b)-> (int)(matchingDegree.get(b)*100-matchingDegree.get(a)*100));
+        int t=0;
+        LinkedList<Long> employeeList=new LinkedList<>();
+        for(Staff staff:keySetList){
+            if(t==3) employeeList.add(-1l);
+            employeeList.add(staff.id);
+            t++;
+        }
+        return employeeList;
+    }
 }
-//前端23:00之后的排班显示异常
