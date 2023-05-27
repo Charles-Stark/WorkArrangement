@@ -2,6 +2,7 @@ package com.example.backend.Service;
 
 import com.example.backend.VO.ResultVO;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public interface ScheduleService {
@@ -20,6 +21,8 @@ public interface ScheduleService {
 
     ResultVO<Object> deleteSchedule(long id);
 
-    ResultVO<Object> getRecommend(long id,int week,int day,int halfHour);
+    ResultVO<Object> getRecommend(long id, int week, int day, int halfHour);
+
+    boolean changeShift(long schedule, long previousEmployee, long currentEmployee, Date beginTime);
 
 }

@@ -36,6 +36,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private EmployeeService employeeService;
+
     @Override
     public ResultVO<Object> getScheduleById(long id) {
         try {
@@ -190,20 +193,63 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         return new ResultVO<>(0, "删除成功", null);
     }
-    @Autowired
-    EmployeeService employeeService;
-    public ResultVO<Object> getRecommend(long id,int week,int day,int halfHour){
-        try{
+
+    @Override
+    public ResultVO<Object> getRecommend(long id, int week, int day, int halfHour) {
+        try {
             scheduleMapper.selectById(id);
-        }catch (Exception e) {
-            return new ResultVO<>(-1, "删除失败", null);
+            LinkedList<Long> employees = arranger.getSuitableEmployees(id, week, day, halfHour);
+            LinkedList<Employee> employeeLinkedList = new LinkedList<>();
+            for (long eid : employees) {
+                employeeLinkedList.add((Employee) employeeService.getEmployee(eid).getData());
+            }
+            return new ResultVO<>(0, "获取成功", employeeLinkedList);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取失败", null);
         }
-        LinkedList<Long> employees=new LinkedList<>();
-        employees=arranger.getSuitableEmployees(id,week,day,halfHour);
-        LinkedList<Employee> employeeLinkedList=new LinkedList<>();
-        for(long eid:employees){
-            employeeLinkedList.add((Employee) employeeService.getEmployee(eid).getData());
-        }
-        return new ResultVO<>(0,"获取成功",employeeLinkedList);
     }
+
+    @Override
+    public boolean changeShift(long scheduleId, long previousEmployee, long currentEmployee, Date beginTime) {
+        try {
+            Schedule schedule = scheduleMapper.selectById(scheduleId);
+            boolean afterPeriod = false;
+            for (int i = 0; i < schedule.getWeeks().size(); i++) {
+                Schedule.Week week = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(i)), Schedule.Week.class);
+
+                if (week.getEndAt().before(beginTime)) {
+                    continue;
+                }
+                Schedule.WorkUnit[][] workUnits = week.getData();
+                for (int j = 0; j < workUnits.length; j++) {
+                    for (int k = 0; k < workUnits[j].length; k++) {
+                        if (workUnits[j][k] != null && (workUnits[j][k].getBeginTime() == beginTime || workUnits[j][k].getBeginTime().after(beginTime))) {
+                            if (workUnits[j][k].getEmployees().contains(previousEmployee)) {
+                                workUnits[j][k].getEmployees().remove(previousEmployee);
+                                workUnits[j][k].getEmployees().add(currentEmployee);
+                            } else {
+                                afterPeriod = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (afterPeriod) {
+                        break;
+                    }
+                }
+                if (afterPeriod) {
+                    break;
+                }
+            }
+            scheduleMapper.updateById(schedule);
+
+            if (currentEmployee != 0) {
+                // TODO notification
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
