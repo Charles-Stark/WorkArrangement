@@ -315,7 +315,7 @@ export default {
       deleteEmployee(id).then(res => {
         if (res.data.code === 0) {
           this.$emit('msg', '删除成功')
-          this.$router.go(0)
+          this.staff.splice(this.staff.findIndex(s=> s.id===id),1)
         }
       }).catch(() => {
         this.$emit('msg', '网络错误')

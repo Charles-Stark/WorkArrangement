@@ -89,7 +89,6 @@ export default {
         schedules: [],
     }),
     methods: {
-
         async changeBranch() {
             let schedules = (await getAllArr(this.branch)).data.data
             schedules.forEach(s => {
@@ -106,7 +105,7 @@ export default {
             deleteArr(id).then(res => {
                 if (res.data.code === 0) {
                     this.$emit('msg', '删除成功')
-                    this.$router.go(0)
+                    this.schedules.splice(this.schedules.findIndex(s=> s.id===id),1)
                 }
                 else if (res.data.code === 1) {
                     this.$emit('msg', '删除失败')
@@ -128,7 +127,7 @@ export default {
             this.branch = shop.id
         }
 
-      await this.changeBranch()
+        await this.changeBranch()
 
 
     }

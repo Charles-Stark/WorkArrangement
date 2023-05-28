@@ -680,12 +680,13 @@ export default {
           }
 
         }
-        this.ready = true
       }
       catch (e) {
         console.log(e)
-        this.$emit('msg', '排班加载错误')
+        this.$emit('msg', '排班信息为空，请先生成一个排班')
       }
+      this.ready = true
+
     },
     async changeBranch() {
       this.ready = false
