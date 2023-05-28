@@ -25,6 +25,12 @@ public class SurveyServiceImpl implements SurveyService {
             ExcelListener excelListener = new ExcelListener();
             EasyExcel.read(excelFile.getInputStream(), Survey.class, excelListener).sheet().doRead();
             Survey survey = analyzeSurvey(shopId, excelListener.getDataList().get(0));
+
+            Map<String, Object> searchingMap = new HashMap<>();
+            searchingMap.put("shop", shopId);
+            if (surveyMapper.selectByMap(searchingMap).size() > 0) {
+                surveyMapper.deleteByMap(searchingMap);
+            }
             surveyMapper.insert(survey);
 
             return new ResultVO<>(0, "上传成功", survey);
@@ -48,7 +54,7 @@ public class SurveyServiceImpl implements SurveyService {
             Map<String, Object> searchingMap = new HashMap<>();
             searchingMap.put("shop", shopId);
 
-            return new ResultVO<>(0, "获取成功", surveyMapper.selectByMap(searchingMap));
+            return new ResultVO<>(0, "获取成功", surveyMapper.selectByMap(searchingMap).get(0));
         } catch (Exception e) {
             return new ResultVO<>(-1, "获取失败", null);
         }
