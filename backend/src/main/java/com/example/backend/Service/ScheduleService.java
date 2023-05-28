@@ -2,7 +2,6 @@ package com.example.backend.Service;
 
 import com.example.backend.VO.ResultVO;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 public interface ScheduleService {
