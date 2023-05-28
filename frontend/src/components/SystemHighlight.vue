@@ -59,8 +59,8 @@
   }
 
   *{
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -77,19 +77,7 @@ header{
   align-items: center;
 }
 
-.brand{
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  text-decoration: none;
-}
-
-header .navigation{
-  position: relative;
-}
-
-header .navigation .navigation-items a{
+  header .navigation .navigation-items a{
   position: relative;
   color: #fff;
   font-size: 1rem;
@@ -102,10 +90,10 @@ header .navigation .navigation-items a{
 header .navigation .navigation-items a::before{
   content: "";
   position: absolute;
-  bottom: 0px;
-  left: 0px;
+  bottom: 0;
+  left: 0;
   background-color: #fff;
-  width: 0%;
+  width: 0;
   height: 3px;
   transition: 0.3s ease;
 }
@@ -198,10 +186,6 @@ section{
 
   section{
     padding: 100px 20px;
-  }
-  .home .media-icons {
-    right: 15px;
-
   }
 }
 

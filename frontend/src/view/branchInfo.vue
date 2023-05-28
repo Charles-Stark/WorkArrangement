@@ -5,7 +5,7 @@
       <template v-slot:header>
         <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
-          <v-dialog v-model="dialog" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false"
+          <v-dialog v-model="dialog" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly"
             v-if="$store.state.isManager">
             <template v-slot:activator="{ on, attrs }">
               <v-btn large color="secondary" class="mr-5" outlined v-bind="attrs" v-on="on">
@@ -60,7 +60,7 @@
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-dialog v-model="item.dialog" persistent max-width="550px"
-                      :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
+                      :fullscreen="$vuetify.breakpoint.xsOnly">
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn large color="secondary" class="mr-5" outlined v-bind="attrs" v-on="on"
                           @click="editedShop.name = item.name; editedShop.address = item.address; editedShop.size = item.size; editedShop.dialog = false">
@@ -164,7 +164,7 @@
         </v-col>
         <v-col cols="12" class="text-center">
 
-          <v-dialog v-model="dialog" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false"
+          <v-dialog v-model="dialog" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly"
             v-if="$store.state.isManager">
             <template v-slot:activator="{ on, attrs }">
               <v-btn outlined color="primary" @click="dialog = true" v-bind="attrs"
@@ -219,8 +219,8 @@
 </template>
 
 <script>
-import { getAllShop, editShopInfo, deleteShop, getFlow, getShopInfo } from '../request/shop'
-import { getEmployee } from '../request/staff'
+import { getAllShop, editShopInfo, deleteShop, getFlow, getShopInfo } from '@/request/shop'
+import { getEmployee } from '@/request/staff'
 import newBranch from '@/components/newBranch.vue'
 export default {
   components: { newBranch },
@@ -295,17 +295,17 @@ export default {
   async mounted() {
     try {
       if (this.$store.state.isManager) {
-        var shop1 = (await getAllShop()).data.data
+        const shop1 = (await getAllShop()).data.data;
         if (shop1.length === 0) {
           this.branches = []
         }
         else {
-          for (var i = 0; i < shop1.length; i++) {
-            var flow1 = (await getFlow({
+          for (let i = 0; i < shop1.length; i++) {
+            const flow1 = (await getFlow({
               shop: shop1[i].id,
               start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) + " 00:00:00",
               lasting: 1
-            })).data.data[0].flowUnits
+            })).data.data[0].flowUnits;
             shop1[i].flow = []
             shop1[i].flow = [flow1[0].flow, flow1[3].flow, flow1[6].flow, flow1[9].flow, flow1[12].flow, flow1[15].flow, flow1[18].flow, flow1[21].flow]
             this.branches = shop1
@@ -314,13 +314,13 @@ export default {
         this.ready = true
       }
       else if (this.$store.state.isShopManager) {
-        var employee = (await getEmployee()).data.data.shop
-        var shop2 = (await getShopInfo(employee)).data.data
-        var flow2 = (await getFlow({
+        const employee = (await getEmployee()).data.data.shop;
+        const shop2 = (await getShopInfo(employee)).data.data;
+        const flow2 = (await getFlow({
           shop: shop2.id,
           start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) + " 00:00:00",
           lasting: 1
-        })).data.data[0].flowUnits
+        })).data.data[0].flowUnits;
         shop2.flow = []
         shop2.flow = [flow2[0].flow, flow2[3].flow, flow2[6].flow, flow2[9].flow, flow2[12].flow, flow2[15].flow, flow2[18].flow, flow2[21].flow]
         this.branches = []

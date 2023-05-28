@@ -5,7 +5,7 @@
       <template v-slot:header>
         <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
-          <v-dialog v-model="dialog" persistent max-width="600" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false">
+          <v-dialog v-model="dialog" persistent max-width="600" :fullscreen="$vuetify.breakpoint.xsOnly">
             <template v-slot:activator="{ on, attrs }">
               <v-btn large color="secondary" class="mr-5" outlined v-bind="attrs" v-on="on">
                 <v-icon>mdi-plus</v-icon>
@@ -226,10 +226,11 @@
 </template>
 
 <script>
-import { getAllShop, getShopInfo } from '../request/shop'
-import { editEmployeeInfo, deleteEmployee, getEmployeeByShop, getEmployee } from '../request/staff'
+import {getAllShop, getShopInfo} from '@/request/shop'
+import {deleteEmployee, editEmployeeInfo, getEmployee, getEmployeeByShop} from '@/request/staff'
 import editFavor from '@/components/editFavor.vue'
 import newEmployee from '@/components/newEmployee.vue'
+
 export default {
   components: {
     editFavor,
@@ -282,7 +283,7 @@ export default {
       return Math.ceil(this.staff.length / 10)
     },
     fullscreen() {
-      return this.$vuetify.breakpoint.xsOnly ? true : false
+      return this.$vuetify.breakpoint.xsOnly
     },
   },
   methods: {
@@ -346,8 +347,7 @@ export default {
   async mounted() {
     try {
       if (this.$store.state.isManager) {
-        var shops = (await getAllShop()).data.data
-        this.branches = shops
+        this.branches = (await getAllShop()).data.data
         if (this.branches.length !== 0) {
           this.getStaff(this.branches[this.branch].id)
         }
@@ -358,9 +358,9 @@ export default {
         }
       }
       if (this.$store.state.isShopManager) {
-        var employee = (await getEmployee()).data.data
+        const employee = (await getEmployee()).data.data;
         this.getStaff(employee.shop)
-        var shop = (await getShopInfo(employee.shop)).data.data
+        const shop = (await getShopInfo(employee.shop)).data.data;
         this.branches.push(shop)
         this.ready1 = true
       }

@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { applyAbsence } from '../request/absence'
+import { applyAbsence } from '@/request/absence'
 export default {
 
 

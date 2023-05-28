@@ -88,7 +88,7 @@
                       <v-btn color="primary" text @click="notice.dialog = false">
                         取消
                       </v-btn>
-                      <v-btn color="error" text @click="deleteNoti(notice.id); notice.dialog = false">
+                      <v-btn color="error" text @click="deleteNotice(notice.id); notice.dialog = false">
                         确定
                       </v-btn>
 
@@ -128,8 +128,8 @@
 </template>
 
 <script>
-import { getNotis, setAllRead, deleteNoti, setRead } from '../request/notis'
-import { getUserAvatar } from '../request/user'
+import { getNotis, setAllRead, deleteNoti, setRead } from '@/request/notis'
+import { getUserAvatar } from '@/request/user'
 import { formatDate } from '@/plugins/utility'
 
 export default {
@@ -167,10 +167,10 @@ export default {
       return Math.ceil(this.filteredItems.length / 10)
     },
     fullscreen() {
-      return this.$vuetify.breakpoint.xsOnly ? true : false
+      return this.$vuetify.breakpoint.xsOnly
     },
     filteredItems() {
-      var notices = this.notices
+      let notices = this.notices;
       if (this.onlyUnread === true) {
         notices = notices.filter(item => { return item.isRead === false })
       }
@@ -209,7 +209,7 @@ export default {
     setAllRead() {
       setAllRead().then(res => {
         if (res.data.code === 0) {
-          for (var notice of this.notices) {
+          for (const notice of this.notices) {
             notice.isRead = true
           }
           this.$emit('msg', '操作成功')
@@ -219,10 +219,10 @@ export default {
         this.$emit('msg', '网络错误')
       })
     },
-    deleteNoti(id) {
+    deleteNotice(id) {
       deleteNoti(id).then(res => {
         if (res.data.code === 0) {
-          for (var index in this.notices) {
+          for (const index in this.notices) {
             if (this.notices[index].id === id) {
               this.notices.splice(index, 1)
             }
@@ -239,7 +239,7 @@ export default {
 
   mounted() {
     getNotis().then(async res => {
-      var notices = res.data.data
+      const notices = res.data.data;
       notices.forEach(notice => {
         notice.avatar = require('../assets/defaultAvatar.png')
         let time = new Date(notice.createAt)
@@ -248,8 +248,8 @@ export default {
       this.notices = notices
       if (notices.length === 0) this.notices = []
       this.ready = true
-      for (var notice of this.notices) {
-        var avatar = await getUserAvatar(notice.fromUser)
+      for (const notice of this.notices) {
+        const avatar = await getUserAvatar(notice.fromUser);
         if (avatar.status === 200) {
           notice.avatar = URL.createObjectURL(avatar.data)
         }

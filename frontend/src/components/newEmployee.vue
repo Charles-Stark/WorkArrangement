@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { createEmployee } from '../request/staff'
+import { createEmployee } from '@/request/staff'
 
 export default {
     props: ['shop', 'branches'],

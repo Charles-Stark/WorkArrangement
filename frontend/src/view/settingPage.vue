@@ -371,7 +371,18 @@
 
 <script>
 import themes from '../plugins/themes'
-import { getUserAvatar, getUserInfo, pswReset, getOTP, OTPLogin, updateName, updateAvatar, updateEmail, getEmailOTP, logout } from '../request/user'
+import {
+  getEmailOTP,
+  getOTP,
+  getUserAvatar,
+  getUserInfo,
+  logout,
+  OTPLogin,
+  pswReset,
+  updateAvatar,
+  updateEmail,
+  updateName
+} from '@/request/user'
 import editFavor from '../components/editFavor.vue'
 
 export default {
@@ -457,7 +468,7 @@ export default {
             this.$emit('msg', '验证码已发送')
             if (this.counter === 0) {
               this.counter = 60;
-              var count = setInterval(() => {
+              const count = setInterval(() => {
                 this.counter--
                 if (this.counter <= 0) {
                   clearInterval(count)
@@ -511,7 +522,7 @@ export default {
                 this.$emit('msg', '验证码已发送')
                 if (this.counter2 === 0) {
                   this.counter2 = 60;
-                  var count = setInterval(() => {
+                  const count = setInterval(() => {
                     this.counter2--
                     if (this.counter2 <= 0) {
                       clearInterval(count)
@@ -539,7 +550,7 @@ export default {
       if (this.otp2 !== '') {
         updateEmail(this.newEmail, this.otp2).then(res => {
           console.log(res)
-          if (res.data.code == 0) {
+          if (res.data.code === 0) {
             this.$emit('msg', '邮箱修改成功')
             this.$store.commit('setLoginInfo', { token: res.data.data.token, userId: res.data.data.id })
             this.$router.go(0)
@@ -594,7 +605,7 @@ export default {
       this.$store.commit('auto_dark', this.autoDark)
     },
     nextStep1() {
-      if (this.otp1 != '') {
+      if (this.otp1 !== '') {
         OTPLogin(this.user.email, this.otp1).then(res => {
           if (res.data.code === 0) {
             this.step1 = 2
@@ -612,7 +623,7 @@ export default {
 
     },
     nextStep2() {
-      if (this.otp3 != '') {
+      if (this.otp3 !== '') {
         this.step2 = 2
       }
       else {
@@ -650,14 +661,13 @@ export default {
 
   async mounted() {
     try {
-      var userinfo = (await getUserInfo()).data.data
+      const userinfo = (await getUserInfo()).data.data;
       this.user.userName = userinfo.username
       this.user.email = userinfo.email
 
-      var avatar = (await getUserAvatar(this.$store.state.userId))
+      const avatar = (await getUserAvatar(this.$store.state.userId));
       if (avatar.status === 200) {
-        let url = URL.createObjectURL(avatar.data)
-        this.user.avatar = url
+        this.user.avatar = URL.createObjectURL(avatar.data)
       }
       else if (avatar.status === 204) {
         this.user.avatar = require('../assets/defaultAvatar.png')

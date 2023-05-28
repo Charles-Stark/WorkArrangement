@@ -82,8 +82,8 @@ export default {
 /* 样式省略 */
 
 * {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -125,10 +125,10 @@ header .navigation .navigation-items a {
 header .navigation .navigation-items a::before {
   content: "";
   position: absolute;
-  bottom: 0px;
-  left: 0px;
+  bottom: 0;
+  left: 0;
   background-color: #fff;
-  width: 0%;
+  width: 0;
   height: 3px;
   transition: 0.3s ease;
 }
@@ -212,17 +212,6 @@ section {
   border-radius: 2px;
 }
 
-.home .media-icons {
-  z-index: 888;
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  right: 30px;
-  transition: 0.5s ease;
-  justify-content: space-between;
-  gap: 20px
-}
-
 .home .media-icons a {
   color: #fff;
   font-size: 1.6em;
@@ -284,11 +273,6 @@ section {
 
   section {
     padding: 100px 20px;
-  }
-
-  .home .media-icons {
-    right: 15px;
-
   }
 
   header .navigation {

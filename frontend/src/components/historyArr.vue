@@ -140,9 +140,9 @@
 </template>
 
 <script>
-import { getEmployeeByShop } from '../request/staff'
-import { getUserAvatar } from '../request/user'
-import { getRule, getArrById } from '../request/rule'
+import { getEmployeeByShop } from '@/request/staff'
+import { getUserAvatar } from '@/request/user'
+import { getRule, getArrById } from '@/request/rule'
 import { formatDate } from '@/plugins/utility'
 
 
@@ -209,21 +209,23 @@ export default {
     },
     computed: {
         scheduleType() {
-            var rawEvents = this.rawEvents.filter(r => {
-                return r.detail.some(e => {
-                    if (e !== undefined)
-                        return e.position.indexOf(this.search1 || '') !== -1 || e.username.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1
-                })
+          const rawEvents = this.rawEvents.filter(r => {
+            return r.detail.some(e => {
+              if (e !== undefined)
+                return e.position.indexOf(this.search1 || '') !== -1 || e.username.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1
             })
-            rawEvents.forEach(r => {
+          });
+          rawEvents.forEach(r => {
                 r.detail = r.detail.filter(e => {
                     if (e !== undefined)
                         return e.position.indexOf(this.search1 || '') !== -1 || e.username.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1
                 })
                 r.name = r.detail.length + '个员工'
             })
-            var events = this.events.filter(e => { return e.position.indexOf(this.search1 || '') !== -1 || e.name.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1 })
-            return this.type === 'week' && (this.$store.state.isManager || this.$store.state.isShopManager) ? rawEvents : events
+          const events = this.events.filter(e => {
+            return e.position.indexOf(this.search1 || '') !== -1 || e.name.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1
+          });
+          return this.type === 'week' && (this.$store.state.isManager || this.$store.state.isShopManager) ? rawEvents : events
         },
 
     },
@@ -235,9 +237,9 @@ export default {
             * 一个月：7*32*5         this.something_data.weeks.length * this.something_data.weeks[0].data.length * this.something_data.weeks[0].data[0].length
             * */
 
-            for (var i = 0; i < this.something_data.weeks.length; i++) {//周
-                for (var j = 0; j < this.something_data.weeks[0].data.length; j++) {//天
-                    for (var x = 0; x < this.something_data.weeks[0].data[0].length; x++) {//时
+            for (let i = 0; i < this.something_data.weeks.length; i++) {//周
+                for (let j = 0; j < this.something_data.weeks[0].data.length; j++) {//天
+                    for (let x = 0; x < this.something_data.weeks[0].data[0].length; x++) {//时
                         /*console.log("i="+i)
                         console.log(this.something_data.weeks.length)
                         console.log("j="+j)
@@ -311,8 +313,8 @@ export default {
         },
         async getStaff() {
             this.staff = []
-            var staff = (await getEmployeeByShop(this.shop)).data.data
-            staff.forEach(s => {
+          const staff = (await getEmployeeByShop(this.shop)).data.data;
+          staff.forEach(s => {
                 s.avatar = require('../assets/defaultAvatar.png')
                 s.color = this.colors[this.rnd(0, this.colors.length - 1)]
             })
@@ -320,8 +322,8 @@ export default {
             this.staff = staff
 
             this.staff.forEach(async s => {
-                var avatar = await getUserAvatar(s.id)
-                if (avatar.status === 200) {
+              const avatar = await getUserAvatar(s.id);
+              if (avatar.status === 200) {
                     s.avatar = URL.createObjectURL(avatar.data)
                 }
                 else {
@@ -355,17 +357,17 @@ export default {
             this.events = []
             this.rawEvents = []
             this.rules = []
-            var events = (await getArrById(this.id)).data
-            this.something_data = events.data
+          const events = (await getArrById(this.id)).data;
+          this.something_data = events.data
             this.rules = (await getRule(events.data.useRule)).data.data
-            var weeks = events.data.weeks
-            var rawEvents = []
-            for (let week of weeks) {
+          const weeks = events.data.weeks;
+          const rawEvents = [];
+          for (let week of weeks) {
                 for (let day of week.data) {
                     if (day.some(item => item !== null)) {
-                        var employees = []
-                        var categories = []
-                        for (let event of day) {
+                      const employees = [];
+                      const categories = [];
+                      for (let event of day) {
                             if (event !== null) {
                                 //将排班处理成按员工分类
                                 let start = event.beginTime
@@ -385,8 +387,8 @@ export default {
                                             }
                                         })
                                         if (!flag) {
-                                            var e = this.staff.find(item => item.id === employee)
-                                            employees.push({
+                                          const e = this.staff.find(item => item.id === employee);
+                                          employees.push({
                                                 id: employee,
                                                 start: [start],
                                                 end: [start + 1800000],
@@ -402,10 +404,10 @@ export default {
                                 }
 
                                 //将排班处理成按时间分类
-                                var d = new Date(event.beginTime).getDay()
-                                var time = new Date(event.beginTime).getHours()
-                                var color
-                                if (d >= 1 && d <= 5) {
+                              const d = new Date(event.beginTime).getDay();
+                              const time = new Date(event.beginTime).getHours();
+                              let color;
+                              if (d >= 1 && d <= 5) {
                                     if (time < 9 || time >= 21) color = 'green'
                                     else color = 'blue'
                                 }
@@ -413,8 +415,8 @@ export default {
                                     if (time < 10 || time >= 22) color = 'green'
                                     else color = 'blue'
                                 }
-                                var detail = []
-                                event.employees.forEach(employee => {
+                              const detail = [];
+                              event.employees.forEach(employee => {
                                     detail.push(this.staff.find(item => item.id === employee))
                                 })
                                 rawEvents.push({
@@ -431,9 +433,9 @@ export default {
 
                         }
 
-                        var date
-                        for (let e of employees) {
-                            for (var i = 0; i < e.start.length; i++) {
+                      let date;
+                      for (let e of employees) {
+                            for (let i = 0; i < e.start.length; i++) {
                                 categories.push(e.category)
                                 date = formatDate(e.start[i])
                                 this.events.push({
@@ -454,8 +456,8 @@ export default {
 
 
                         for (let i = 0; i < categories.length; i++) {
-                            for (var j = i + 1; j < categories.length; j++) {
-                                if (categories[i] == categories[j]) {         //第一个等同于第二个，splice方法删除第二个
+                            for (let j = i + 1; j < categories.length; j++) {
+                                if (categories[i] === categories[j]) {         //第一个等同于第二个，splice方法删除第二个
                                     categories.splice(j, 1);
                                     j--;
                                 }
@@ -490,11 +492,5 @@ export default {
 </script>
 
 <style>
-.v-calendar-category .v-calendar-daily__day {
-    min-width: 30px;
-}
 
-.v-calendar-category .v-calendar-category__columns .v-calendar-category__column-header {
-    min-width: 30px;
-}
 </style>

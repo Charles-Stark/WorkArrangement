@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { createShop } from '../request/shop'
+import { createShop } from '@/request/shop'
 export default {
     props: ['shop', 'branches'],
     data() {

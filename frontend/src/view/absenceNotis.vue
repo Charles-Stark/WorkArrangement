@@ -1,5 +1,5 @@
 <template>
-  <v-data-iterator :items="filteredItems" :page.sync="page" :search="search" :sort-by="keys[sortBy]" :sort-desc="sortDesc"
+  <v-data-iterator v-if="absenceList.length !== 0 && ready" :items="filteredItems" :page.sync="page" :search="search" :sort-by="keys[sortBy]" :sort-desc="sortDesc"
     hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
       <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
@@ -122,6 +122,20 @@
       <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"></v-pagination>
     </template>
   </v-data-iterator>
+  <v-container v-else-if="!ready">
+    <v-row>
+      <v-col cols="12" v-for="index of 6" :key="index">
+        <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line,divider"></v-skeleton-loader>
+      </v-col>
+    </v-row>
+  </v-container>
+  <v-container v-else style="height: 80vh;">
+    <v-row class="fill-height" align-content="center" justify="center">
+      <v-col class="text-h5 text-center" cols="12">
+        没有请假信息
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -134,6 +148,7 @@ export default {
       search: '',
       sortDesc: false,
       page: 1,
+      ready:false,
       itemsPerPage: 10,
       sortBy: null,
       keys: {
@@ -150,7 +165,7 @@ export default {
       return Math.ceil(this.filteredItems.length / 10)
     },
     fullscreen() {
-      return this.$vuetify.breakpoint.xsOnly ? true : false
+      return this.$vuetify.breakpoint.xsOnly
     },
     filteredItems() {
       if (this.onlyUnread === true) {
@@ -200,6 +215,7 @@ export default {
     }else if(respond.code===-1){
       this.$emit('msg', '获取请假列表失败')
     }
+    this.ready=true
   }
 }
 </script>

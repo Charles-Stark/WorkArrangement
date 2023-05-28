@@ -69,9 +69,9 @@
     </v-container>
 </template>
 <script>
-import { getAllShop, getShopInfo } from '../request/shop'
-import { getAllArr, deleteArr } from '../request/rule'
-import { getEmployee } from '../request/staff'
+import { getAllShop, getShopInfo } from '@/request/shop'
+import { getAllArr, deleteArr } from '@/request/rule'
+import { getEmployee } from '@/request/staff'
 import { formatDate } from '@/plugins/utility'
 
 
@@ -91,7 +91,7 @@ export default {
     methods: {
 
         async changeBranch() {
-            var schedules = (await getAllArr(this.branch)).data.data
+            let schedules = (await getAllArr(this.branch)).data.data
             schedules.forEach(s => {
                 let time = new Date(s.createAt)
                 s.createAt = formatDate(s.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
@@ -128,7 +128,7 @@ export default {
             this.branch = shop.id
         }
 
-        this.changeBranch()
+      await this.changeBranch()
 
 
     }

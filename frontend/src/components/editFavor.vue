@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { editFavor, getEmployee } from '../request/staff'
+import { editFavor, getEmployee } from '@/request/staff'
 
 export default {
     props: ['id'],
@@ -138,8 +138,8 @@ export default {
 
     async mounted() {
         try {
-            var employee = (await getEmployee(this.id)).data.data
-            this.favor.durationOfShift = employee.durationOfShift
+          const employee = (await getEmployee(this.id)).data.data;
+          this.favor.durationOfShift = employee.durationOfShift
             this.favor.durationOfWeek = employee.durationOfWeek
             this.favor.workingDay = (employee.workingDay !== '' && employee.workingDay !== null) ? employee.workingDay.split(',') : []
             this.favor.workingHours = (employee.workingHours !== '' && employee.workingHours !== null) ? employee.workingHours.split(',') : []
