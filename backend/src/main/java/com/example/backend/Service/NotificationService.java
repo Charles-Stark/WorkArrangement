@@ -8,7 +8,7 @@ public interface NotificationService {
 
     void notifyWhenScheduleChanged(long changedScheduleId, long from, long to);
 
-    void notifyWhenOpenShift(long scheduleId, long from, long to);
+    void notifyWhenOpenShift(long scheduleId, long from, long to, long beginTime, long endTime);
 
     void notifyWhenAbsenceCreated(long absenceId, long from, long to);
 

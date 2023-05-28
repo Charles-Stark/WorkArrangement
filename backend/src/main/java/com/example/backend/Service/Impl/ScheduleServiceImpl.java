@@ -200,7 +200,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     public boolean changeShift(long scheduleId, long previousEmployee, long currentEmployee, Date beginTime, boolean isOneDay) {
         try {
             Schedule schedule = scheduleMapper.selectById(scheduleId);
-            boolean afterPeriod = false;
+            boolean afterPeriod = false, inOpenShift = false;
+            List<Date> openShifts = new ArrayList<>();
+
             for (int i = 0; i < schedule.getWeeks().size(); i++) {
                 Schedule.Week week = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(i)), Schedule.Week.class);
 
@@ -212,13 +214,27 @@ public class ScheduleServiceImpl implements ScheduleService {
                     for (int k = 0; k < workUnits[j].length; k++) {
                         if (workUnits[j][k] != null && (workUnits[j][k].getBeginTime().compareTo(beginTime) == 0 || workUnits[j][k].getBeginTime().after(beginTime))) {
                             if (workUnits[j][k].getEmployees().contains(previousEmployee)) {
+                                if (!inOpenShift) {
+                                    inOpenShift = true;
+                                    openShifts.add(workUnits[j][k].getBeginTime());
+                                }
+
                                 workUnits[j][k].getEmployees().remove(previousEmployee);
                                 if (currentEmployee == 0 || !workUnits[j][k].getEmployees().contains(currentEmployee)) {
                                     workUnits[j][k].getEmployees().add(currentEmployee);
                                 }
                             } else if (!isOneDay || !isSameDay(workUnits[j][k].getBeginTime(), beginTime)) {
+                                if (inOpenShift) {
+                                    inOpenShift = false;
+                                    openShifts.add(workUnits[j][k].getBeginTime());
+                                }
                                 afterPeriod = true;
                                 break;
+                            } else {
+                                if (inOpenShift) {
+                                    inOpenShift = false;
+                                    openShifts.add(workUnits[j][k].getBeginTime());
+                                }
                             }
                         }
                     }
@@ -234,9 +250,14 @@ public class ScheduleServiceImpl implements ScheduleService {
             scheduleMapper.updateById(schedule);
 
             if (currentEmployee == 0) {
-                notifyAllEmployeesWhenOpenShift(scheduleId, schedule.getManager());
+                // 开放班次产生
+                for (int i = 0; i < openShifts.size(); i++) {
+                    notifyEmployeesWhenOpenShift(scheduleId, schedule.getManager(), openShifts.get(i), openShifts.get(++i));
+                }
             } else {
-                notifyAllEmployeesWhenScheduleChanged(scheduleId, schedule.getManager());
+                // 两人之间换班
+                notificationService.notifyWhenScheduleChanged(scheduleId, schedule.getManager(), previousEmployee);
+                notificationService.notifyWhenScheduleChanged(scheduleId, schedule.getManager(), currentEmployee);
             }
             return true;
         } catch (Exception e) {
@@ -268,15 +289,10 @@ public class ScheduleServiceImpl implements ScheduleService {
         return employees;
     }
 
-    private void notifyAllEmployeesWhenOpenShift(long scheduleId, long manager) {
+    private void notifyEmployeesWhenOpenShift(long scheduleId, long manager, Date beginTime, Date endTime) {
+        // TODO select recommended employees
         for (Long employee : selectEmployeeInvolved(scheduleId)) {
-            notificationService.notifyWhenOpenShift(scheduleId, manager, employee);
-        }
-    }
-
-    private void notifyAllEmployeesWhenScheduleChanged(long scheduleId, long manager) {
-        for (Long employee : selectEmployeeInvolved(scheduleId)) {
-            notificationService.notifyWhenScheduleChanged(scheduleId, manager, employee);
+            notificationService.notifyWhenOpenShift(scheduleId, manager, employee, beginTime.getTime(), endTime.getTime());
         }
     }
 
