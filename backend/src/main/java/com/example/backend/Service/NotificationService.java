@@ -4,15 +4,15 @@ import com.example.backend.VO.ResultVO;
 
 public interface NotificationService {
 
-    Boolean notifyWhenNewScheduleCreated(long newScheduleId, long from, long to);
+    void notifyWhenNewScheduleCreated(long newScheduleId, long from, long to);
 
-    Boolean notifyWhenScheduleChanged(long changedScheduleId, long from, long to);
+    void notifyWhenScheduleChanged(long changedScheduleId, long from, long to);
 
-    Boolean notifyWhenOpenShift(long scheduleId, long from, long to);
+    void notifyWhenOpenShift(long scheduleId, long from, long to);
 
-    Boolean notifyWhenAbsenceCreated(long absenceId, long from, long to);
+    void notifyWhenAbsenceCreated(long absenceId, long from, long to);
 
-    Boolean notifyWhenAbsenceChecked(long absenceId, long from, long to);
+    void notifyWhenAbsenceChecked(long absenceId, long from, long to);
 
     ResultVO<Object> getNotificationList(Long userId, int count);
 

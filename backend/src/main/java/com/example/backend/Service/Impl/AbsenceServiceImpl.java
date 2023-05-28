@@ -1,8 +1,11 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Absence;
+import com.example.backend.POJO.Schedule;
 import com.example.backend.Service.AbsenceService;
 import com.example.backend.Service.NotificationService;
+import com.example.backend.Service.ScheduleService;
+import com.example.backend.VO.AbsenceVO;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.mapper.AbsenceMapper;
 import com.example.backend.mapper.EmployeeMapper;
@@ -26,6 +29,9 @@ public class AbsenceServiceImpl implements AbsenceService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private ScheduleService scheduleService;
 
     @Override
     public ResultVO<Object> createAbsence(long employee, String reason, Date absenceDate, byte[] attachmentPhoto, String photoType) {
@@ -71,16 +77,38 @@ public class AbsenceServiceImpl implements AbsenceService {
     }
 
     @Override
+    public ResultVO<Object> getAbsenceListByShop(long id) {
+        Map<String, Object> searchingMap = new HashMap<>();
+        searchingMap.put("shopId", id);
+        try {
+            List<AbsenceVO> absenceVOs = new ArrayList<>();
+            for (Absence absence : absenceMapper.selectByMap(searchingMap)) {
+                absenceVOs.add(absenceToAbsenceVO(absence));
+            }
+
+            return new ResultVO<>(0, "获取请假列表成功", absenceVOs);
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取请假列表失败", null);
+        }
+    }
+
+    @Override
     public ResultVO<Object> approveAbsenceOrNot(long id, boolean isApproved) {
         Absence absence = new Absence(id, null, null, null, null, null, null, isApproved, null, null);
         try {
             absenceMapper.updateById(absence);
             absence = absenceMapper.selectById(id);
             notificationService.notifyWhenAbsenceChecked(id, absence.getManagerId(), absence.getEmployeeId());
-            // TODO update schedule
+            scheduleService.changeShift(scheduleService.getScheduleByShop(absence.getShopId()).getData().get(0).getId(), absence.getEmployeeId(), 0, absence.getAbsenceDate(), true);
+
             return new ResultVO<>(0, "修改成功", null);
         } catch (Exception e) {
             return new ResultVO<>(-1, "修改失败", null);
         }
     }
+
+    private AbsenceVO absenceToAbsenceVO(Absence absence) {
+        return new AbsenceVO(absence.getId(), employeeMapper.selectById(absence.getEmployeeId()), absence.getManagerId(), absence.getShopId(), absence.getReason(), absence.getAttachmentPhoto(), absence.getPhotoType(), absence.getIsApproved(), absence.getAbsenceDate(), absence.getCreateAt());
+    }
+
 }

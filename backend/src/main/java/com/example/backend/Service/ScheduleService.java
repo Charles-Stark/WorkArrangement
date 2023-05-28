@@ -1,14 +1,16 @@
 package com.example.backend.Service;
 
+import com.example.backend.POJO.Schedule;
 import com.example.backend.VO.ResultVO;
 
 import java.util.Date;
+import java.util.List;
 
 public interface ScheduleService {
 
     ResultVO<Object> getScheduleById(long id);
 
-    ResultVO<Object> getScheduleByShop(long id);
+    ResultVO<List<Schedule>> getScheduleByShop(long id);
 
     ResultVO<Object> getSimplifiedScheduleByShop(long id);
 
@@ -22,6 +24,6 @@ public interface ScheduleService {
 
     ResultVO<Object> getRecommend(long id, int week, int day, int halfHour);
 
-    boolean changeShift(long schedule, long previousEmployee, long currentEmployee, Date beginTime);
+    boolean changeShift(long scheduleId, long previousEmployee, long currentEmployee, Date beginTime, boolean isOneDay);
 
 }

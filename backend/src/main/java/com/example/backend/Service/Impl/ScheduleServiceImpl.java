@@ -54,7 +54,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ResultVO<Object> getScheduleByShop(long id) {
+    public ResultVO<List<Schedule>> getScheduleByShop(long id) {
         Map<String, Object> searchingMap = new HashMap<>();
         searchingMap.put("shop", id);
         try {
@@ -150,21 +150,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             long scheduleId = arranger.outPut(timeStaffNumList, shop, rule, manager);
 
-            Schedule schedule = scheduleMapper.selectById(scheduleId);
-            Set<Long> employees = new HashSet<>();
-            for (int i = 0; i < schedule.getWeeks().size(); i++) {
-                Schedule.Week week = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(i)), Schedule.Week.class);
-                Schedule.WorkUnit[][] workUnits = week.getData();
-                for (int j = 0; j < workUnits.length; j++) {
-                    for (int k = 0; k < workUnits[j].length; k++) {
-                        if (workUnits[j][k] != null) {
-                            employees.addAll(workUnits[j][k].getEmployees());
-                        }
-                    }
-                }
-            }
-            employees.removeIf(Objects::isNull);
-            employees.removeIf(Objects -> Objects == 0);
+            Set<Long> employees = selectEmployeeInvolved(scheduleId);
             for (Long employee : employees) {
                 // 产生了新排班表，创建通知
                 notificationService.notifyWhenNewScheduleCreated(scheduleId, manager, employee);
@@ -211,7 +197,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public boolean changeShift(long scheduleId, long previousEmployee, long currentEmployee, Date beginTime) {
+    public boolean changeShift(long scheduleId, long previousEmployee, long currentEmployee, Date beginTime, boolean isOneDay) {
         try {
             Schedule schedule = scheduleMapper.selectById(scheduleId);
             boolean afterPeriod = false;
@@ -227,10 +213,10 @@ public class ScheduleServiceImpl implements ScheduleService {
                         if (workUnits[j][k] != null && (workUnits[j][k].getBeginTime().compareTo(beginTime) == 0 || workUnits[j][k].getBeginTime().after(beginTime))) {
                             if (workUnits[j][k].getEmployees().contains(previousEmployee)) {
                                 workUnits[j][k].getEmployees().remove(previousEmployee);
-                                if (!workUnits[j][k].getEmployees().contains(currentEmployee)) {
+                                if (currentEmployee == 0 || !workUnits[j][k].getEmployees().contains(currentEmployee)) {
                                     workUnits[j][k].getEmployees().add(currentEmployee);
                                 }
-                            } else {
+                            } else if (!isOneDay || !isSameDay(workUnits[j][k].getBeginTime(), beginTime)) {
                                 afterPeriod = true;
                                 break;
                             }
@@ -247,13 +233,50 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
             scheduleMapper.updateById(schedule);
 
-            if (currentEmployee != 0) {
-                // TODO notification
+            if (currentEmployee == 0) {
+                notifyAllEmployeesWhenOpenShift(scheduleId, schedule.getManager());
+            } else {
+                notifyAllEmployeesWhenScheduleChanged(scheduleId, schedule.getManager());
             }
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private boolean isSameDay(Date a, Date b) {
+        return a.getTime() / (24 * 60 * 60 * 1000L) == b.getTime() / (24 * 60 * 60 * 1000L);
+    }
+
+    private Set<Long> selectEmployeeInvolved(long scheduleId) {
+        Schedule schedule = scheduleMapper.selectById(scheduleId);
+        Set<Long> employees = new HashSet<>();
+        for (int i = 0; i < schedule.getWeeks().size(); i++) {
+            Schedule.Week week = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(i)), Schedule.Week.class);
+            Schedule.WorkUnit[][] workUnits = week.getData();
+            for (int j = 0; j < workUnits.length; j++) {
+                for (int k = 0; k < workUnits[j].length; k++) {
+                    if (workUnits[j][k] != null) {
+                        employees.addAll(workUnits[j][k].getEmployees());
+                    }
+                }
+            }
+        }
+        employees.removeIf(Objects::isNull);
+        employees.removeIf(Objects -> Objects == 0);
+        return employees;
+    }
+
+    private void notifyAllEmployeesWhenOpenShift(long scheduleId, long manager) {
+        for (Long employee : selectEmployeeInvolved(scheduleId)) {
+            notificationService.notifyWhenOpenShift(scheduleId, manager, employee);
+        }
+    }
+
+    private void notifyAllEmployeesWhenScheduleChanged(long scheduleId, long manager) {
+        for (Long employee : selectEmployeeInvolved(scheduleId)) {
+            notificationService.notifyWhenScheduleChanged(scheduleId, manager, employee);
         }
     }
 

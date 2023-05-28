@@ -65,6 +65,11 @@ public class AbsenceController {
         return absenceService.getAbsenceListByManager(id);
     }
 
+    @GetMapping("/get/shop/{id}")
+    public ResultVO<Object> getAbsenceListByShop(@PathVariable long id) {
+        return absenceService.getAbsenceListByShop(id);
+    }
+
     @GetMapping("/get/photo/{id}")
     public void getAbsencePhoto(@PathVariable long id, HttpServletResponse response) {
         try {

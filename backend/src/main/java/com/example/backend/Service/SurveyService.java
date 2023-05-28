@@ -10,4 +10,6 @@ public interface SurveyService {
 
     Survey analyzeSurvey(long shopId, Survey surveyList);
 
+    ResultVO<Object> getSurveyByShop(long shopId);
+
 }

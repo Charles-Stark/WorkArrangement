@@ -18,4 +18,9 @@ public class SurveyController {
         return surveyService.uploadExcel(shopId, excelFile);
     }
 
+    @GetMapping("/get/{id}")
+    public ResultVO<Object> getSurvey(@PathVariable long id) {
+        return surveyService.getSurveyByShop(id);
+    }
+
 }

@@ -5,6 +5,6 @@ import com.example.backend.POJO.Survey;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface SurveyExcelMapper extends BaseMapper<Survey> {
+public interface SurveyMapper extends BaseMapper<Survey> {
 
 }

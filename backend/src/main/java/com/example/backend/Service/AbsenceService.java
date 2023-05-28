@@ -12,6 +12,8 @@ public interface AbsenceService {
 
     ResultVO<Object> getAbsenceListByManager(long id);
 
+    ResultVO<Object> getAbsenceListByShop(long id);
+
     ResultVO<Object> approveAbsenceOrNot(long id, boolean isApproved);
 
 }
