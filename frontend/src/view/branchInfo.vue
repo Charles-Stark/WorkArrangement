@@ -5,7 +5,7 @@
       <template v-slot:header>
         <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
 
-          <v-dialog v-model="dialog1" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false"
+          <v-dialog v-model="dialog" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false"
             v-if="$store.state.isManager">
             <template v-slot:activator="{ on, attrs }">
               <v-btn large color="secondary" class="mr-5" outlined v-bind="attrs" v-on="on">
@@ -13,46 +13,7 @@
                 新增分店
               </v-btn>
             </template>
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">新增分店</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container>
-                  <v-form ref="addShopForm" lazy-validation>
-                    <v-row>
-
-                      <v-col cols="12">
-                        <v-text-field label="分店地址*" v-model="newShop.address" :rules="rules.noneEmptyRules"
-                          prepend-icon="mdi-map-marker" required></v-text-field>
-                      </v-col>
-
-                      <v-col cols="12" sm="6">
-                        <v-text-field label="分店名称*" v-model="newShop.name" :rules="rules.nameRules" counter="10"
-                          prepend-icon="mdi-store" required></v-text-field>
-                      </v-col>
-
-                      <v-col cols="12" sm="6">
-                        <v-text-field label="分店面积*" type="number" v-model="newShop.size" :rules="rules.noneEmptyRules"
-                          prepend-icon="mdi-domain" required
-                          @blur="newShop.size = newShop.size <= 0 ? '' : newShop.size"></v-text-field>
-                      </v-col>
-
-                    </v-row>
-                  </v-form>
-                </v-container>
-                <small>*为必填项</small>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" text @click="dialog1 = false; $refs.addShopForm.reset()">
-                  关闭
-                </v-btn>
-                <v-btn color="primary" @click="dialog1 = false; addShop()">
-                  提交
-                </v-btn>
-              </v-card-actions>
-            </v-card>
+            <newBranch @close="close" @msg="getMsg" />
           </v-dialog>
 
           <template>
@@ -203,10 +164,10 @@
         </v-col>
         <v-col cols="12" class="text-center">
 
-          <v-dialog v-model="dialog1" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false"
+          <v-dialog v-model="dialog" persistent max-width="550px" :fullscreen="$vuetify.breakpoint.xsOnly ? true : false"
             v-if="$store.state.isManager">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn outlined color="primary" @click="dialog1 = true" v-bind="attrs"
+              <v-btn outlined color="primary" @click="dialog = true" v-bind="attrs"
                 v-on="on">点击添加<v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <v-card>
@@ -241,10 +202,10 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" text @click="dialog1 = false; $refs.addShopForm.reset()">
+                <v-btn color="primary" text @click="dialog = false; $refs.addShopForm.reset()">
                   关闭
                 </v-btn>
-                <v-btn color="primary" @click="dialog1 = false; addShop()">
+                <v-btn color="primary" @click="dialog = false; addShop()">
                   提交
                 </v-btn>
               </v-card-actions>
@@ -258,21 +219,17 @@
 </template>
 
 <script>
-import { createShop, getAllShop, editShopInfo, deleteShop, getFlow, getShopInfo } from '../request/shop'
+import { getAllShop, editShopInfo, deleteShop, getFlow, getShopInfo } from '../request/shop'
 import { getEmployee } from '../request/staff'
+import newBranch from '@/components/newBranch.vue'
 export default {
-
+  components: { newBranch },
   data() {
     return {
       search: '',
-      dialog1: false,
+      dialog: false,
       ready: false,
       branches: [{}],
-      newShop: {
-        name: '',
-        address: '',
-        size: null,
-      },
 
       editedShop: {
         name: '',
@@ -295,27 +252,7 @@ export default {
 
     }
   },
-  computed: {
-
-  },
   methods: {
-    addShop() {
-      if (this.$refs.addShopForm.validate()) {
-        createShop({
-          name: this.newShop.name,
-          address: this.newShop.address,
-          size: this.newShop.size,
-        }).then(res => {
-          if (res.data.code === 0) {
-            this.$emit('msg', '添加门店成功')
-            this.$router.go(0)
-          }
-
-        }).catch(() => {
-          this.$emit('msg', '网络错误')
-        })
-      }
-    },
     editShop(index, item) {
       if (this.$refs[`editShopForm${index}`][0].validate()) {
         editShopInfo({
@@ -344,6 +281,14 @@ export default {
       }).catch(() => {
         this.$emit('msg', '网络错误')
       })
+    },
+
+    close() {
+      this.dialog = false
+    },
+
+    getMsg(data) {
+      this.$emit('msg', data)
     },
   },
 
@@ -381,7 +326,6 @@ export default {
         this.branches = []
         this.branches.push(shop2)
         this.ready = true
-
       }
     } catch (err) {
       this.$emit('msg', '网络错误')

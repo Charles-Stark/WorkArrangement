@@ -14,13 +14,14 @@ export default new Vuetify({
   icons: {
     iconfont: 'mdi'
   },
+  
   theme: {
     dark: store.state.autoDark ? matchMedia("(prefers-color-scheme: dark)").matches : store.state.dark,
     default: 'light',
     disable: false,
     options: {
       cspNonce: undefined,
-      customProperties: undefined,
+      customProperties: true,
       minifyTheme: undefined,
       themeCache: undefined,
     },

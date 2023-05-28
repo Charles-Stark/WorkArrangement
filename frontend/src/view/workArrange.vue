@@ -1,5 +1,5 @@
 <template>
-  <div v-if="branches.length !== 0">
+  <div v-if="((branches.length !== 0 && $store.state.isManager) || !$store.state.isManager) && ready">
     <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat
       v-if="$store.state.isManager || $store.state.isShopManager">
       <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60"
@@ -93,9 +93,6 @@
         <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
           <v-card min-width="350px" flat>
             <v-toolbar :color="selectedEvent.color" dark>
-              <!-- <v-list-item-avatar v-if="type !== 'week'">
-                <v-img :src="selectedEvent.avatar"></v-img>
-              </v-list-item-avatar> -->
               <v-toolbar-title>{{ selectedEvent.name }}</v-toolbar-title>
               <v-toolbar-title class="ml-2">{{ selectedEvent.position }}</v-toolbar-title>
 
@@ -110,6 +107,21 @@
             <v-text-field v-model="search2" clearable dense flat solo-inverted hide-details
               prepend-inner-icon="mdi-magnify" v-if="selectedEvent.single === true || type !== 'week'" class="ma-2"
               label="姓名/工号"></v-text-field>
+
+              <div v-if="type !== 'week' || selectedEvent.single === true">
+              <v-list-item-title class=" ml-3 grey--text text-subtitle">推荐员工</v-list-item-title>
+              <v-list-item @click="dialog = true; selectedEmployee = s" v-for="s of staff.slice(6, 9)" :key="s.id">
+                <v-list-item-avatar>
+                  <v-img :src="s.avatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ s.username }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ s.position }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item-title class="ml-3 grey--text text-subtitle">其他员工</v-list-item-title>
+            </div>
 
             <!-- 周视图 -->
             <v-virtual-scroll v-if="type === 'week'"
@@ -133,20 +145,7 @@
               </template>
             </v-virtual-scroll>
 
-            <div v-if="type !== 'week'">
-              <v-list-item-title class=" ml-3 grey--text text-subtitle">推荐员工</v-list-item-title>
-              <v-list-item @click="dialog = true; selectedEmployee = s" v-for="s of staff.slice(6, 9)" :key="s.id">
-                <v-list-item-avatar>
-                  <v-img :src="s.avatar"></v-img>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>{{ s.username }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ s.position }}</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-
-              <v-list-item-title class="ml-3 grey--text text-subtitle">其他员工</v-list-item-title>
-            </div>
+            
 
             <!-- 月、日视图 -->
             <v-virtual-scroll v-if="type !== 'week'" :items="filteredStaff" :item-height="63" height="300" width="400">
@@ -194,8 +193,6 @@
           </v-dialog>
         </v-menu>
 
-
-
       </v-sheet>
 
     </v-card>
@@ -226,7 +223,8 @@
 import { getAllShop, getShopInfo } from '../request/shop'
 import { getEmployeeByShop, getEmployee } from '../request/staff'
 import { getUserAvatar, getUserInfo } from '../request/user'
-import { getLatestArr, getRule, getArrByEmployee } from '../request/rule'
+import { getLatestArr, getArrByEmployee } from '../request/rule'
+import { formatDate } from '@/plugins/utility'
 import newArrangement from '../components/newArrangement.vue'
 import newAbsence from '../components/newAbsence.vue'
 
@@ -258,7 +256,6 @@ export default {
       rawEvents: [],
 
       colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'pink lighten-1', 'purple lighten-2', 'teal lighten-2', 'green darken-1'],
-      names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
 
       user: {},
 
@@ -328,7 +325,7 @@ export default {
         r.name = r.detail.length + '个员工'
       })
       var events = this.events.filter(e => { return e.position.indexOf(this.search1 || '') !== -1 || e.name.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1 })
-      return this.type === 'week' & (this.$store.state.isManager || this.$store.state.isShopManager) ? rawEvents : events
+      return this.type === 'week' && (this.$store.state.isManager || this.$store.state.isShopManager) ? rawEvents : events
     },
     filteredStaff() {
       return this.staff.filter(p => {
@@ -363,16 +360,16 @@ export default {
               "id": this.something_data.id,
               "shop": this.something_data.shop,
               "manager": this.something_data.manager,
-              "createAt": this.formatDate(this.something_data.createAt),
+              "createAt": formatDate(this.something_data.createAt),
               "isActive": this.something_data.isActive,
               "useRule": this.something_data.useRule,
-              "startAt": this.formatDate(this.something_data.startAt),
-              "endAt": this.formatDate(this.something_data.endAt),
+              "startAt": formatDate(this.something_data.startAt),
+              "endAt": formatDate(this.something_data.endAt),
               "WeekId": i + 1,
-              "WeekStartAt": this.formatDate(this.something_data.weeks[i].startAt),
-              "WeekEndAt": this.formatDate(this.something_data.weeks[i].endAt),
+              "WeekStartAt": formatDate(this.something_data.weeks[i].startAt),
+              "WeekEndAt": formatDate(this.something_data.weeks[i].endAt),
               "DayId": j + 1,
-              "beginTime": this.formatDate(this.something_data.weeks[i].data[j][x].beginTime),
+              "beginTime": formatDate(this.something_data.weeks[i].data[j][x].beginTime),
               "employeesId": this.something_data.weeks[i].data[j][x].employees
             }
             this.json_data.push(weeksdatas)
@@ -498,11 +495,9 @@ export default {
 
                             let time = new Date(start)
 
-
                             if (start === e.end[e.end.length - 1]) {
 
                               if (time.getMinutes() === 30 && time.getHours() === 23) {
-                                console.log(time)
                                 e.end[e.end.length - 1] += 1740000
                               }
                               else {
@@ -512,7 +507,6 @@ export default {
                             else {
                               e.start.push(start)
                               if (time.getMinutes() === 30 && time.getHours() === 23) {
-                                console.log(time)
                                 e.end.push(start + 1740000)
                               }
                               else {
@@ -542,7 +536,7 @@ export default {
                     var d = new Date(event.beginTime).getDay()
                     var t = new Date(event.beginTime).getHours()
                     var color
-                    if (d >= 1 & d <= 5) {
+                    if (d >= 1 && d <= 5) {
                       if (t < 9 || t >= 21) color = 'green'
                       else color = 'blue'
                     }
@@ -564,8 +558,6 @@ export default {
                     else {
                       endTime = event.beginTime + 1800000
                     }
-
-
                     rawEvents.push({
                       start: new Date(event.beginTime),
                       end: endTime,
@@ -574,8 +566,6 @@ export default {
                       color,
                       timed: true,
                     })
-
-
                   }
 
                 }
@@ -584,7 +574,7 @@ export default {
                 for (let e of employees) {
                   for (var i = 0; i < e.start.length; i++) {
                     categories.push(e.category)
-                    date = this.formatDate(e.start[i])
+                    date = formatDate(e.start[i])
                     this.events.push({
                       id: e.id,
                       start: new Date(e.start[i]),
@@ -619,7 +609,6 @@ export default {
         }
         else {
           events = (await getArrByEmployee()).data.data
-          this.rules = (await getRule(events.useRule)).data.data
           weeks = events.weeks
           for (let week of weeks) {
             for (let day of week.data) {
@@ -628,16 +617,29 @@ export default {
                 let flag = false
                 for (let event of day) {
                   if (event !== null) {
+
                     var start = event.beginTime
 
-
                     shifts.forEach(e => {
+                      let time = new Date(start)
+
                       if (start === e.end[e.end.length - 1]) {
-                        e.end[e.end.length - 1] += 1800000
+
+                        if (time.getMinutes() === 30 && time.getHours() === 23) {
+                          e.end[e.end.length - 1] += 1740000
+                        }
+                        else {
+                          e.end[e.end.length - 1] += 1800000
+                        }
                       }
                       else {
                         e.start.push(start)
-                        e.end.push(start + 1800000)
+                        if (time.getMinutes() === 30 && time.getHours() === 23) {
+                          e.end.push(start + 1740000)
+                        }
+                        else {
+                          e.end.push(start + 1800000)
+                        }
                       }
 
                     })
@@ -647,9 +649,6 @@ export default {
                       shifts.push({
                         start: [start],
                         end: [start + 1800000],
-                        name: this.user.username,
-                        color: `primary darken-1`,
-                        avatar: this.user.avatar,
                       })
                     }
 
@@ -659,12 +658,14 @@ export default {
                 for (let e of shifts) {
                   for (let i = 0; i < e.start.length; i++) {
                     this.events.push({
+                      id: this.staff[0].id,
+                      uid: this.staff[0].uid,
+                      position: this.staff[0].position,
                       start: new Date(e.start[i]),
                       end: new Date(e.end[i]),
-                      name: e.name,
-                      category: e.category,
-                      color: e.color,
-                      avatar: e.avatar,
+                      name: this.user.username,
+                      color: `primary darken-1`,
+                      avatar: this.user.avatar,
                       timed: true
                     })
                   }
@@ -678,7 +679,8 @@ export default {
         this.ready = true
       }
       catch (e) {
-        this.$emit('msg', '暂无排班信息')
+        console.log(e)
+        this.$emit('msg', '排班加载错误')
       }
     },
     async changeBranch() {
@@ -686,21 +688,9 @@ export default {
       await this.getStaff()
       await this.getArr()
     },
-    formatDate(value) { // 时间戳转换日期格式方法
-      if (value == null) {
-        return ''
-      } else {
-        const date = new Date(value)
-        const y = date.getFullYear()// 年
-        let MM = date.getMonth() + 1 // 月
-        MM = MM < 10 ? ('0' + MM) : MM
-        let d = date.getDate() // 日
-        d = d < 10 ? ('0' + d) : d
-        return y + '-' + MM + '-' + d
-      }
-    },
+
     openSelected(item) {
-      let day = this.startTimes[this.formatDate(this.selectedEvent.start)]
+      let day = this.startTimes[formatDate(this.selectedEvent.start)]
       let selectedEmployee = day.find(i => i.id === item.id)
       let start, end
       for (let i = 0; i < selectedEmployee.start.length; i++) {
@@ -746,7 +736,6 @@ export default {
           this.branch = this.branches[0].id
           await this.getStaff()
           await this.getArr()
-
         }
         else {
           this.branches = []
@@ -779,6 +768,7 @@ export default {
 
       let employee = (await getEmployee()).data.data
       let shop = (await getShopInfo(employee.shop)).data.data
+      this.staff.push(employee)
       this.branch = shop.id
       this.shopName = shop.name
       this.getArr()

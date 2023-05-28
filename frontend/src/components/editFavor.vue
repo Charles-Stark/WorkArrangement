@@ -141,8 +141,8 @@ export default {
             var employee = (await getEmployee(this.id)).data.data
             this.favor.durationOfShift = employee.durationOfShift
             this.favor.durationOfWeek = employee.durationOfWeek
-            this.favor.workingDay = (employee.workingDay !== '' & employee.workingDay !== null) ? employee.workingDay.split(',') : []
-            this.favor.workingHours = (employee.workingHours !== '' & employee.workingHours !== null) ? employee.workingHours.split(',') : []
+            this.favor.workingDay = (employee.workingDay !== '' && employee.workingDay !== null) ? employee.workingDay.split(',') : []
+            this.favor.workingHours = (employee.workingHours !== '' && employee.workingHours !== null) ? employee.workingHours.split(',') : []
         } catch (err) {
             this.$emit('msg', '网络错误')
         }

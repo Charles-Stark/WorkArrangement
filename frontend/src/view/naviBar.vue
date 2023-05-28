@@ -17,7 +17,7 @@
         </template>
 
         <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length !== 0">
-          <v-list-title class="text-h4 ma-4">通知</v-list-title>
+          <v-list-item-title class="text-h4 ma-4">通知</v-list-item-title>
           <v-divider class="mt-2"></v-divider>
           <div v-for="notice of notices" :key="notice.id">
             <v-list-item @click="1">
@@ -151,6 +151,13 @@
             </v-list-item>
           </v-list-group>
 
+          <v-list-item to="reviews" link v-if="$store.state.isManager || $store.state.isShopManager">
+            <v-list-item-icon>
+              <v-icon>mdi-message-processing</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>用户评价</v-list-item-title>
+          </v-list-item>
+
           <v-list-item to="settings" link>
             <v-list-item-icon>
               <v-icon>mdi-cogs</v-icon>
@@ -186,6 +193,8 @@
 <script>
 import { getUserAvatar, getUserInfo, logout } from '../request/user'
 import { getNotisByCount } from '../request/notis'
+import { formatDate } from '@/plugins/utility'
+
 export default {
   data: () => ({
     snackBar: false,
@@ -265,19 +274,6 @@ export default {
     check() {
     },
 
-    formatDate(value) { // 时间戳转换日期格式方法
-      if (value == null) {
-        return ''
-      } else {
-        const date = new Date(value)
-        const y = date.getFullYear()// 年
-        let MM = date.getMonth() + 1 // 月
-        MM = MM < 10 ? ('0' + MM) : MM
-        let d = date.getDate() // 日
-        d = d < 10 ? ('0' + d) : d
-        return y + '-' + MM + '-' + d
-      }
-    },
 
   },
 
@@ -318,7 +314,7 @@ export default {
 
 
         let time = new Date(notice.createAt)
-        notice.createAt = this.formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
+        notice.createAt = formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
       }
       this.notices = notices
       if (notices.length === 0) this.notices = []

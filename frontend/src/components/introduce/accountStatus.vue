@@ -114,7 +114,7 @@ export default {
   },
 
   mounted() {
-    if (this.$store.state.userId !== null & this.$store.state.token !== null) {
+    if (this.$store.state.userId !== null && this.$store.state.token !== null) {
       getUserInfo().then(async res => {
         var user = {}
         if (res.data.code === 0) {
