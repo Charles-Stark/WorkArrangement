@@ -251,3 +251,65 @@ id: long 排班表id
   "data": null
 }
 ```
+
+## 获取推荐员工
+
+获取推荐员工
+
+发送请求如下
+
+POST请求 /api/schedule/get/recommend/{id}
+
+```yaml
+id: long 排班表id
+week: int 周
+day: int 日
+halfHour: 半小时
+```
+
+```json
+{
+  "code": 0,
+  "message": "获取成功",
+  "data": null
+}
+```
+
+```json
+{
+  "code": -1,
+  "message": "获取失败",
+  "data": null
+}
+```
+
+## 换班
+
+换班
+
+发送请求如下
+
+POST请求 /api/schedule/changeShift
+
+```yaml
+schedule: long 排班表id
+previousEmployee: long 先前员工id
+currentEmployee: long 当前员工id
+beginTime: 班次开始时间
+```
+
+```json
+{
+  "code": 0,
+  "message": "换班成功",
+  "data": null
+}
+```
+
+```json
+{
+  "code": -1,
+  "message": "换班失败",
+  "data": null
+}
+```

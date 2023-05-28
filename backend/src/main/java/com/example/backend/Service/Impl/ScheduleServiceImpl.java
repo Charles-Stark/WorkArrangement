@@ -205,6 +205,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
             return new ResultVO<>(0, "获取成功", employeeLinkedList);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResultVO<>(-1, "获取失败", null);
         }
     }
@@ -223,10 +224,12 @@ public class ScheduleServiceImpl implements ScheduleService {
                 Schedule.WorkUnit[][] workUnits = week.getData();
                 for (int j = 0; j < workUnits.length; j++) {
                     for (int k = 0; k < workUnits[j].length; k++) {
-                        if (workUnits[j][k] != null && (workUnits[j][k].getBeginTime() == beginTime || workUnits[j][k].getBeginTime().after(beginTime))) {
+                        if (workUnits[j][k] != null && (workUnits[j][k].getBeginTime().compareTo(beginTime) == 0 || workUnits[j][k].getBeginTime().after(beginTime))) {
                             if (workUnits[j][k].getEmployees().contains(previousEmployee)) {
                                 workUnits[j][k].getEmployees().remove(previousEmployee);
-                                workUnits[j][k].getEmployees().add(currentEmployee);
+                                if (!workUnits[j][k].getEmployees().contains(currentEmployee)) {
+                                    workUnits[j][k].getEmployees().add(currentEmployee);
+                                }
                             } else {
                                 afterPeriod = true;
                                 break;
@@ -237,6 +240,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                         break;
                     }
                 }
+                schedule.getWeeks().set(i, week);
                 if (afterPeriod) {
                     break;
                 }
@@ -248,6 +252,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
             return true;
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
