@@ -143,6 +143,8 @@
 import { getEmployeeByShop } from '../request/staff'
 import { getUserAvatar } from '../request/user'
 import { getRule, getArrById } from '../request/rule'
+import { formatDate } from '@/plugins/utility'
+
 
 export default {
     props: ['shop', 'id'],
@@ -221,7 +223,7 @@ export default {
                 r.name = r.detail.length + '个员工'
             })
             var events = this.events.filter(e => { return e.position.indexOf(this.search1 || '') !== -1 || e.name.indexOf(this.search1 || '') !== -1 || e.uid.indexOf(this.search1 || '') !== -1 })
-            return this.type === 'week' & (this.$store.state.isManager || this.$store.state.isShopManager) ? rawEvents : events
+            return this.type === 'week' && (this.$store.state.isManager || this.$store.state.isShopManager) ? rawEvents : events
         },
 
     },
@@ -248,16 +250,16 @@ export default {
                             "id": this.something_data.id,
                             "shop": this.something_data.shop,
                             "manager": this.something_data.manager,
-                            "createAt": this.formatDate(this.something_data.createAt),
+                            "createAt": formatDate(this.something_data.createAt),
                             "isActive": this.something_data.isActive,
                             "useRule": this.something_data.useRule,
-                            "startAt": this.formatDate(this.something_data.startAt),
-                            "endAt": this.formatDate(this.something_data.endAt),
+                            "startAt": formatDate(this.something_data.startAt),
+                            "endAt": formatDate(this.something_data.endAt),
                             "WeekId": i + 1,
-                            "WeekStartAt": this.formatDate(this.something_data.weeks[i].startAt),
-                            "WeekEndAt": this.formatDate(this.something_data.weeks[i].endAt),
+                            "WeekStartAt": formatDate(this.something_data.weeks[i].startAt),
+                            "WeekEndAt": formatDate(this.something_data.weeks[i].endAt),
                             "DayId": j + 1,
-                            "beginTime": this.formatDate(this.something_data.weeks[i].data[j][x].beginTime),
+                            "beginTime": formatDate(this.something_data.weeks[i].data[j][x].beginTime),
                             "employeesId": this.something_data.weeks[i].data[j][x].employees
                         }
                         this.json_data.push(weeksdatas)
@@ -403,7 +405,7 @@ export default {
                                 var d = new Date(event.beginTime).getDay()
                                 var time = new Date(event.beginTime).getHours()
                                 var color
-                                if (d >= 1 & d <= 5) {
+                                if (d >= 1 && d <= 5) {
                                     if (time < 9 || time >= 21) color = 'green'
                                     else color = 'blue'
                                 }
@@ -433,7 +435,7 @@ export default {
                         for (let e of employees) {
                             for (var i = 0; i < e.start.length; i++) {
                                 categories.push(e.category)
-                                date = this.formatDate(e.start[i])
+                                date = formatDate(e.start[i])
                                 this.events.push({
                                     id: e.id,
                                     start: new Date(e.start[i]),
@@ -470,19 +472,7 @@ export default {
 
             this.ready = true
         },
-        formatDate(value) { // 时间戳转换日期格式方法
-            if (value == null) {
-                return ''
-            } else {
-                const date = new Date(value)
-                const y = date.getFullYear()// 年
-                let MM = date.getMonth() + 1 // 月
-                MM = MM < 10 ? ('0' + MM) : MM
-                let d = date.getDate() // 日
-                d = d < 10 ? ('0' + d) : d
-                return y + '-' + MM + '-' + d
-            }
-        },
+
         close() {
             this.$emit('close')
         }

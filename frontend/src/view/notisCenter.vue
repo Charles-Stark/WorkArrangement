@@ -1,6 +1,6 @@
 <template>
-  <v-data-iterator v-if="notices.length !== 0 & ready" :items="filteredItems" :page.sync="page" :search="search" hide-default-footer
-    no-results-text="没有搜索结果" no-data-text="没有数据">
+  <v-data-iterator v-if="notices.length !== 0 && ready" :items="filteredItems" :page.sync="page" :search="search"
+    hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
       <v-toolbar rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
         <v-btn v-if="onlyUnread === false" class="mx-3" large depressed @click="checkUnread()">显示未读</v-btn>
@@ -59,7 +59,7 @@
                 <v-img size="70" :src="notice.avatar"></v-img>
               </v-list-item-avatar>
 
-              <v-list-item-content @click="check()">
+              <v-list-item-content @click="check(notice.type,notice.id)">
                 <v-list-item-title :class="notice.isRead === false ? 'strong--text' : 'grey--text'">
                   {{ notice.fromUsername }}
                 </v-list-item-title>
@@ -128,8 +128,10 @@
 </template>
 
 <script>
-import { getNotis, setAllRead, deleteNoti } from '../request/notis'
+import { getNotis, setAllRead, deleteNoti, setRead } from '../request/notis'
 import { getUserAvatar } from '../request/user'
+import { formatDate } from '@/plugins/utility'
+
 export default {
   data() {
     return {
@@ -195,8 +197,14 @@ export default {
     checkUnread() {
       this.onlyUnread = !this.onlyUnread
     },
-    check() {
-      this.$router.push('/controlpanel/absences')
+    check(type,id) {
+      setRead(id)
+      if (type >= 1 && type <= 3) {
+        this.$router.push('/controlpanel/workArrange')
+      }
+      else if (type === 4) {
+        this.$router.push('/controlpanel/absences')
+      }
     },
     setAllRead() {
       setAllRead().then(res => {
@@ -225,19 +233,7 @@ export default {
         this.$emit('msg', '网络错误')
       })
     },
-    formatDate(value) { // 时间戳转换日期格式方法
-      if (value == null) {
-        return ''
-      } else {
-        const date = new Date(value)
-        const y = date.getFullYear()// 年
-        let MM = date.getMonth() + 1 // 月
-        MM = MM < 10 ? ('0' + MM) : MM
-        let d = date.getDate() // 日
-        d = d < 10 ? ('0' + d) : d
-        return y + '-' + MM + '-' + d
-      }
-    },
+
 
   },
 
@@ -247,7 +243,7 @@ export default {
       notices.forEach(notice => {
         notice.avatar = require('../assets/defaultAvatar.png')
         let time = new Date(notice.createAt)
-        notice.createAt = this.formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
+        notice.createAt = formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
       })
       this.notices = notices
       if (notices.length === 0) this.notices = []

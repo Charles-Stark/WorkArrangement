@@ -79,11 +79,18 @@ export var adminRoutes = {
         selectedItem: 5,
       }
     }, {
+      path: 'reviews',
+      component: () => import('../view/customerReview'),
+      meta: {
+        title: '用户评价',
+        selectedItem: 6,
+      }
+    },{
       path: 'settings',
       component: () => import('../view/settingPage'),
       meta: {
         title: '用户设置',
-        selectedItem: 6,
+        selectedItem: 7,
       }
     },
   ]
@@ -123,7 +130,7 @@ export var employeeRoutes = {
       component: () => import('../view/settingPage'),
       meta: {
         title: '用户设置',
-        selectedItem: 6,
+        selectedItem: 7,
       }
     },
   ]
