@@ -11,10 +11,10 @@
                             <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition"
                                 offset-y min-width="auto">
                                 <template v-slot:activator="{ on, attrs }">
-                                    <v-text-field v-model="date" label="选择请假日期*" prepend-icon="mdi-calendar" readonly
+                                    <v-text-field v-model="absenceDate" label="选择请假日期*" prepend-icon="mdi-calendar" readonly
                                         required v-bind="attrs" v-on="on" clearable :rules="noneEmptyRules"></v-text-field>
                                 </template>
-                                <v-date-picker v-model="date" locale="zh-cn"
+                                <v-date-picker v-model="absenceDate" locale="zh-cn"
                                     :min="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
                                     @change="save"></v-date-picker>
                             </v-menu>
@@ -24,7 +24,7 @@
                                 prepend-icon="mdi-text-long"></v-text-field>
                         </v-col>
                         <v-col cols="12">
-                            <v-file-input v-model="attachment" chips accept="image/*" label="附件"
+                            <v-file-input v-model="attachment" type="file" chips accept="image/*" label="附件"
                                 truncate-length="15"></v-file-input>
                         </v-col>
                     </v-row>
@@ -45,12 +45,15 @@
 </template>
 
 <script>
+import { applyAbsence } from '@/request/absence'
 export default {
+
 
     data() {
         return {
             menu: false,
-            date: null,
+
+            absenceDate: null,
             reason: '',
             attachment: null,
 
@@ -67,9 +70,20 @@ export default {
         },
     },
     methods: {
-        submit(){
-            if(this.$refs.absenceForm.validate()){
-                this.$emit('msg','申请成功')
+        async submit() {
+            if (this.$refs.absenceForm.validate()) {
+                const formData = new FormData();
+                formData.append('employee', this.$store.state.userId)
+                formData.append('reason', this.reason)
+                formData.append('absenceDate', this.absenceDate + ' 00:00:00')
+                formData.append('attachmentPhoto', this.attachment)
+                let respond = (await applyAbsence(formData))
+                if (respond.data.code === 0) {
+                    this.$emit('msg', '申请成功')
+                }
+                if (respond.data.code === -1) {
+                    this.$emit('msg', '申请请假失败')
+                }
                 this.$emit('close')
             }
         },

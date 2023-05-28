@@ -27,28 +27,28 @@ public class NotificationImpl implements NotificationService {
     }
 
     @Override
-    public Boolean notifyWhenNewScheduleCreated(long newScheduleId, long from, long to) {
-        return createNotification(1, String.valueOf(newScheduleId), from, to);
+    public void notifyWhenNewScheduleCreated(long newScheduleId, long from, long to) {
+        createNotification(1, String.valueOf(newScheduleId), from, to);
     }
 
     @Override
-    public Boolean notifyWhenScheduleChanged(long changedScheduleId, long from, long to) {
-        return createNotification(2, String.valueOf(changedScheduleId), from, to);
+    public void notifyWhenScheduleChanged(long changedScheduleId, long from, long to) {
+        createNotification(2, String.valueOf(changedScheduleId), from, to);
     }
 
     @Override
-    public Boolean notifyWhenOpenShift(long scheduleId, long from, long to) {
-        return createNotification(3, String.valueOf(scheduleId), from, to);
+    public void notifyWhenOpenShift(long scheduleId, long from, long to) {
+        createNotification(3, String.valueOf(scheduleId), from, to);
     }
 
     @Override
-    public Boolean notifyWhenAbsenceCreated(long absenceId, long from, long to) {
-        return createNotification(4, String.valueOf(absenceId), from, to);
+    public void notifyWhenAbsenceCreated(long absenceId, long from, long to) {
+        createNotification(4, String.valueOf(absenceId), from, to);
     }
 
     @Override
-    public Boolean notifyWhenAbsenceChecked(long absenceId, long from, long to) {
-        return createNotification(5, String.valueOf(absenceId), from, to);
+    public void notifyWhenAbsenceChecked(long absenceId, long from, long to) {
+        createNotification(5, String.valueOf(absenceId), from, to);
     }
 
     private void sortNotificationListByTimeOrder(List<NotificationVO> notificationVOs) {

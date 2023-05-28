@@ -12,7 +12,7 @@ export default {
     count:3
   }),
   created() {
-    var counter=setInterval(() => {
+    let counter=setInterval(() => {
       this.count--
       if(this.count<=0){
         clearInterval(counter)

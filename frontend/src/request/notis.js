@@ -35,6 +35,17 @@ export const setAllRead = () => {
   })
 }
 
+//已读全部消息
+export const setRead = id => {
+  return request({
+    method: 'post',
+    url: `api/notification/read`,
+    params:{
+      id
+    }
+  })
+}
+
 
 //删除通知
 export const deleteNoti = id => {

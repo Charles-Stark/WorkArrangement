@@ -1,6 +1,6 @@
 <template>
-  <v-data-iterator v-if="notices.length !== 0 & ready" :items="filteredItems" :page.sync="page" :search="search" hide-default-footer
-    no-results-text="没有搜索结果" no-data-text="没有数据">
+  <v-data-iterator v-if="notices.length !== 0 && ready" :items="filteredItems" :page.sync="page" :search="search"
+    hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
       <v-toolbar rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
         <v-btn v-if="onlyUnread === false" class="mx-3" large depressed @click="checkUnread()">显示未读</v-btn>
@@ -59,7 +59,7 @@
                 <v-img size="70" :src="notice.avatar"></v-img>
               </v-list-item-avatar>
 
-              <v-list-item-content @click="check()">
+              <v-list-item-content @click="check(notice.type,notice.id)">
                 <v-list-item-title :class="notice.isRead === false ? 'strong--text' : 'grey--text'">
                   {{ notice.fromUsername }}
                 </v-list-item-title>
@@ -88,7 +88,7 @@
                       <v-btn color="primary" text @click="notice.dialog = false">
                         取消
                       </v-btn>
-                      <v-btn color="error" text @click="deleteNoti(notice.id); notice.dialog = false">
+                      <v-btn color="error" text @click="deleteNotice(notice.id); notice.dialog = false">
                         确定
                       </v-btn>
 
@@ -128,8 +128,10 @@
 </template>
 
 <script>
-import { getNotis, setAllRead, deleteNoti } from '../request/notis'
-import { getUserAvatar } from '../request/user'
+import { getNotis, setAllRead, deleteNoti, setRead } from '@/request/notis'
+import { getUserAvatar } from '@/request/user'
+import { formatDate } from '@/plugins/utility'
+
 export default {
   data() {
     return {
@@ -165,10 +167,10 @@ export default {
       return Math.ceil(this.filteredItems.length / 10)
     },
     fullscreen() {
-      return this.$vuetify.breakpoint.xsOnly ? true : false
+      return this.$vuetify.breakpoint.xsOnly
     },
     filteredItems() {
-      var notices = this.notices
+      let notices = this.notices;
       if (this.onlyUnread === true) {
         notices = notices.filter(item => { return item.isRead === false })
       }
@@ -195,13 +197,19 @@ export default {
     checkUnread() {
       this.onlyUnread = !this.onlyUnread
     },
-    check() {
-      this.$router.push('/controlpanel/absences')
+    check(type,id) {
+      setRead(id)
+      if (type >= 1 && type <= 3) {
+        this.$router.push('/controlpanel/workArrange')
+      }
+      else if (type === 4) {
+        this.$router.push('/controlpanel/absences')
+      }
     },
     setAllRead() {
       setAllRead().then(res => {
         if (res.data.code === 0) {
-          for (var notice of this.notices) {
+          for (const notice of this.notices) {
             notice.isRead = true
           }
           this.$emit('msg', '操作成功')
@@ -211,10 +219,10 @@ export default {
         this.$emit('msg', '网络错误')
       })
     },
-    deleteNoti(id) {
+    deleteNotice(id) {
       deleteNoti(id).then(res => {
         if (res.data.code === 0) {
-          for (var index in this.notices) {
+          for (const index in this.notices) {
             if (this.notices[index].id === id) {
               this.notices.splice(index, 1)
             }
@@ -225,35 +233,23 @@ export default {
         this.$emit('msg', '网络错误')
       })
     },
-    formatDate(value) { // 时间戳转换日期格式方法
-      if (value == null) {
-        return ''
-      } else {
-        const date = new Date(value)
-        const y = date.getFullYear()// 年
-        let MM = date.getMonth() + 1 // 月
-        MM = MM < 10 ? ('0' + MM) : MM
-        let d = date.getDate() // 日
-        d = d < 10 ? ('0' + d) : d
-        return y + '-' + MM + '-' + d
-      }
-    },
+
 
   },
 
   mounted() {
     getNotis().then(async res => {
-      var notices = res.data.data
+      const notices = res.data.data;
       notices.forEach(notice => {
         notice.avatar = require('../assets/defaultAvatar.png')
         let time = new Date(notice.createAt)
-        notice.createAt = this.formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
+        notice.createAt = formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
       })
       this.notices = notices
       if (notices.length === 0) this.notices = []
       this.ready = true
-      for (var notice of this.notices) {
-        var avatar = await getUserAvatar(notice.fromUser)
+      for (const notice of this.notices) {
+        const avatar = await getUserAvatar(notice.fromUser);
         if (avatar.status === 200) {
           notice.avatar = URL.createObjectURL(avatar.data)
         }

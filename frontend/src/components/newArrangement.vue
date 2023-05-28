@@ -284,7 +284,7 @@
 </template>
 
 <script>
-import { createArr } from '../request/rule'
+import { createArr } from '@/request/rule'
 export default {
   data() {
     return {

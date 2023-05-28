@@ -110,7 +110,7 @@
 </template>
 
 <script>
-import { getOTP, OTPLogin, pswLogin, pswReset } from '../../request/user'
+import { getOTP, OTPLogin, pswLogin, pswReset } from '@/request/user'
 import Vcode from "vue-puzzle-vcode";
 
 export default {
@@ -169,7 +169,7 @@ export default {
         })
       }
       else {
-        var validated = true
+        let validated = true;
         if (this.email === '') {
           validated = false
           this.$emit('msg', '邮箱不能为空')
@@ -220,7 +220,7 @@ export default {
                 this.show2 = true;
                 if (this.counter === 0) {
                   this.counter = 60;
-                  var count = setInterval(() => {
+                  const count = setInterval(() => {
                     this.counter--
                     if (this.counter <= 0) {
                       clearInterval(count)

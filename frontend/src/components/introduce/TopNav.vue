@@ -12,7 +12,7 @@
                 </ul>
             </div>
             <ul>
-                <li v-if="$store.state.userId!==null & $store.state.token!==null"><router-link to="controlpanel">控制台</router-link> </li>
+                <li v-if="$store.state.userId!==null && $store.state.token!==null"><router-link to="controlpanel">控制台</router-link> </li>
                 <li><accountStatus></accountStatus></li>
             </ul>
        

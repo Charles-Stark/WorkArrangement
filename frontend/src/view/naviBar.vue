@@ -8,7 +8,7 @@
 
       <v-menu offset-y allow-overflow min-width="400">
         <template v-slot:activator="{ on, attrs }">
-          <v-badge :value="noti" :content="noti" overlap bordered dot>
+          <v-badge :value="unReadNum" :content="unReadNum" overlap bordered dot>
             <v-btn icon v-bind="attrs" v-on="on">
               <v-icon>mdi-bell-outline</v-icon>
             </v-btn>
@@ -17,7 +17,7 @@
         </template>
 
         <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length !== 0">
-          <v-list-title class="text-h4 ma-4">通知</v-list-title>
+          <v-list-item-title class="text-h4 ma-4">通知</v-list-item-title>
           <v-divider class="mt-2"></v-divider>
           <div v-for="notice of notices" :key="notice.id">
             <v-list-item @click="1">
@@ -87,12 +87,12 @@
       :color="$vuetify.theme.dark === false ? 'white' : '#151515'">
 
       <v-list-item class="px-2 mt-2">
-        <v-list-item v-if="mini == false" to="/">
+        <v-list-item v-if="!mini" to="/">
           <v-img v-if="$vuetify.theme.dark === false" :src="require('../assets/logo-md.png')" width="10"></v-img>
           <v-img v-else :src="require('../assets/logo-md-dark.png')" width="10"></v-img>
         </v-list-item>
 
-        <v-avatar v-if="mini == true" @click="$router.push('/')">
+        <v-avatar v-if="mini" @click="$router.push('/')">
           <v-img :src="require('../assets/logo-sm.png')"></v-img>
         </v-avatar>
       </v-list-item>
@@ -125,7 +125,7 @@
 
           <v-list-item to="notifications" link>
             <v-list-item-icon>
-              <v-icon>{{ noti === 0 ? 'mdi-bell' : 'mdi-bell-badge' }}</v-icon>
+              <v-icon>{{ unReadNum === 0 ? 'mdi-bell' : 'mdi-bell-badge' }}</v-icon>
             </v-list-item-icon>
             <v-list-item-title>通知中心</v-list-item-title>
           </v-list-item>
@@ -150,6 +150,13 @@
               <v-list-item-title>员工信息</v-list-item-title>
             </v-list-item>
           </v-list-group>
+
+          <v-list-item to="reviews" link v-if="$store.state.isManager || $store.state.isShopManager">
+            <v-list-item-icon>
+              <v-icon>mdi-message-processing</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>用户评价</v-list-item-title>
+          </v-list-item>
 
           <v-list-item to="settings" link>
             <v-list-item-icon>
@@ -184,8 +191,10 @@
 </template>
 
 <script>
-import { getUserAvatar, getUserInfo, logout } from '../request/user'
-import { getNotisByCount } from '../request/notis'
+import {getUserAvatar, getUserInfo, logout} from '@/request/user'
+import {getNotisByCount} from '@/request/notis'
+import {formatDate} from '@/plugins/utility'
+
 export default {
   data: () => ({
     snackBar: false,
@@ -225,11 +234,11 @@ export default {
     },
     expand() {
       let path = this.$router.currentRoute.meta.selectedItem
-      return path > 4 ? true : false
+      return path > 4
     },
-    noti() {
-      var num = 0
-      for (var notice in this.notices) {
+    unReadNum() {
+      let num = 0;
+      for (const notice in this.notices) {
         if (this.notices[notice].isRead === false) {
           num++
         }
@@ -265,19 +274,6 @@ export default {
     check() {
     },
 
-    formatDate(value) { // 时间戳转换日期格式方法
-      if (value == null) {
-        return ''
-      } else {
-        const date = new Date(value)
-        const y = date.getFullYear()// 年
-        let MM = date.getMonth() + 1 // 月
-        MM = MM < 10 ? ('0' + MM) : MM
-        let d = date.getDate() // 日
-        d = d < 10 ? ('0' + d) : d
-        return y + '-' + MM + '-' + d
-      }
-    },
 
   },
 
@@ -294,8 +290,7 @@ export default {
 
     getUserAvatar(this.$store.state.userId).then(res => {
       if (res.status === 200) {
-        let url = URL.createObjectURL(res.data)
-        this.user.avatar = url
+        this.user.avatar = URL.createObjectURL(res.data)
       }
       else if (res.status === 204) {
         this.user.avatar = require('../assets/defaultAvatar.png')
@@ -305,10 +300,10 @@ export default {
     })
 
     getNotisByCount(10).then(async res => {
-      var notices = res.data.data
-      for (var notice of notices) {
+      const notices = res.data.data;
+      for (const notice of notices) {
 
-        var avatar = await getUserAvatar(notice.fromUser)
+        const avatar = await getUserAvatar(notice.fromUser);
         if (avatar.status === 200) {
           notice.avatar = URL.createObjectURL(avatar.data)
         }
@@ -318,7 +313,7 @@ export default {
 
 
         let time = new Date(notice.createAt)
-        notice.createAt = this.formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
+        notice.createAt = formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
       }
       this.notices = notices
       if (notices.length === 0) this.notices = []

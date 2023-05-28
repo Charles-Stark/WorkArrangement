@@ -77,7 +77,7 @@
 <script>
 import loginBox from './loginBox.vue';
 import registerBox from './registerBox.vue';
-import { getUserInfo, getUserAvatar, logout } from '../../request/user'
+import { getUserInfo, getUserAvatar, logout } from '@/request/user'
 export default {
   components: { loginBox, registerBox },
   data: () => ({
@@ -114,14 +114,14 @@ export default {
   },
 
   mounted() {
-    if (this.$store.state.userId !== null & this.$store.state.token !== null) {
+    if (this.$store.state.userId !== null && this.$store.state.token !== null) {
       getUserInfo().then(async res => {
-        var user = {}
+        const user = {};
         if (res.data.code === 0) {
           user.userName = res.data.data.username
           user.email = res.data.data.email
 
-          var avatar = await getUserAvatar(this.$store.state.userId)
+          const avatar = await getUserAvatar(this.$store.state.userId);
           if (avatar.status === 200) {
             user.avatar = URL.createObjectURL(avatar.data)
           }

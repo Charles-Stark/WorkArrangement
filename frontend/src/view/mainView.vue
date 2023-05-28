@@ -149,7 +149,7 @@
   #moon {
     width: 300px;
     top: 0;
-    right: 100;
+    right: 100px;
     z-index: -1;
   }
   #mountains_behind {

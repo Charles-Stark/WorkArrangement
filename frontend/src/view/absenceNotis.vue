@@ -1,5 +1,5 @@
 <template>
-  <v-data-iterator :items="filteredItems" :page.sync="page" :search="search" :sort-by="keys[sortBy]" :sort-desc="sortDesc"
+  <v-data-iterator v-if="absenceList.length !== 0 && ready" :items="filteredItems" :page.sync="page" :search="search" :sort-by="keys[sortBy]" :sort-desc="sortDesc"
     hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
       <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
@@ -41,17 +41,17 @@
         <v-row v-for="item in props.items" :key="item.id">
           <v-col cols="3" md="2">
             <v-list-item-content>
-              {{ item.time }}
+              {{ item.absenceDate }}
             </v-list-item-content>
           </v-col>
           <v-col cols="3" md="2">
             <v-list-item-content>
-              {{ item.id }}
+              {{ item.employeeId }}
             </v-list-item-content>
           </v-col>
           <v-col cols="3" md="2">
             <v-list-item-content>
-              {{ item.name }}
+              小明
             </v-list-item-content>
           </v-col>
           <v-col cols="4" class="hidden-sm-and-down">
@@ -65,12 +65,12 @@
             <v-dialog max-width="470" :fullscreen="fullscreen" v-model="item.dialog">
               <template v-slot:activator="{ on, attrs }">
 
-                <v-btn outlined color="secondary" :disabled="item.approved != null" v-bind="attrs" v-on="on"
-                  :value="item.approved" class="mt-1">
+                <v-btn outlined color="secondary" :disabled="item.isApproved != null" v-bind="attrs" v-on="on"
+                  :value="item.isApproved" class="mt-1">
                   <v-icon
-                    v-text="item.approved === true ? 'mdi-check' : item.approved === false ? 'mdi-close' : ''"></v-icon>
-                  <span v-if="item.approved === null">查看详情</span>
-                  <span v-else-if="item.approved === true">已批准</span>
+                    v-text="item.isApproved === true ? 'mdi-check' : item.isApproved === false ? 'mdi-close' : ''"></v-icon>
+                  <span v-if="item.isApproved === null">查看详情</span>
+                  <span v-else-if="item.isApproved === true">已批准</span>
                   <span v-else>已拒绝</span>
                 </v-btn>
 
@@ -80,13 +80,13 @@
                   请假条
                 </v-card-title>
                 <v-card-text class="text-h6 mt-4">
-                  工号: {{ item.id }}
+                  工号: {{ item.employeeId }}
                 </v-card-text>
                 <v-card-text class="text-h6">
-                  姓名: {{ item.name }}
+                  姓名: 小明
                 </v-card-text>
                 <v-card-text class="text-h6">
-                  请假时间: {{ item.time }}
+                  请假时间: {{ item.absenceDate }}
                 </v-card-text>
                 <v-card-text class="text-h6">
                   请假原因: <br>
@@ -96,7 +96,7 @@
                 <v-card-text class="text-h6">
                   相关附件:
                 </v-card-text>
-                <v-img class="mx-15" :src="item.attachment"></v-img>
+                <v-img class="mx-15" :src="item.employeeId"></v-img>
                 <v-card-actions class="mt-4">
                   <v-spacer></v-spacer>
                   <v-btn color="grey" text @click="close(item)" large>
@@ -122,15 +122,33 @@
       <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"></v-pagination>
     </template>
   </v-data-iterator>
+  <v-container v-else-if="!ready">
+    <v-row>
+      <v-col cols="12" v-for="index of 6" :key="index">
+        <v-skeleton-loader class="mx-auto" type="table-heading,list-item-two-line,divider"></v-skeleton-loader>
+      </v-col>
+    </v-row>
+  </v-container>
+  <v-container v-else style="height: 80vh;">
+    <v-row class="fill-height" align-content="center" justify="center">
+      <v-col class="text-h5 text-center" cols="12">
+        没有请假信息
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import { getAbsenceList } from '@/request/absence'
+import { formatDate } from '@/plugins/utility'
+
 export default {
   data() {
     return {
       search: '',
       sortDesc: false,
       page: 1,
+      ready:false,
       itemsPerPage: 10,
       sortBy: null,
       keys: {
@@ -139,57 +157,7 @@ export default {
       },
       onlyUnread: false,
 
-      headers: [
-        { text: '请假时间', value: 'time', },
-        { text: '工号', value: 'id' },
-        { text: '姓名', value: 'name' },
-        { text: '请假原因', value: 'reason' },
-        { text: '审批状态', value: 'approved' },
-      ],
-
-      items: [
-        {
-          time: '2023/4/8',
-          id: 'IJTECHZP',
-          name: '王琳',
-          reason: '身体不适，去医院看病',
-          approved: null,
-          attachment: ''
-        },
-        {
-          time: '2023/3/20',
-          id: 'ZTHHJMVR',
-          name: '赵静涵',
-          reason: '搬家',
-          approved: false,
-          attachment: ''
-        },
-        {
-          time: '2023/3/15',
-          id: 'HSQGZTN7',
-          name: '赵震宇',
-          reason: '处理家中事务',
-          approved: null,
-          attachment: ''
-        },
-        {
-          time: '2023/3/2',
-          id: 'I8SIBQJI',
-          name: '杨泽晨',
-          reason: '带长辈去医院回诊',
-          approved: false,
-          attachment: ''
-        },
-        {
-          time: '2023/2/28',
-          id: 'B3TTWVUJ',
-          name: '陈轩',
-          reason: '休息一天',
-          approved: null,
-          attachment: ''
-        },
-
-      ],
+      absenceList: [],
     }
   },
   computed: {
@@ -197,26 +165,27 @@ export default {
       return Math.ceil(this.filteredItems.length / 10)
     },
     fullscreen() {
-      return this.$vuetify.breakpoint.xsOnly ? true : false
+      return this.$vuetify.breakpoint.xsOnly
     },
     filteredItems() {
       if (this.onlyUnread === true) {
-        return this.items.filter(item => { return item.approved === null })
+        return this.absenceList.filter(item => { return item.isApproved === null })
       }
-      return this.items
+      return this.absenceList
     }
 
   },
   methods: {
-    approve(item){
-      item.approved=true
-      item.dialog=false
+
+    approve(item) {
+      item.isApproved = true
+      item.dialog = false
       this.$emit('msg', '处理成功')
 
     },
-    reject(item){
-      item.approved=false
-      item.dialog=false
+    reject(item) {
+      item.isApproved = false
+      item.dialog = false
       this.$emit('msg', '处理成功')
 
     },
@@ -232,7 +201,21 @@ export default {
     checkUnread() {
       this.onlyUnread = !this.onlyUnread
     }
-
   },
+
+  async mounted() {
+    let respond= (await getAbsenceList()).data
+    if(respond.code===0){
+      let absenceList=respond.data
+      absenceList.forEach(abs => {
+        abs.absenceDate=formatDate(abs.absenceDate)
+      });
+      this.absenceList=absenceList
+      console.log(respond.data)
+    }else if(respond.code===-1){
+      this.$emit('msg', '获取请假列表失败')
+    }
+    this.ready=true
+  }
 }
 </script>

@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { getRegisterOTP,register } from '../../request/user'
+import { getRegisterOTP,register } from '@/request/user'
 
 export default {
 
@@ -108,7 +108,7 @@ export default {
             getRegisterOTP(this.email).then(res => {
               if(res.data.code===0){
                 this.counter = 60;
-                var count = setInterval(() => {
+                const count = setInterval(() => {
                   this.counter--
                   if (this.counter <= 0) {
                     clearInterval(count)

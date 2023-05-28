@@ -1,9 +1,13 @@
 package com.example.backend.Controller;
 
+import com.example.backend.POJO.Schedule;
 import com.example.backend.Service.ScheduleService;
 import com.example.backend.VO.ResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/schedule")
@@ -18,7 +22,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/get/shop/{id}")
-    public ResultVO<Object> getScheduleByShop(@PathVariable long id) {
+    public ResultVO<List<Schedule>> getScheduleByShop(@PathVariable long id) {
         return scheduleService.getScheduleByShop(id);
     }
 
@@ -42,8 +46,18 @@ public class ScheduleController {
         return scheduleService.deleteSchedule(id);
     }
 
-    @RequestMapping("/get/recommend/{id}")
-    public ResultVO<Object> getRecommend(@PathVariable long id,@RequestParam("week")int week,@RequestParam("day")int day,@RequestParam("halfHour")int halfHour){
-        return scheduleService.getRecommend(id,week,day,halfHour);
+    @PostMapping("/get/recommend/{id}")
+    public ResultVO<Object> getRecommend(@PathVariable long id, @RequestParam("week") int week, @RequestParam("day") int day, @RequestParam("halfHour") int halfHour) {
+        return scheduleService.getRecommend(id, week, day, halfHour);
     }
+
+    @PostMapping("/changeShift")
+    public ResultVO<Object> changeShift(@RequestParam("schedule") long schedule, @RequestParam("previousEmployee") long previousEmployee, @RequestParam("currentEmployee") long currentEmployee, @RequestParam("beginTime") long beginTime) {
+        if (scheduleService.changeShift(schedule, previousEmployee, currentEmployee, new Date(beginTime), false)) {
+            return new ResultVO<>(0, "换班成功", null);
+        } else {
+            return new ResultVO<>(-1, "换班失败", null);
+        }
+    }
+
 }

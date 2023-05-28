@@ -1,5 +1,17 @@
 <template>
     <v-container>
+        <v-row>
+            <v-col cols="2">
+                <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted
+                    interval-minutes="60" no-data-text="没有数据" dense flat hide-details
+                    style="max-width:140px;min-width:120px" @change="changeBranch()"
+                    v-if="$store.state.isManager"></v-select>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col cols="2">
+                <v-btn color="secondary" outlined to="/controlpanel/arrange">返回</v-btn>
+            </v-col>
+        </v-row>
         <v-card v-for="s of schedules" :key="s.id" class="my-5 pa-3 schedules mx-auto" max-width="1000">
             <v-row>
                 <v-col cols="5">
@@ -57,8 +69,12 @@
     </v-container>
 </template>
 <script>
-import { getAllShop } from '../request/shop'
-import { getAllArr, deleteArr } from '../request/rule'
+import { getAllShop, getShopInfo } from '@/request/shop'
+import { getAllArr, deleteArr } from '@/request/rule'
+import { getEmployee } from '@/request/staff'
+import { formatDate } from '@/plugins/utility'
+
+
 import historyArr from '../components/historyArr.vue'
 
 
@@ -68,29 +84,28 @@ export default {
     },
     data: () => ({
         branch: '',
-        branches: '',
+        branches: [],
         staff: [],
         schedules: [],
     }),
     methods: {
-        formatDate(value) { // 时间戳转换日期格式方法
-            if (value == null) {
-                return ''
-            } else {
-                const date = new Date(value)
-                const y = date.getFullYear()// 年
-                let MM = date.getMonth() + 1 // 月
-                MM = MM < 10 ? ('0' + MM) : MM
-                let d = date.getDate() // 日
-                d = d < 10 ? ('0' + d) : d
-                return y + '-' + MM + '-' + d
-            }
+        async changeBranch() {
+            let schedules = (await getAllArr(this.branch)).data.data
+            schedules.forEach(s => {
+                let time = new Date(s.createAt)
+                s.createAt = formatDate(s.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
+                s.startAt = formatDate(s.startAt)
+                s.endAt = formatDate(s.endAt)
+                s.dialog = false
+                s.deleteDialog = false
+            })
+            this.schedules = schedules.reverse()
         },
         deleteArr(id) {
             deleteArr(id).then(res => {
                 if (res.data.code === 0) {
                     this.$emit('msg', '删除成功')
-                    this.$router.go(0)
+                    this.schedules.splice(this.schedules.findIndex(s=> s.id===id),1)
                 }
                 else if (res.data.code === 1) {
                     this.$emit('msg', '删除失败')
@@ -100,32 +115,21 @@ export default {
             })
         }
     },
-    mounted() {
-        getAllShop().then(async res => {
-            this.branches = res.data.data
-            if (this.branches.length !== 0) {
-                this.branch = this.branches[0].id
-                var schedules = (await getAllArr(this.branch)).data.data
-                console.log(schedules)
+    async mounted() {
 
-                schedules.forEach(s => {
-                    let time = new Date(s.createAt)
-                    s.createAt = this.formatDate(s.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
-                    s.startAt = this.formatDate(s.startAt)
-                    s.endAt = this.formatDate(s.endAt)
-                    s.dialog = false
-                    s.deleteDialog = false
-                })
-                this.schedules = schedules.reverse()
+        if (this.$store.state.isManager) {
+            this.branches = (await getAllShop()).data.data
+            this.branch = this.branches[0].id
+        }
+        else if (this.$store.state.isShopManager) {
+            let employee = (await getEmployee()).data.data
+            let shop = (await getShopInfo(employee.shop)).data.data
+            this.branch = shop.id
+        }
+
+        await this.changeBranch()
 
 
-            }
-            else {
-                this.$emit('msg', '没有店铺信息')
-            }
-        }).catch(() => {
-            this.$emit('msg', '网络错误')
-        })
     }
 
 
@@ -134,6 +138,6 @@ export default {
 
 <style scoped>
 .schedules {
-    border-left: 4px solid rgb(38, 145, 245);
+    border-left: 4px solid var(--v-primary-base);
 }
 </style>

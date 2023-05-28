@@ -64,6 +64,29 @@ export const getArrByEmployee = id => {
   })
 }
 
+//获取某个排班的推荐员工
+export const getRecommendedStaff = id => {
+  return request({
+    method: 'post',
+    url: `api/schedule/get/recommend/${id}`,
+  })
+}
+
+//换班
+// schedule: long 排班表id
+// previousEmployee: long 先前员工id
+// currentEmployee: long 当前员工id
+// beginTime: 班次开始时间
+export const alterSchedule = params => {
+  return request({
+    method: 'post',
+    url: `api/schedule/changeShift`,
+    params
+  })
+}
+
+
+
 //获取某个排班的规则
 export const getRule = id => {
   return request({

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import router from '../router'
 const instance = axios.create({
-  baseURL: 'http://localhost:8081',
+  baseURL: 'http://localhost:8080',
   timeout: 4000
 })
 
