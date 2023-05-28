@@ -1220,12 +1220,9 @@ public class Arranger {
         }
         List<Staff> keySetList= new ArrayList<>(matchingDegree.keySet());
         keySetList.sort((a,b)-> (int)(matchingDegree.get(b)*100-matchingDegree.get(a)*100));
-        int t=0;
         LinkedList<Long> employeeList=new LinkedList<>();
         for(Staff staff:keySetList){
-            if(t==3) employeeList.add(-1L);
             employeeList.add(staff.id);
-            t++;
         }
         return employeeList;
     }
