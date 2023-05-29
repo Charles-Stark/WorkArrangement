@@ -1,6 +1,5 @@
 package com.example.backend.VO;
 
-import com.example.backend.POJO.Employee;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +13,7 @@ import java.util.Date;
 public class AbsenceVO {
 
     private Long id;
-    private Employee employee;
+    private EmployeeVO employeeVO;
     private Long managerId;  // 管理员id
     private Long shopId;  // 店铺id
     private String reason;  // 请假原因

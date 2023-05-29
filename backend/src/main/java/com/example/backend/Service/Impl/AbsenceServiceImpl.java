@@ -5,10 +5,9 @@ import com.example.backend.Service.AbsenceService;
 import com.example.backend.Service.NotificationService;
 import com.example.backend.Service.ScheduleService;
 import com.example.backend.VO.AbsenceVO;
+import com.example.backend.VO.EmployeeVO;
 import com.example.backend.VO.ResultVO;
-import com.example.backend.mapper.AbsenceMapper;
-import com.example.backend.mapper.EmployeeMapper;
-import com.example.backend.mapper.ShopMapper;
+import com.example.backend.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +21,12 @@ public class AbsenceServiceImpl implements AbsenceService {
 
     @Autowired
     private EmployeeMapper employeeMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private PreferenceMapper preferenceMapper;
 
     @Autowired
     private ShopMapper shopMapper;
@@ -107,7 +112,8 @@ public class AbsenceServiceImpl implements AbsenceService {
     }
 
     private AbsenceVO absenceToAbsenceVO(Absence absence) {
-        return new AbsenceVO(absence.getId(), employeeMapper.selectById(absence.getEmployeeId()), absence.getManagerId(), absence.getShopId(), absence.getReason(), absence.getAttachmentPhoto(), absence.getPhotoType(), absence.getIsApproved(), absence.getAbsenceDate(), absence.getCreateAt());
+        EmployeeVO employeeVO = new EmployeeVO(userMapper.selectById(absence.getEmployeeId()), employeeMapper.selectById(absence.getEmployeeId()), preferenceMapper.selectById(absence.getEmployeeId()));
+        return new AbsenceVO(absence.getId(), employeeVO, absence.getManagerId(), absence.getShopId(), absence.getReason(), absence.getAttachmentPhoto(), absence.getPhotoType(), absence.getIsApproved(), absence.getAbsenceDate(), absence.getCreateAt());
     }
 
 }
