@@ -77,11 +77,11 @@ export default {
                 formData.append('reason', this.reason)
                 formData.append('absenceDate', this.absenceDate + ' 00:00:00')
                 formData.append('attachmentPhoto', this.attachment)
-                let respond = (await applyAbsence(formData))
-                if (respond.data.code === 0) {
+                let response = (await applyAbsence(formData))
+                if (response.data.code === 0) {
                     this.$emit('msg', '申请成功')
                 }
-                if (respond.data.code === -1) {
+                if (response.data.code === -1) {
                     this.$emit('msg', '申请请假失败')
                 }
                 this.$emit('close')

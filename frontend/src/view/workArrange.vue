@@ -1,14 +1,14 @@
 <template>
-  <div v-if="((branches.length !== 0 && $store.state.isManager) || !$store.state.isManager) && ready">
+  <div v-if="((branches.length !== 0 && $store.state.isManager) || !$store.state.isManager) && ready1">
     <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat
       v-if="$store.state.isManager || $store.state.isShopManager">
-      <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted interval-minutes="60"
+      <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo interval-minutes="60"
         no-data-text="没有数据" dense flat hide-details style="max-width:140px;min-width:120px"
         @change="changeBranch(); categories = {}" v-if="$store.state.isManager"></v-select>
       <span v-if="!$store.state.isManager" class="text-h6 ml-3">{{ shopName }}</span>
       <v-spacer></v-spacer>
 
-      <v-text-field v-model="search1" clearable dense flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
+      <v-text-field v-model="search1" clearable dense flat solo hide-details prepend-inner-icon="mdi-magnify"
         @click:clear="search1 = ''" v-if="$vuetify.breakpoint.mdAndUp" class="mx-2" label="姓名/工号/岗位"></v-text-field>
       <v-spacer></v-spacer>
 
@@ -28,7 +28,7 @@
       </download-excel>
 
     </v-toolbar>
-    <v-card v-if="ready" class="py-3 px-5" flat :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
+    <v-card v-if="ready1" class="py-3 px-5" flat :color="$vuetify.theme.dark === false ? 'white' : '#121212'">
       <v-sheet>
         <v-toolbar flat color="transparent">
 
@@ -105,72 +105,88 @@
                 @click="selectedEmployee = 0; dialog = true"><v-icon>mdi-open-in-app</v-icon></v-btn>
             </v-toolbar>
 
-            <v-text-field v-model="search2" clearable dense flat solo-inverted hide-details
+            
+
+            <div v-if="ready2">
+
+              <v-text-field v-model="search2" clearable dense flat solo hide-details
               prepend-inner-icon="mdi-magnify" v-if="selectedEvent.single === true || type !== 'week'" class="ma-2"
               label="姓名/工号"></v-text-field>
 
-            <div v-if="type !== 'week' || selectedEvent.single === true">
-              <v-list-item-title class=" ml-3 grey--text text-subtitle">推荐员工</v-list-item-title>
-              <v-list-item @click="selectedEmployee = s.id; dialog = true" v-for="s of staff.slice(6, 9)" :key="s.id">
-                <v-list-item-avatar>
-                  <v-img :src="s.avatar"></v-img>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>{{ s.username }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ s.position }}</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
+              <div v-if="type !== 'week' || selectedEvent.single === true">
+                <v-list-item-title class=" ml-3 grey--text text-subtitle" v-if="search2 === null">推荐员工</v-list-item-title>
+                <v-list-item @click="selectedEmployee = s.id; dialog = true" v-for="s of filteredStaff.slice(0, 3)"
+                  :key="s.id">
+                  <v-list-item-avatar>
+                    <v-img :src="s.avatar"></v-img>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ s.username }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ s.position }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
 
-              <v-list-item-title class="ml-3 grey--text text-subtitle">其他员工</v-list-item-title>
+                <v-list-item-title class="ml-3 grey--text text-subtitle" v-if="search2 === null">其他员工</v-list-item-title>
+              </div>
+
+              <!-- 周视图 -->
+              <v-virtual-scroll v-if="type === 'week'" bench="10"
+                :items="selectedEvent.single === true ? filteredStaff.slice(3) : selectedEvent.detail" :item-height="63"
+                height="300" width="400">
+                <template v-slot:default="{ item, index }">
+
+                  <v-list-item
+                    @click="selectedEvent.single === true ? (selectedEmployee = item.id, dialog = true) : openSelected(item, index)">
+                    <v-list-item-avatar>
+                      <v-img :src="item.avatar"></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title>{{ item.username }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ item.position }}</v-list-item-subtitle>
+
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider></v-divider>
+
+                </template>
+              </v-virtual-scroll>
+
+              <!-- 月、日视图 -->
+              <v-virtual-scroll v-if="type !== 'week'" :items="filteredStaff.slice(3)" :item-height="63" height="300"
+                width="400" bench="10">
+                <template v-slot:default="{ item }">
+                  <v-list-item @click="selectedEmployee = item.id; dialog = true">
+                    <v-list-item-avatar>
+                      <v-img :src="item.avatar"></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title>{{ item.username }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ item.position }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider></v-divider>
+
+                </template>
+              </v-virtual-scroll>
+
+              <v-card-actions>
+                <v-btn text :color="selectedEvent.color" @click="selectedOpen = false">
+                  关闭
+                </v-btn>
+              </v-card-actions>
             </div>
-
-            <!-- 周视图 -->
-            <v-virtual-scroll v-if="type === 'week'" bench="10"
-              :items="selectedEvent.single === true ? filteredStaff : selectedEvent.detail" :item-height="63" height="300"
-              width="400">
-              <template v-slot:default="{ item, index }">
-
-                <v-list-item
-                  @click="selectedEvent.single === true ? (selectedEmployee = item.id,dialog = true) : openSelected(item, index)">
-                  <v-list-item-avatar>
-                    <v-img :src="item.avatar"></v-img>
-                  </v-list-item-avatar>
-
-                  <v-list-item-content>
-                    <v-list-item-title>{{ item.username }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ item.position }}</v-list-item-subtitle>
-
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider></v-divider>
-
-              </template>
-            </v-virtual-scroll>
-
-            <!-- 月、日视图 -->
-            <v-virtual-scroll v-if="type !== 'week'" :items="filteredStaff" :item-height="63" height="300" width="400"
-              bench="10">
-              <template v-slot:default="{ item }">
-                <v-list-item @click="selectedEmployee = item.id; dialog = true">
-                  <v-list-item-avatar>
-                    <v-img :src="item.avatar"></v-img>
-                  </v-list-item-avatar>
-
-                  <v-list-item-content>
-                    <v-list-item-title>{{ item.username }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ item.position }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider></v-divider>
-
-              </template>
-            </v-virtual-scroll>
-
-            <v-card-actions>
-              <v-btn text :color="selectedEvent.color" @click="selectedOpen = false">
-                关闭
-              </v-btn>
-            </v-card-actions>
+            <v-container v-else style="height: 630px;">
+              <v-row class="fill-height" align-content="center" justify="center">
+                <v-col class="text-h5 text-center" cols="12">
+                  正在加载推荐员工
+                </v-col>
+                <v-col cols="6">
+                  <v-progress-linear color="primary accent-4" indeterminate rounded height="6"></v-progress-linear>
+                </v-col>
+              </v-row>
+            </v-container>
           </v-card>
 
           <v-dialog v-model="dialog" width="350">
@@ -192,13 +208,14 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+
         </v-menu>
 
       </v-sheet>
 
     </v-card>
   </div>
-  <v-container v-else-if="!ready" style="height: 80vh;">
+  <v-container v-else-if="!ready1" style="height: 80vh;">
     <v-row class="fill-height" align-content="center" justify="center">
       <v-col class="text-h5 text-center" cols="12">
         正在加载排班表
@@ -240,7 +257,8 @@ export default {
       newArr: false,
       newAbsc: false,
       type: 'month',
-      ready: false,
+      ready1: false,
+      ready2: true,
       search1: null,
       search2: null,
       typeToLabel: {
@@ -270,6 +288,7 @@ export default {
       shopName: "",
       dialog: false,
       schedule: null,
+      begin: '',
 
       recommended: [],
 
@@ -336,7 +355,7 @@ export default {
     },
     filteredStaff() {
       return this.staff.filter(p => {
-        return (p.uid.indexOf(this.search2 || '') !== -1 || p.username.indexOf(this.search2 || '') !== -1 || p.position.indexOf(this.search2 || '') !== -1) && p.id!==0
+        return (p.uid.indexOf(this.search2 || '') !== -1 || p.username.indexOf(this.search2 || '') !== -1 || p.position.indexOf(this.search2 || '') !== -1) && p.id !== 0 && !(p.id in this.recommended)
       })
     },
   },
@@ -475,8 +494,7 @@ export default {
           events = (await getLatestArr(this.branch)).data;
           console.log(events)
           this.schedule = events.data.id
-          let recommended = getRecommendedStaff(events.data.id)
-          console.log(recommended)
+          this.begin = events.data.startAt
 
           this.something_data = events.data
           weeks = events.data.weeks;
@@ -685,15 +703,15 @@ export default {
         console.log(e)
         this.$emit('msg', '排班信息为空，请先生成一个排班')
       }
-      this.ready = true
+      this.ready1 = true
 
     },
     async changeBranch() {
-      this.ready = false
+      this.ready1 = false
       await this.getStaff()
       await this.getArr()
     },
-    openSelected(item) {
+    async openSelected(item) {
       let day = this.startTimes[formatDate(this.selectedEvent.start)]
       let selectedEmployee = day.find(i => i.id === item.id)
       let start, end
@@ -715,6 +733,26 @@ export default {
         avatar: item.avatar,
         timed: true,
         single: true,
+      }
+      await this.getRecommendedStaff()
+
+    },
+    async getRecommendedStaff() {
+      this.ready2=false
+      let recommended = (await getRecommendedStaff({
+        id: this.schedule,
+        begin: this.begin,
+        now: this.selectedEvent.start.getTime()
+      })).data.data
+      this.recommended = recommended
+
+      this.staff.sort(this.compare(recommended))
+      this.ready2=true
+
+    },
+    compare(recommended) {
+      return function (a, b) {
+        return recommended.indexOf(a.id) - recommended.indexOf(b.id)
       }
     },
     async changeSchedule() {
@@ -738,6 +776,14 @@ export default {
     },
   },
 
+  watch: {
+    async selectedOpen(newV) {
+      if (newV && this.type !== 'week') {
+        await this.getRecommendedStaff()
+      }
+    }
+  },
+
   async mounted() {
     // this.$refs.calendar.checkChange()
     if (this.$store.state.isManager) {
@@ -750,7 +796,7 @@ export default {
         }
         else {
           this.branches = []
-          this.ready = true
+          this.ready1 = true
         }
       }).catch((err) => {
         console.log(err)
@@ -789,6 +835,4 @@ export default {
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

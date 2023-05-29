@@ -65,10 +65,17 @@ export const getArrByEmployee = id => {
 }
 
 //获取某个排班的推荐员工
-export const getRecommendedStaff = id => {
+// id: long 排班表id
+// begin: long 排班表第一个时间
+// now: long 当前时间
+export const getRecommendedStaff = params => {
   return request({
     method: 'post',
-    url: `api/schedule/get/recommend/${id}`,
+    url: `api/schedule/get/recommend/${params.id}`,
+    params:{
+      begin:params.begin,
+      now:params.now
+    }
   })
 }
 

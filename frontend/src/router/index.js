@@ -82,7 +82,7 @@ export var adminRoutes = {
       path: 'reviews',
       component: () => import('../view/customerReview'),
       meta: {
-        title: '用户评价',
+        title: '顾客评价',
         selectedItem: 6,
       }
     },{

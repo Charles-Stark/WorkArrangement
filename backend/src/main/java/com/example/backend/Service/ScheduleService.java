@@ -22,7 +22,7 @@ public interface ScheduleService {
 
     ResultVO<Object> deleteSchedule(long id);
 
-    ResultVO<Object> getRecommend(long id, int week, int day, int halfHour);
+    ResultVO<Object> getRecommend(long id, long begin, long now);
 
     boolean changeShift(long scheduleId, long previousEmployee, long currentEmployee, Date beginTime, boolean isOneDay);
 

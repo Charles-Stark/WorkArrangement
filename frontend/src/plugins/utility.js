@@ -12,3 +12,15 @@ export function formatDate(value) { // 时间戳转换日期格式方法
         return y + '-' + MM + '-' + d
     }
 }
+
+
+export function formatTime(value) { // 时间戳转换日期格式方法
+    if (value == null) {
+        return ''
+    } else {
+        const date = new Date(value)
+        const h = date.getHours()// 小时
+        let m = date.getMinutes() // 分
+        return h + ':'+m
+    }
+}

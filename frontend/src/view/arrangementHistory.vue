@@ -2,7 +2,7 @@
     <v-container>
         <v-row>
             <v-col cols="2">
-                <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo-inverted
+                <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo
                     interval-minutes="60" no-data-text="没有数据" dense flat hide-details
                     style="max-width:140px;min-width:120px" @change="changeBranch()"
                     v-if="$store.state.isManager"></v-select>

@@ -26,7 +26,7 @@
 
                     <v-spacer></v-spacer>
 
-                    <v-text-field v-model="search1" clearable dense flat solo-inverted hide-details
+                    <v-text-field v-model="search1" clearable dense flat solo hide-details
                         prepend-inner-icon="mdi-magnify" v-if="$vuetify.breakpoint.mdAndUp" class="mx-2"
                         label="姓名/工号/岗位"></v-text-field>
 

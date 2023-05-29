@@ -6,7 +6,7 @@
         <v-btn v-if="onlyUnread === false" class="mx-3" large depressed @click="checkUnread()">显示未读</v-btn>
         <v-btn v-else class="mx-3" large color="secondary" depressed @click="checkUnread()">全部显示</v-btn>
 
-        <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
+        <v-text-field v-model="search" clearable flat solo hide-details prepend-inner-icon="mdi-magnify"
           label="姓名/日期/时间"></v-text-field>
 
 
@@ -59,7 +59,7 @@
                 <v-img size="70" :src="notice.avatar"></v-img>
               </v-list-item-avatar>
 
-              <v-list-item-content @click="check(notice.type,notice.id)">
+              <v-list-item-content @click="check(notice.type, notice.id)">
                 <v-list-item-title :class="notice.isRead === false ? 'strong--text' : 'grey--text'">
                   {{ notice.fromUsername }}
                 </v-list-item-title>
@@ -197,7 +197,7 @@ export default {
     checkUnread() {
       this.onlyUnread = !this.onlyUnread
     },
-    check(type,id) {
+    check(type, id) {
       setRead(id)
       if (type >= 1 && type <= 3) {
         this.$router.push('/controlpanel/workArrange')

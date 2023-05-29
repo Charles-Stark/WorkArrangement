@@ -5,7 +5,7 @@ import store from './store'
 import router from './router'
 import JsonExcel from "vue-json-excel"
 
-import 'echarts'
+import   'echarts'
 import ECharts from 'vue-echarts'
 Vue.component("downloadExcel",JsonExcel)
 

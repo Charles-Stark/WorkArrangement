@@ -47,8 +47,8 @@ public class ScheduleController {
     }
 
     @PostMapping("/get/recommend/{id}")
-    public ResultVO<Object> getRecommend(@PathVariable long id, @RequestParam("week") int week, @RequestParam("day") int day, @RequestParam("halfHour") int halfHour) {
-        return scheduleService.getRecommend(id, week, day, halfHour);
+    public ResultVO<Object> getRecommend(@PathVariable long id, @RequestParam("begin") long begin, @RequestParam("now") long now) {
+        return scheduleService.getRecommend(id, begin, now);
     }
 
     @PostMapping("/changeShift")

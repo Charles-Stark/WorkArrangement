@@ -16,13 +16,13 @@
           </v-dialog>
 
           <template>
-            <v-text-field v-if="$vuetify.breakpoint.mdAndUp" v-model="search" clearable flat solo-inverted hide-details
+            <v-text-field v-if="$vuetify.breakpoint.mdAndUp" v-model="search" clearable flat solo hide-details
               prepend-inner-icon="mdi-magnify" label="搜索"></v-text-field>
 
             <v-spacer></v-spacer>
 
             <template>
-              <v-select v-model="sortBy" clearable flat solo-inverted hide-details :items="Object.keys(keys)"
+              <v-select v-model="sortBy" clearable flat solo hide-details :items="Object.keys(keys)"
                 prepend-inner-icon="mdi-magnify" label="排序"></v-select>
             </template>
 

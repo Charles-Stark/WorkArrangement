@@ -18,6 +18,35 @@ export const applyAbsence = data => {
     })
 }
 
+//按门店获取请假列表
+export const getAbsenceByShop = id => {
+    return request({
+        method: 'get',
+        url: `api/absence/get/shop/${id}`,
+    })
+}
+
+//同意或拒绝请假
+// id: long 请假记录id
+// approve: boolean 是否通过（true为通过，false为拒绝）
+export const approveAbsence = params => {
+    return request({
+        method: 'post',
+        url: `api/absence/approve`,
+        params
+    })
+}
+
+
+//获取请假附件
+export const getAttachment = id => {
+    return request({
+        method: 'get',
+        url: `api/absence/get/photo/${id}`,
+    })
+}
+
+
 //按管理员获取请假列表
 export const getAbsenceList = id => {
     return request({
@@ -25,3 +54,5 @@ export const getAbsenceList = id => {
         url: `api/absence/get/list/${id || store.state.userId}`,
     })
 }
+
+

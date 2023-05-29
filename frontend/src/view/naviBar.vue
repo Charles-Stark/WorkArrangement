@@ -155,7 +155,7 @@
             <v-list-item-icon>
               <v-icon>mdi-message-processing</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>用户评价</v-list-item-title>
+            <v-list-item-title>顾客评价</v-list-item-title>
           </v-list-item>
 
           <v-list-item to="settings" link>

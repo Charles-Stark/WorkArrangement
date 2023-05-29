@@ -5,7 +5,7 @@
                 <img src="../assets/title1-1.png" alt="门店客户信息">
             </div>
             <!-- 折线图 -->
-            <e-charts class="chart1" :option="option1" />
+            <e-charts class="chart1" :option="option1" autoresize/>
         </v-card>
 
         <div class="part3">
@@ -13,14 +13,14 @@
                 <div class="title2">
                     <img src="../assets/title1-2.png" alt="门店销售详情">
                 </div>
-                <e-charts class="chart2" :option="option2" />
+                <e-charts class="chart2" :option="option2" autoresize/>
             </v-card>
 
             <v-card class="part5">
                 <div class="title2">
                     <img src="../assets/title1-3.png" alt="门店部门业绩">
                 </div>
-                <e-charts class="chart3" :option="option3" />
+                <e-charts class="chart3" :option="option3" autoresize />
             </v-card>
         </div>
         <!-- <v-card class="part1">

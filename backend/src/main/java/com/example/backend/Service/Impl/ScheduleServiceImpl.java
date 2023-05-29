@@ -2,12 +2,10 @@ package com.example.backend.Service.Impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.backend.POJO.Employee;
 import com.example.backend.POJO.EmployeeToSchedule;
 import com.example.backend.POJO.Flow;
 import com.example.backend.POJO.Schedule;
 import com.example.backend.Service.*;
-import com.example.backend.VO.EmployeeVO;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.VO.ScheduleVO;
 import com.example.backend.mapper.EmployeeToScheduleMapper;
@@ -182,15 +180,35 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ResultVO<Object> getRecommend(long id, int week, int day, int halfHour) {
-        try {
-            scheduleMapper.selectById(id);
-            LinkedList<Long> employees = arranger.getSuitableEmployees(id, week, day, halfHour);
-            LinkedList<EmployeeVO> employeeVOLinkedList = new LinkedList<>();
-            for (long eid : employees) {
-                employeeVOLinkedList.add((EmployeeVO) employeeService.getEmployee(eid).getData());
+    public ResultVO<Object> getRecommend(long id, long begin, long now) {
+        long time=now-begin;
+        long days=time/(24*60*60*1000);
+        int week=(int) days/7;
+        int day=(int) days%7;
+        int halfHour=0;
+        Schedule schedule= scheduleMapper.selectById(id);
+        Schedule.Week week1 = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(week)), Schedule.Week.class);
+        Schedule.WorkUnit[][] week2=week1.getData();
+        Schedule.WorkUnit[] unit=week2[day];
+        System.out.println("week="+week+",day="+day+",halfhour="+halfHour);
+        Date now1=new Date();
+        now1.setTime(now);
+        for(int i=0;i<unit.length;i++){
+            if(unit[i]==null) continue;
+            else if(unit[i].getBeginTime().getTime()==now) {
+                halfHour = i;
+                break;
             }
-            return new ResultVO<>(0, "获取成功", arranger.transTo(employeeVOLinkedList));
+            else if(i<unit.length-1&&unit[i].getBeginTime().before(now1)&&unit[i+1].getBeginTime().after(now1)) {
+                halfHour = i;
+                break;
+            }
+            else if(i==unit.length-1) halfHour=i;
+        }
+        try {
+            LinkedList<Long> employees = arranger.getSuitableEmployees(id, week, day, halfHour);
+
+            return new ResultVO<>(0, "获取成功", employees);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResultVO<>(-1, "获取失败", null);

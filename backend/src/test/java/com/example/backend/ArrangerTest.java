@@ -24,6 +24,5 @@ public class ArrangerTest {
     RuleServiceImpl ruleService;
     @Test
     void test(){
-       // ruleService.addRule();
     }
 }

@@ -17,7 +17,7 @@
           </v-dialog>
 
           <template>
-            <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
+            <v-text-field v-model="search" clearable flat solo hide-details prepend-inner-icon="mdi-magnify"
               label="搜索"></v-text-field>
           </template>
         </v-toolbar>

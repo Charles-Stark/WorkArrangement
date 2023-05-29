@@ -1,13 +1,17 @@
 <template>
-  <v-data-iterator v-if="absenceList.length !== 0 && ready" :items="filteredItems" :page.sync="page" :search="search" :sort-by="keys[sortBy]" :sort-desc="sortDesc"
-    hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
+  <v-data-iterator v-if="absenceList.length !== 0 && ready" :items="filteredItems" :page.sync="page" :search="search"
+    :sort-by="keys[sortBy]" :sort-desc="sortDesc" hide-default-footer no-results-text="没有搜索结果" no-data-text="没有数据">
     <template v-slot:header>
       <v-toolbar class="mb-1" rounded :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat>
-        <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
+        <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo interval-minutes="60"
+          no-data-text="没有数据" flat hide-details style="max-width:140px;min-width:120px" @change="changeBranch()"
+          v-if="$store.state.isManager" class="mr-2"></v-select>
+        <span v-if="!$store.state.isManager" class="text-h6 ml-3">{{ shopName }}</span>
+        <v-text-field v-model="search" clearable flat solo hide-details prepend-inner-icon="mdi-magnify" class="mr-2"
           label="搜索"></v-text-field>
         <template v-if="$vuetify.breakpoint.mdAndUp">
           <v-spacer></v-spacer>
-          <v-select v-model="sortBy" clearable flat solo-inverted hide-details :items="Object.keys(keys)"
+          <v-select v-model="sortBy" clearable flat solo hide-details :items="Object.keys(keys)"
             prepend-inner-icon="mdi-magnify" label="排序"></v-select>
           <v-spacer></v-spacer>
         </template>
@@ -46,7 +50,7 @@
           </v-col>
           <v-col cols="3" md="2">
             <v-list-item-content>
-              {{ item.employeeId }}
+              {{ item.employee.uid }}
             </v-list-item-content>
           </v-col>
           <v-col cols="3" md="2">
@@ -80,7 +84,7 @@
                   请假条
                 </v-card-title>
                 <v-card-text class="text-h6 mt-4">
-                  工号: {{ item.employeeId }}
+                  工号: {{ item.employee.uid }}
                 </v-card-text>
                 <v-card-text class="text-h6">
                   姓名: 小明
@@ -94,7 +98,7 @@
 
                 </v-card-text>
                 <v-card-text class="text-h6">
-                  相关附件:
+                  相关附件:{{ attachment }}
                 </v-card-text>
                 <v-img class="mx-15" :src="item.employeeId"></v-img>
                 <v-card-actions class="mt-4">
@@ -102,10 +106,10 @@
                   <v-btn color="grey" text @click="close(item)" large>
                     返回
                   </v-btn>
-                  <v-btn color="error" text @click="reject(item)" large>
+                  <v-btn color="error" text @click="approve(item, false)" large>
                     拒绝
                   </v-btn>
-                  <v-btn color="success" text @click="approve(item)" large>
+                  <v-btn color="success" text @click="approve(item, true)" large>
                     批准
                   </v-btn>
                 </v-card-actions>
@@ -122,6 +126,7 @@
       <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"></v-pagination>
     </template>
   </v-data-iterator>
+
   <v-container v-else-if="!ready">
     <v-row>
       <v-col cols="12" v-for="index of 6" :key="index">
@@ -134,21 +139,32 @@
       <v-col class="text-h5 text-center" cols="12">
         没有请假信息
       </v-col>
+      <v-col class="text-h5 text-center" cols="12">
+        <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo interval-minutes="60"
+          no-data-text="没有数据" flat hide-details style="max-width:140px;min-width:120px" @change="changeBranch()"
+          v-if="$store.state.isManager" class="mx-auto"></v-select>
+      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { getAbsenceList } from '@/request/absence'
+import { getAbsenceByShop, approveAbsence, getAttachment } from '@/request/absence'
+import { getAllShop, getShopInfo } from '@/request/shop'
 import { formatDate } from '@/plugins/utility'
+import { getEmployee } from '@/request/staff'
+
 
 export default {
   data() {
     return {
+      branches: [],
+      branch: '',
+      shopName: '',
       search: '',
       sortDesc: false,
       page: 1,
-      ready:false,
+      ready: false,
       itemsPerPage: 10,
       sortBy: null,
       keys: {
@@ -176,18 +192,27 @@ export default {
 
   },
   methods: {
-
-    approve(item) {
-      item.isApproved = true
-      item.dialog = false
-      this.$emit('msg', '处理成功')
-
+    async approve(item, handle) {
+      let response = (await approveAbsence({
+        id: item.id,
+        approve: handle
+      })).data
+      if (response.code === 0) {
+        this.$emit('msg', '处理成功')
+        item.isApproved = handle
+        item.dialog = false
+      }
     },
-    reject(item) {
-      item.isApproved = false
-      item.dialog = false
-      this.$emit('msg', '处理成功')
-
+    async changeBranch() {
+      let response = (await getAbsenceByShop(this.branch)).data.data
+      if (response) {
+        console.log(response)
+        for (let a of response) {
+          a.absenceDate = formatDate(a.absenceDate)
+        }
+        this.absenceList = response
+      }
+      this.ready = true
     },
     nextPage() {
       if (this.page + 1 <= this.numberOfPages) this.page += 1
@@ -204,18 +229,22 @@ export default {
   },
 
   async mounted() {
-    let respond= (await getAbsenceList()).data
-    if(respond.code===0){
-      let absenceList=respond.data
-      absenceList.forEach(abs => {
-        abs.absenceDate=formatDate(abs.absenceDate)
-      });
-      this.absenceList=absenceList
-      console.log(respond.data)
-    }else if(respond.code===-1){
-      this.$emit('msg', '获取请假列表失败')
+    if (this.$store.state.isManager) {
+      let branches = (await getAllShop()).data.data
+      if (branches.length !== 0) {
+        this.branch = branches[0].id
+      } else {
+        branches = []
+      }
+      this.branches = branches
     }
-    this.ready=true
+    else if (this.$store.state.isShopManager) {
+      let employee = (await getEmployee()).data.data
+      let shop = (await getShopInfo(employee.shop)).data.data
+      this.branch = shop.id
+      this.shopName = shop.name
+    }
+    await this.changeBranch()
   }
 }
 </script>
