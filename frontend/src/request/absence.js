@@ -43,6 +43,7 @@ export const getAttachment = id => {
     return request({
         method: 'get',
         url: `api/absence/get/photo/${id}`,
+        responseType: 'blob'
     })
 }
 

@@ -50,12 +50,12 @@
           </v-col>
           <v-col cols="3" md="2">
             <v-list-item-content>
-              {{ item.employee.uid }}
+              {{ item.employeeVO.uid }}
             </v-list-item-content>
           </v-col>
           <v-col cols="3" md="2">
             <v-list-item-content>
-              小明
+              {{ item.employeeVO.username }}
             </v-list-item-content>
           </v-col>
           <v-col cols="4" class="hidden-sm-and-down">
@@ -84,10 +84,10 @@
                   请假条
                 </v-card-title>
                 <v-card-text class="text-h6 mt-4">
-                  工号: {{ item.employee.uid }}
+                  工号: {{ item.employeeVO.uid }}
                 </v-card-text>
                 <v-card-text class="text-h6">
-                  姓名: 小明
+                  姓名: {{ item.employeeVO.username }}
                 </v-card-text>
                 <v-card-text class="text-h6">
                   请假时间: {{ item.absenceDate }}
@@ -98,9 +98,9 @@
 
                 </v-card-text>
                 <v-card-text class="text-h6">
-                  相关附件:{{ attachment }}
+                  相关附件:
                 </v-card-text>
-                <v-img class="mx-15" :src="item.employeeId"></v-img>
+                <v-img class="mx-15" :src="item.attachment"></v-img>
                 <v-card-actions class="mt-4">
                   <v-spacer></v-spacer>
                   <v-btn color="grey" text @click="close(item)" large>
@@ -209,10 +209,16 @@ export default {
         console.log(response)
         for (let a of response) {
           a.absenceDate = formatDate(a.absenceDate)
+          a.attachment = ''
         }
         this.absenceList = response
       }
       this.ready = true
+
+      for (let a of response) {
+        let attachment = (await getAttachment(a.id)).data
+        a.attachment = URL.createObjectURL(attachment)
+      }
     },
     nextPage() {
       if (this.page + 1 <= this.numberOfPages) this.page += 1
