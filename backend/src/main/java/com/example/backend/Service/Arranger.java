@@ -2,10 +2,13 @@ package com.example.backend.Service;
 
 import java.util.*;
 
+import com.alibaba.fastjson.JSON;
 import com.example.backend.POJO.*;
 import com.example.backend.VO.EmployeeVO;
+import com.example.backend.VO.ScheduleVO;
 import com.example.backend.mapper.ScheduleMapper;
 import lombok.Data;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +32,7 @@ public class Arranger {
     private int maxWorkingDay=5;
     private List<Prefer> preference;
     private List<Staff> staffList;
-    private Map<Staff,Float> matchingDegree;
+    private Map<Staff,Float>matchingDegree=new HashMap<>();;
     private ArrayList<String> prepare,closing,service;
     private boolean balanced=false;
     public void setRule(Rule rule){ //原始客流量预测包含1小时准备时间，不包含收尾时间，即时间为8:00-21:00，不包含21:00之后的半小时
@@ -98,6 +101,7 @@ public class Arranger {
             }
         }
         public TimeStaffNum(List<Schedule.WorkUnit> hours){
+            if(hours.get(0)==null) return;
             minStaffNum=0;
             currentStaffNum=0;
             startTime= hours.get(0).getBeginTime();
@@ -392,10 +396,10 @@ public class Arranger {
             return staffs;
         }
         public LinkedList<Staff> toStaff(ArrayList<Long> employees){
-            List<Employee> employeeList=new ArrayList<>();
+            List<EmployeeVO> employeeVOList=new ArrayList<>();
             for(Long id:employees)
-                employeeList.add((Employee) employeeService.getEmployee(id).getData());
-            return new LinkedList<>(this.toStaff(employeeList));
+                employeeVOList.add((EmployeeVO) employeeService.getEmployee(id).getData());
+            return new LinkedList<>(this.toStaff(transTo(employeeVOList)));
         }
         public double getContinuousWorkTime(List<TimeStaffNum> timeStaffNumList, int index){
             int start=0,end= timeStaffNumList.size()-1;
@@ -767,6 +771,7 @@ public class Arranger {
         for(ArrayList<TimeStaffNum> timeStaffNums:timeStaffNumList){
             if(t%7==0) for(Staff staff:staffList) staff.weekWorkTime=0;
             for(TimeStaffNum timeStaffNum:timeStaffNums){
+                if(timeStaffNum.workUnits==null) continue;
                 for(TimeStaffNum.WorkUnit workUnit:timeStaffNum.workUnits){
                     for(Staff staff:workUnit.staffs){
                         staff.setDayWorkTime(0.5);
@@ -943,7 +948,6 @@ public class Arranger {
         //获取初始结果
         int index=0;
         int t=0,last1= timeStaffNumList.size()-1;
-        matchingDegree=new HashMap<>();
         ArrayList<Staff> profit=new ArrayList<>();
         if(service.size()==1) profit.addAll(staffList);
         else
@@ -1122,7 +1126,9 @@ public class Arranger {
     }
     public ArrayList<Employee> transTo(List<EmployeeVO> employeeVOs){
         ArrayList<Employee> employees=new ArrayList<>();
-        for(EmployeeVO employeeVO:employeeVOs) employees.add(new Employee(employeeVO.getId(),employeeVO.getUid(),employeeVO.getPosition(),employeeVO.getShop(),employeeVO.getSalary(),employeeVO.getTime()));
+        for(EmployeeVO employeeVO:employeeVOs)
+            if(employeeVO!=null)
+                employees.add(new Employee(employeeVO.getId(),employeeVO.getUid(),employeeVO.getPosition(),employeeVO.getShop(),employeeVO.getSalary(),employeeVO.getTime()));
         return employees;
     }
     public ArrayList<Long> transBack(LinkedList<Staff> staffs){
@@ -1180,31 +1186,27 @@ public class Arranger {
         }
         return staffs;
     }
+    @Autowired
+    ScheduleService scheduleService;
     //关于参数：weekNum：在该组排班中，该周是第几周；dayNum：在该周中，这是第几天，halfHourNum：在该天中，第几个半小时
-    //关于输出结果：结果为员工的id，前3个为推荐员工（这个3是写死的，不管总最终结果如何至少是3个），后面是其他可供选择的员工（若总可供选择的员工数小于3个则没有其他员工）
-    //推荐员工和其他员工中间有个id值为-1间隔
+    //关于输出结果：结果为所有符合要求的员工的id，按照匹配度排列
     public LinkedList<Long> getSuitableEmployees(long scheduleId,int weekNum,int dayNum,int halfHourNum){
-        Schedule schedule=scheduleMapper.selectById(scheduleId);
+        Schedule schedule=(Schedule) scheduleService.getScheduleById(scheduleId).getData();
         long shopId=schedule.getShop();
-        LinkedList<Employee> employees=new LinkedList<>();
         ArrayList<Schedule.Week> weeks=schedule.getWeeks();
-        Schedule.WorkUnit[][] week=weeks.get(weekNum).getData();
-        employees.addAll((List<Employee>) employeeService.getEmployeeByShop(shopId));
+        Schedule.Week week1 = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(weekNum)), Schedule.Week.class);
+        Schedule.WorkUnit[][] week=week1.getData();
+        //LinkedList<Employee> employees = new LinkedList<>((List<Employee>) employeeService.getEmployeeByShop(shopId).getData());
+        List<EmployeeVO> employeeVoList = (List<EmployeeVO>) employeeService.getEmployeeByShop(shopId).getData();
+        List<Employee> employees = transTo(employeeVoList);
+        staffList=new Staff().toStaff(employees);
 
         ArrayList<ArrayList<TimeStaffNum>> days = scheduleToTimestaffnum(week);
         countWorkTime(days);
         ArrayList<TimeStaffNum> day=days.get(dayNum);
-        List<Staff> staffs = new Staff().toStaff((List<Employee>) employeeService.getEmployeeByShop(shopId).getData());
         int dayOfWeek=getDayOfWeek(day.get(0).startTime);
         List<Staff> selected=getSelected(day);
-        staffs.removeAll(selected);
-//        Schedule.WorkUnit[] day=week[dayNum];
-//        for (int j = 0; j < day.length; j++) {
-//            if (day[j] != null) {
-//                employees.addAll(day[j].getEmployees());
-//            }
-//        }
-//        List<Employee> hasSelected=
+        staffList.removeAll(selected);
 
         matchingDegree.clear();
         TimeStaffNum timeStaffNum=day.get(halfHourNum/4);
@@ -1215,7 +1217,7 @@ public class Arranger {
         if(!m.find()) System.out.println("not match");
         start = m.group().substring(0, 5);
         String end = getEndTime(start);
-        for (Staff staff : staffs) {
+        for (Staff staff : staffList) {
             staff.prefer.mateTime(start,end,dayOfWeek,staff);
         }
         List<Staff> keySetList= new ArrayList<>(matchingDegree.keySet());
@@ -1224,6 +1226,7 @@ public class Arranger {
         for(Staff staff:keySetList){
             employeeList.add(staff.id);
         }
+        staffList=null;
         return employeeList;
     }
 }
