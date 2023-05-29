@@ -1,7 +1,6 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Absence;
-import com.example.backend.POJO.Schedule;
 import com.example.backend.Service.AbsenceService;
 import com.example.backend.Service.NotificationService;
 import com.example.backend.Service.ScheduleService;

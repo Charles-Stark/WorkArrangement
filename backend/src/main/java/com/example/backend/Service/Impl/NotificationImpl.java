@@ -16,14 +16,13 @@ public class NotificationImpl implements NotificationService {
     @Autowired
     private NotificationMapper notificationMapper;
 
-    private Boolean createNotification(int type, String text, long from, long to) {
+    private void createNotification(int type, String text, long from, long to) {
         Notification notification = new Notification(null, false, from, to, type, text, null);
         try {
             notificationMapper.insert(notification);
         } catch (Exception e) {
-            return false;
+            e.printStackTrace();
         }
-        return true;
     }
 
     @Override
@@ -37,8 +36,9 @@ public class NotificationImpl implements NotificationService {
     }
 
     @Override
-    public void notifyWhenOpenShift(long scheduleId, long from, long to) {
-        createNotification(3, String.valueOf(scheduleId), from, to);
+    public void notifyWhenOpenShift(long scheduleId, long from, long to, long beginTime, long endTime) {
+        // text字段格式："排班表id,开始时间戳,结束时间戳" (英文逗号隔开)
+        createNotification(3, scheduleId + "," + beginTime + "," + endTime, from, to);
     }
 
     @Override
