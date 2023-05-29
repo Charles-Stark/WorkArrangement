@@ -7,6 +7,7 @@ import com.example.backend.POJO.EmployeeToSchedule;
 import com.example.backend.POJO.Flow;
 import com.example.backend.POJO.Schedule;
 import com.example.backend.Service.*;
+import com.example.backend.VO.EmployeeVO;
 import com.example.backend.VO.ResultVO;
 import com.example.backend.VO.ScheduleVO;
 import com.example.backend.mapper.EmployeeToScheduleMapper;
@@ -185,11 +186,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         try {
             scheduleMapper.selectById(id);
             LinkedList<Long> employees = arranger.getSuitableEmployees(id, week, day, halfHour);
-            LinkedList<Employee> employeeLinkedList = new LinkedList<>();
+            LinkedList<EmployeeVO> employeeVOLinkedList = new LinkedList<>();
             for (long eid : employees) {
-                employeeLinkedList.add((Employee) employeeService.getEmployee(eid).getData());
+                employeeVOLinkedList.add((EmployeeVO) employeeService.getEmployee(eid).getData());
             }
-            return new ResultVO<>(0, "获取成功", employeeLinkedList);
+            return new ResultVO<>(0, "获取成功", arranger.transTo(employeeVOLinkedList));
         } catch (Exception e) {
             e.printStackTrace();
             return new ResultVO<>(-1, "获取失败", null);
