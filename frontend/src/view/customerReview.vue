@@ -2,12 +2,11 @@
     <div>
         <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat
             v-if="$store.state.isManager || $store.state.isShopManager">
-            <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo
-                interval-minutes="60" no-data-text="没有数据" dense flat hide-details style="max-width:140px;min-width:120px"
-                @change="changeBranch()" v-if="$store.state.isManager"></v-select>
+            <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo interval-minutes="60"
+                no-data-text="没有数据" dense flat hide-details style="max-width:140px;min-width:120px" @change="changeBranch()"
+                v-if="$store.state.isManager"></v-select>
             <span v-if="!$store.state.isManager" class="text-h6 ml-3">{{ shopName }}</span>
             <v-spacer></v-spacer>
-
             <v-dialog offset-y width="350" persistent v-model="dialog">
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn color="primary" dark v-bind="attrs" v-on="on" class="mr-2" outlined depressed>
@@ -38,9 +37,58 @@
             </v-dialog>
         </v-toolbar>
 
-        <v-row>
+        <v-row class="mt-3 mx-3">
+            <v-col cols="12" md="6" lg="3">
+                <v-card :color="!this.$vuetify.theme.dark ? '#e1e9ff' : '#303538'" height="160">
+                    <v-card-subtitle>推荐员工安排系数</v-card-subtitle>
+                    <v-card-subtitle class="text-h3">
+                        {{ analysis.optimizedValue }}
+                        <p class="text-body-2 grey--text mt-2">
+                            /排班中每个员工负责服务顾客人数</p>
+                    </v-card-subtitle>
+                </v-card>
+            </v-col>
+            <v-col cols="12" md="6" lg="3">
+                <v-card :color="!this.$vuetify.theme.dark ? '#c9f7f5' : '#107371'" height="160">
+                    <v-card-subtitle>NPS(净推荐值)指数</v-card-subtitle>
+                    <v-card-subtitle class="text-h3">
+                        {{ analysis.nps }}
+                        <span class="text-body-1 grey--text">%</span>
+                        <p class="text-body-2 grey--text mt-2">
+                            当前指数分析:{{ analysis.nps < 10 ? '较低' : analysis.nps < 50 ? '正常' : '较高' }}</p>
+                    </v-card-subtitle>
+                </v-card>
+            </v-col>
+            <v-col cols="12" md="6" lg="3">
+                <v-card :color="!this.$vuetify.theme.dark ? '#fff4de' : '#503500'" height="160">
+                    <v-card-subtitle>顾客满意度</v-card-subtitle>
+                    <v-card-subtitle class="text-h3">
+                        {{ analysis.satisfaction }}
+                        <span class="text-body-1 grey--text">/5</span>
+                        <p class="text-body-2 grey--text mt-2">
+                            当前指数分析:{{ analysis.satisfaction < 2.5 ? '较低' : analysis.satisfaction < 4 ? '正常' : '较高' }}</p>
+                    </v-card-subtitle>
+
+                </v-card>
+            </v-col>
+
+            <v-col cols="12" md="6" lg="3">
+                <v-card :color="!this.$vuetify.theme.dark ? '#ffe2e5' : '#66000b'" height="160">
+                    <v-card-subtitle>顾客推荐指数</v-card-subtitle>
+                    <v-card-subtitle class="text-h3">
+                        {{ analysis.q6 }}
+                        <span class="text-body-1 grey--text">/10</span>
+                        <p class="text-body-2 grey--text mt-2">
+                            当前指数分析:{{ analysis.q6 < 4 ? '较低' : analysis.q6 < 7 ? '正常' : '较高' }}</p>
+                    </v-card-subtitle>
+                </v-card>
+            </v-col>
+
             <v-col cols="12">
-                <e-charts style="height: 300px;width: 100%;" autoresize :option="option" />
+                <v-card elevation="4">
+                    <v-card-title>问卷分析</v-card-title>
+                    <e-charts style="height: 300px;width: 100%;" autoresize :option="option" />
+                </v-card>
             </v-col>
         </v-row>
     </div>
@@ -85,13 +133,13 @@ export default {
         option() {
             return {
                 xAxis: {
-                    data: ['服务质量', '门店环境', '整体分区布局', '卫生状况', '人员数量', '推荐指数']
+                    data: ['服务质量', '门店环境', '整体分区布局', '卫生状况', '人员数量']
                 },
                 yAxis: {},
                 series: [
                     {
                         type: 'bar',
-                        data: [this.analysis.q1, this.analysis.q2, this.analysis.q3, this.analysis.q4, this.analysis.q5, this.analysis.q6]
+                        data: [this.analysis.q1, this.analysis.q2, this.analysis.q3, this.analysis.q4, this.analysis.q5]
                     }
                 ]
             }
@@ -103,12 +151,22 @@ export default {
         async changeBranch() {
             let response = (await getAnalysis(this.branch)).data.data
             if (response) {
-                response.q6/=2
+                response.optimizedValue = response.optimizedValue.toFixed(2)
                 this.analysis = response
             }
             else {
-                this.analysis = {}
-                this.$emit('msg', '没有数据，请先上传分析文件')
+                this.analysis = {
+                    nps: 0,
+                    optimizedValue: 0,
+                    q1: 0,
+                    q2: 0,
+                    q3: 0,
+                    q4: 0,
+                    q5: 0,
+                    q6: 0,
+                    satisfaction: 0
+                },
+                    this.$emit('msg', '没有数据，请先上传分析文件')
             }
         },
         async upload() {
@@ -119,8 +177,8 @@ export default {
                 let response = (await uploadFile(formData)).data
                 if (response.code === 0) {
                     this.$emit('msg', '上传成功')
+                    response.data.optimizedValue = response.data.optimizedValue.toFixed(2)
                     this.analysis = response.data
-                    this.analysis.q6 /= 2
                 } else if (response.code === -1) {
                     this.$emit('msg', '上传失败')
                 }
@@ -154,3 +212,9 @@ export default {
 
 }
 </script>
+
+<style scoped>
+.v-card:not(.v-sheet--outlined) {
+    box-shadow: 0 0 6rem 1rem rgba(0, 0, 0, 0.226);
+}
+</style>
