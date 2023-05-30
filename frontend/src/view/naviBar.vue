@@ -8,7 +8,7 @@
 
       <v-menu offset-y allow-overflow min-width="400">
         <template v-slot:activator="{ on, attrs }">
-          <v-badge :value="unReadNum" :content="unReadNum" overlap bordered dot>
+          <v-badge :value="unReadNum" :content="unReadNum" overlap bordered dot color="error">
             <v-btn icon v-bind="attrs" v-on="on">
               <v-icon>mdi-bell-outline</v-icon>
             </v-btn>
@@ -16,36 +16,60 @@
 
         </template>
 
-        <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length !== 0">
-          <v-list-item-title class="text-h4 ma-4">通知</v-list-item-title>
+        <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="notices.length !== 0 && ready">
+          <v-list-item-title class="text-h5 ma-4">通知</v-list-item-title>
           <v-divider class="mt-2"></v-divider>
-          <div v-for="notice of notices" :key="notice.id">
-            <v-list-item @click="1">
 
-              <v-list-item-avatar>
-                <v-img size="70" :src="notice.avatar"></v-img>
-              </v-list-item-avatar>
+          <v-virtual-scroll bench="10" :items="notices" :item-height="63" height="400" width="400">
+            <template v-slot:default="{ item }">
 
-              <v-list-item-content @click="check()">
-                <v-list-item-title :class="notice.isRead === false ? 'strong--text' : 'grey--text'">
-                  {{ messages[notice.type] }}
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ notice.createAt }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider class="mx-3"></v-divider>
+              <v-list-item @click="check()">
+                <v-list-item-avatar>
+                  <v-img size="70" :src="item.avatar"></v-img>
+                </v-list-item-avatar>
 
-          </div>
+                <v-list-item-content @click="check()">
+                  <v-list-item-title :class="item.isRead === false ? 'strong--text' : 'grey--text'">
+                    {{ messages[item.type] }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ item.createAt }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+
+            </template>
+          </v-virtual-scroll>
 
           <v-subheader><v-icon>mdi-menu-right</v-icon> <router-link to="/controlpanel/notifications"
               style="text-decoration:none">进入通知中心查看全部消息</router-link></v-subheader>
         </v-list>
 
-        <v-card v-else>
-          暂无消息
-        </v-card>
+        <v-sheet v-else-if="!ready">
+          <v-container style="height:550px;">
+            <v-row class="fill-height" align-content="center" justify="center">
+              <v-col class="text-h5 text-center" cols="12">
+                正在加载通知
+              </v-col>
+              <v-col cols="6">
+                <v-progress-linear color="primary accent-4" indeterminate rounded height="6"></v-progress-linear>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-sheet>
+
+        <v-sheet v-else>
+          <v-container style="height: 550px;">
+            <v-row class="fill-height" align-content="center" justify="center">
+              <v-col class="text-h5 text-center" cols="12">
+                没有通知
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-sheet>
+
+
 
       </v-menu>
 
@@ -191,9 +215,9 @@
 </template>
 
 <script>
-import {getUserAvatar, getUserInfo, logout} from '@/request/user'
-import {getNotisByCount} from '@/request/notis'
-import {formatDate} from '@/plugins/utility'
+import { getUserAvatar, getUserInfo, logout } from '@/request/user'
+import { getNotisByCount } from '@/request/notis'
+import { formatDate } from '@/plugins/utility'
 
 export default {
   data: () => ({
@@ -201,6 +225,7 @@ export default {
     snackBarText: '',
     drawer: false,
     miniManual: false,
+    ready: false,
 
     user: {
       avatar: '',
@@ -302,21 +327,20 @@ export default {
     getNotisByCount(10).then(async res => {
       const notices = res.data.data;
       for (const notice of notices) {
-
-        const avatar = await getUserAvatar(notice.fromUser);
-        if (avatar.status === 200) {
-          notice.avatar = URL.createObjectURL(avatar.data)
-        }
-        else {
-          notice.avatar = require('../assets/defaultAvatar.png')
-        }
-
-
+        notice.avatar = require('../assets/defaultAvatar.png')
         let time = new Date(notice.createAt)
         notice.createAt = formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
       }
       this.notices = notices
       if (notices.length === 0) this.notices = []
+      this.ready = true
+
+      for (const notice of notices) {
+        const avatar = await getUserAvatar(notice.fromUser);
+        if (avatar.status === 200) {
+          notice.avatar = URL.createObjectURL(avatar.data)
+        }
+      }
 
     }).catch(() => {
       this.$emit('msg', '网络错误')

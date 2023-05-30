@@ -107,7 +107,7 @@
     </template>
 
     <template v-slot:footer v-if="ready & notices.length !== 0">
-      <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"></v-pagination>
+      <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary" :total-visible="7"></v-pagination>
     </template>
 
   </v-data-iterator>

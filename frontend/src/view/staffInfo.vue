@@ -201,7 +201,7 @@
       </template>
 
       <template v-slot:footer v-if="ready2 && staff.length !== 0">
-        <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"></v-pagination>
+        <v-pagination class="mt-4" v-model="page" :length="numberOfPages" :total-visible="7" color="secondary"></v-pagination>
       </template>
 
     </v-data-iterator>

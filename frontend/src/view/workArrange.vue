@@ -105,20 +105,19 @@
                 @click="selectedEmployee = 0; dialog = true"><v-icon>mdi-open-in-app</v-icon></v-btn>
             </v-toolbar>
 
-            
+
 
             <div v-if="ready2">
 
-              <v-text-field v-model="search2" clearable dense flat solo hide-details
-              prepend-inner-icon="mdi-magnify" v-if="selectedEvent.single === true || type !== 'week'" class="ma-2"
-              label="姓名/工号"></v-text-field>
+              <v-text-field v-model="search2" clearable dense flat solo hide-details prepend-inner-icon="mdi-magnify"
+                v-if="selectedEvent.single === true || type !== 'week'" class="ma-2" label="姓名/工号"></v-text-field>
 
               <div v-if="type !== 'week' || selectedEvent.single === true">
                 <v-list-item-title class=" ml-3 grey--text text-subtitle" v-if="search2 === null">推荐员工</v-list-item-title>
                 <v-list-item @click="selectedEmployee = s.id; dialog = true" v-for="s of filteredStaff.slice(0, 3)"
                   :key="s.id">
                   <v-list-item-avatar>
-                    <v-img :src="s.avatar"></v-img>
+                    <v-img :src="avatars[s.id]"></v-img>
                   </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title>{{ s.username }}</v-list-item-title>
@@ -138,7 +137,7 @@
                   <v-list-item
                     @click="selectedEvent.single === true ? (selectedEmployee = item.id, dialog = true) : openSelected(item, index)">
                     <v-list-item-avatar>
-                      <v-img :src="item.avatar"></v-img>
+                      <v-img :src="avatars[item.id]"></v-img>
                     </v-list-item-avatar>
 
                     <v-list-item-content>
@@ -158,7 +157,7 @@
                 <template v-slot:default="{ item }">
                   <v-list-item @click="selectedEmployee = item.id; dialog = true">
                     <v-list-item-avatar>
-                      <v-img :src="item.avatar"></v-img>
+                      <v-img :src="avatars[item.id]"></v-img>
                     </v-list-item-avatar>
 
                     <v-list-item-content>
@@ -245,6 +244,7 @@ import { getLatestArr, getArrByEmployee, getRecommendedStaff, alterSchedule } fr
 import { formatDate } from '@/plugins/utility'
 import newArrangement from '../components/newArrangement.vue'
 import newAbsence from '../components/newAbsence.vue'
+import { time } from 'echarts'
 
 export default {
   components: {
@@ -289,6 +289,9 @@ export default {
       dialog: false,
       schedule: null,
       begin: '',
+      avatars: {},
+
+
 
       recommended: [],
 
@@ -403,7 +406,12 @@ export default {
     },
     viewDay({ date }) {
       this.focus = date
-      this.type = 'category'
+      if(this.$store.state.isManager || this.$store.state.isShopManager){
+        this.type = 'category'
+      }
+      else{
+        this.type='day'
+      }
     },
     getEventColor(event) {
       return event.color
@@ -448,25 +456,16 @@ export default {
         }
       }
       const staff = (await getEmployeeByShop(this.branch)).data.data;
+      const avatars = { 0: null }
       staff.forEach(s => {
-        s.avatar = require('../assets/defaultAvatar.png')
+        avatars[s.id] = require('../assets/defaultAvatar.png')
         s.color = this.colors[this.rnd(0, this.colors.length - 1)]
       })
 
       this.staff = staff
+      this.avatars = avatars
 
-
-      for (const s of this.staff) {
-        const avatar = await getUserAvatar(s.id);
-        if (avatar.status === 200) {
-          s.avatar = URL.createObjectURL(avatar.data)
-        }
-        else {
-          s.avatar = require('../assets/defaultAvatar.png')
-        }
-      }
       this.staff.push({
-        avatar: null,
         durationOfShift: '',
         durationOfWeek: '',
         email: '',
@@ -482,7 +481,6 @@ export default {
         color: 'grey'
 
       })
-      if (staff.length === 0) this.staff = []
     },
     async getArr() {
       let events;
@@ -546,7 +544,6 @@ export default {
                             category: e.username,
                             name: e.username,
                             color: e.color,
-                            avatar: e.avatar,
                             position: e.position,
                             uid: e.uid,
                           })
@@ -687,7 +684,6 @@ export default {
                       end: new Date(e.end[i]),
                       name: this.user.username,
                       color: `primary darken-1`,
-                      avatar: this.user.avatar,
                       timed: true
                     })
                   }
@@ -703,13 +699,25 @@ export default {
         console.log(e)
         this.$emit('msg', '排班信息为空，请先生成一个排班')
       }
-      this.ready1 = true
 
+    },
+    async getAvatar() {
+      for (const a of Object.keys(this.avatars)) {
+        if (a !== 0) {
+          const avatar = await getUserAvatar(a);
+          if (avatar.status === 200) {
+            this.avatars[a] = URL.createObjectURL(avatar.data)
+          }
+        }
+      }
     },
     async changeBranch() {
       this.ready1 = false
       await this.getStaff()
       await this.getArr()
+      this.ready1 = true
+
+      await this.getAvatar()
     },
     async openSelected(item) {
       let day = this.startTimes[formatDate(this.selectedEvent.start)]
@@ -730,7 +738,6 @@ export default {
         showEnd: end.getMinutes() === 0 ? end.getHours() + '时' : end.getHours() + ':' + end.getMinutes(),
         name: item.username,
         color: this.selectedEvent.color,
-        avatar: item.avatar,
         timed: true,
         single: true,
       }
@@ -738,17 +745,15 @@ export default {
 
     },
     async getRecommendedStaff() {
-      this.ready2=false
+      this.ready2 = false
       let recommended = (await getRecommendedStaff({
         id: this.schedule,
         begin: this.begin,
         now: this.selectedEvent.start.getTime()
       })).data.data
       this.recommended = recommended
-
       this.staff.sort(this.compare(recommended))
-      this.ready2=true
-
+      this.ready2 = true
     },
     compare(recommended) {
       return function (a, b) {
@@ -785,49 +790,31 @@ export default {
   },
 
   async mounted() {
-    // this.$refs.calendar.checkChange()
     if (this.$store.state.isManager) {
-      getAllShop().then(async res => {
-        this.branches = res.data.data
-        if (this.branches.length !== 0) {
-          this.branch = this.branches[0].id
-          await this.getStaff()
-          await this.getArr()
-        }
-        else {
-          this.branches = []
-          this.ready1 = true
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$emit('msg', '网络错误')
-      })
+      let branches = (await getAllShop()).data.data
+      if (branches.length !== 0) {
+        this.branches = branches
+        this.branch = branches[0].id
+        await this.changeBranch()
+      }
     }
     else if (this.$store.state.isShopManager) {
       let employee = (await getEmployee()).data.data
       let shop = (await getShopInfo(employee.shop)).data.data
       this.branch = shop.id
       this.shopName = shop.name
-      await this.getStaff()
-      await this.getArr()
+      await this.changeBranch()
     }
     else {
       let user = (await getUserInfo()).data.data
-      let avatar = (await getUserAvatar())
-      if (avatar.status === 200) {
-        user.avatar = URL.createObjectURL(avatar.data)
-      }
-      else if (avatar.status === 204) {
-        user.avatar = require('../assets/defaultAvatar.png')
-      }
       this.user = user
-
       let employee = (await getEmployee()).data.data
       let shop = (await getShopInfo(employee.shop)).data.data
       this.staff.push(employee)
       this.branch = shop.id
       this.shopName = shop.name
       await this.getArr()
+      this.ready1=true
     }
 
   }
