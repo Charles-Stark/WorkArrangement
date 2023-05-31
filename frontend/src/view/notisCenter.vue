@@ -110,9 +110,11 @@
               排班认领
             </v-card-title>
             <v-card-subtitle class="mt-2">当前班次安排存在劳动力空缺，点击可以认领排班：</v-card-subtitle>
-            <v-card-text>
-              班次时间：{{ selectedNotice.fromTime }}
-              至 {{ selectedNotice.toTime }}
+            <v-card-text class="text-h6">
+              班次时间：
+              <p>{{ selectedNotice.fromTime }}</p>
+              至 
+              <p>{{ selectedNotice.toTime }}</p>
             </v-card-text>
             <v-card-actions>
               <v-row>

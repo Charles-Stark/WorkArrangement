@@ -719,7 +719,7 @@ export default {
       await this.getAvatar()
     },
     async openSelected(item) {
-      let day = this.startTimes[formatDate(this.selectedEvent.start)]
+      let day = this.startTimes[formatDate(this.selectedEvent.start.getTime())]
       let selectedEmployee = day.find(i => i.id === item.id)
       let start, end
       for (let i = 0; i < selectedEmployee.start.length; i++) {
