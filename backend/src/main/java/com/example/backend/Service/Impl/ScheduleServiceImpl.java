@@ -180,7 +180,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ResultVO<Object> getRecommend(long id, long begin, long now) {
+    public ResultVO<LinkedList<Long>> getRecommend(long id, long begin, long now) {
         long time=now-begin;
         long days=time/(24*60*60*1000);
         int week=(int) days/7;
@@ -271,7 +271,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             if (currentEmployee == 0) {
                 // 开放班次产生
                 for (int i = 0; i < openShifts.size(); i++) {
-                    notifyEmployeesWhenOpenShift(scheduleId, schedule.getManager(), openShifts.get(i), openShifts.get(++i));
+                    notifyEmployeesWhenOpenShift(scheduleId, schedule.getManager(), schedule.getStartAt(), openShifts.get(i), openShifts.get(++i));
                 }
             } else {
                 // 两人之间换班
@@ -308,9 +308,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         return employees;
     }
 
-    private void notifyEmployeesWhenOpenShift(long scheduleId, long manager, Date beginTime, Date endTime) {
-        // TODO select recommended employees
-        for (Long employee : selectEmployeeInvolved(scheduleId)) {
+    private void notifyEmployeesWhenOpenShift(long scheduleId, long manager, Date beginOfSchedule, Date beginTime, Date endTime) {
+        ResultVO<LinkedList<Long>> recommend = getRecommend(scheduleId, beginOfSchedule.getTime(), beginTime.getTime());
+        if (recommend.getData() == null) {
+            return;
+        }
+
+        for (Long employee : recommend.getData()) {
             notificationService.notifyWhenOpenShift(scheduleId, manager, employee, beginTime.getTime(), endTime.getTime());
         }
     }

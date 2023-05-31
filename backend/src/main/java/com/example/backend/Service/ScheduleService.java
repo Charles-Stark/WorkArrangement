@@ -4,6 +4,7 @@ import com.example.backend.POJO.Schedule;
 import com.example.backend.VO.ResultVO;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public interface ScheduleService {
@@ -22,7 +23,7 @@ public interface ScheduleService {
 
     ResultVO<Object> deleteSchedule(long id);
 
-    ResultVO<Object> getRecommend(long id, long begin, long now);
+    ResultVO<LinkedList<Long>> getRecommend(long id, long begin, long now);
 
     boolean changeShift(long scheduleId, long previousEmployee, long currentEmployee, Date beginTime, boolean isOneDay);
 

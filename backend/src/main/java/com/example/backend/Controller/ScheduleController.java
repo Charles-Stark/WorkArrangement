@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -47,7 +48,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/get/recommend/{id}")
-    public ResultVO<Object> getRecommend(@PathVariable long id, @RequestParam("begin") long begin, @RequestParam("now") long now) {
+    public ResultVO<LinkedList<Long>> getRecommend(@PathVariable long id, @RequestParam("begin") long begin, @RequestParam("now") long now) {
         return scheduleService.getRecommend(id, begin, now);
     }
 
