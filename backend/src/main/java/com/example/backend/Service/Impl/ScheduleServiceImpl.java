@@ -181,29 +181,27 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public ResultVO<LinkedList<Long>> getRecommend(long id, long begin, long now) {
-        long time=now-begin;
-        long days=time/(24*60*60*1000);
-        int week=(int) days/7;
-        int day=(int) days%7;
-        int halfHour=0;
-        Schedule schedule= scheduleMapper.selectById(id);
+        long time = now - begin;
+        long days = time / (24 * 60 * 60 * 1000);
+        int week = (int) days / 7;
+        int day = (int) days % 7;
+        int halfHour = 0;
+        Schedule schedule = scheduleMapper.selectById(id);
         Schedule.Week week1 = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(week)), Schedule.Week.class);
-        Schedule.WorkUnit[][] week2=week1.getData();
-        Schedule.WorkUnit[] unit=week2[day];
-        System.out.println("week="+week+",day="+day+",halfhour="+halfHour);
-        Date now1=new Date();
+        Schedule.WorkUnit[][] week2 = week1.getData();
+        Schedule.WorkUnit[] unit = week2[day];
+        System.out.println("week=" + week + ",day=" + day + ",halfhour=" + halfHour);
+        Date now1 = new Date();
         now1.setTime(now);
-        for(int i=0;i<unit.length;i++){
-            if(unit[i]==null) continue;
-            else if(unit[i].getBeginTime().getTime()==now) {
+        for (int i = 0; i < unit.length; i++) {
+            if (unit[i] == null) continue;
+            else if (unit[i].getBeginTime().getTime() == now) {
                 halfHour = i;
                 break;
-            }
-            else if(i<unit.length-1&&unit[i].getBeginTime().before(now1)&&unit[i+1].getBeginTime().after(now1)) {
+            } else if (i < unit.length - 1 && unit[i].getBeginTime().before(now1) && unit[i + 1].getBeginTime().after(now1)) {
                 halfHour = i;
                 break;
-            }
-            else if(i==unit.length-1) halfHour=i;
+            } else if (i == unit.length - 1) halfHour = i;
         }
         try {
             LinkedList<Long> employees = arranger.getSuitableEmployees(id, week, day, halfHour);
@@ -218,6 +216,10 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public boolean changeShift(long scheduleId, long previousEmployee, long currentEmployee, Date beginTime, boolean isOneDay) {
         try {
+            if (previousEmployee == currentEmployee) {
+                return true;
+            }
+
             Schedule schedule = scheduleMapper.selectById(scheduleId);
             boolean afterPeriod = false, inOpenShift = false;
             List<Date> openShifts = new ArrayList<>();
@@ -273,6 +275,9 @@ public class ScheduleServiceImpl implements ScheduleService {
                 for (int i = 0; i < openShifts.size(); i++) {
                     notifyEmployeesWhenOpenShift(scheduleId, schedule.getManager(), schedule.getStartAt(), openShifts.get(i), openShifts.get(++i));
                 }
+            } else if (previousEmployee == 0) {
+                // 开放班次被填充
+                notificationService.notifyWhenScheduleChanged(scheduleId, schedule.getManager(), currentEmployee);
             } else {
                 // 两人之间换班
                 notificationService.notifyWhenScheduleChanged(scheduleId, schedule.getManager(), previousEmployee);
