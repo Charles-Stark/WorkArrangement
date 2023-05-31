@@ -244,7 +244,6 @@ import { getLatestArr, getArrByEmployee, getRecommendedStaff, alterSchedule } fr
 import { formatDate } from '@/plugins/utility'
 import newArrangement from '../components/newArrangement.vue'
 import newAbsence from '../components/newAbsence.vue'
-import { time } from 'echarts'
 
 export default {
   components: {

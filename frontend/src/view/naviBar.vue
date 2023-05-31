@@ -92,7 +92,7 @@
                 {{ user.email }}
               </p>
               <v-divider class="my-3"></v-divider>
-              <v-btn depressed rounded text to="dashboard">
+              <v-btn depressed rounded text to="settings">
                 账户设置
               </v-btn>
               <v-divider class="my-3"></v-divider>
@@ -234,6 +234,7 @@ export default {
     },
 
     notices: [{}],
+    noticeAvatars: {},
 
     messages: {
       1: '发布了一个新的排班表',

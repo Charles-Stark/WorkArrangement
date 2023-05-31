@@ -47,67 +47,92 @@
     </template>
 
     <template v-slot:default="props">
+      <v-row>
+        <v-col>
+          <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="ready">
+            <div v-for="notice of props.items" :key="notice.id">
+              <v-divider></v-divider>
+              <v-hover v-slot="{ hover }">
+                <v-list-item @click="1">
 
+                  <v-list-item-avatar>
+                    <v-img size="70" :src="notice.avatar"></v-img>
+                  </v-list-item-avatar>
 
-      <v-list :color="$vuetify.theme.dark === false ? 'white' : '#121212'" v-if="ready">
-        <div v-for="notice of props.items" :key="notice.id">
-          <v-divider></v-divider>
-          <v-hover v-slot="{ hover }">
-            <v-list-item @click="1">
+                  <v-list-item-content @click="check(notice)">
+                    <v-list-item-title :class="notice.isRead === false ? 'strong--text' : 'grey--text'">
+                      {{ notice.fromUsername }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ messages[notice.type] }}
+                    </v-list-item-subtitle>
+                    <v-list-item-subtitle>
+                      {{ notice.createAt }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action>
 
-              <v-list-item-avatar>
-                <v-img size="70" :src="notice.avatar"></v-img>
-              </v-list-item-avatar>
+                    <v-dialog v-model="notice.dialog" width="300">
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn color="transparent" :class="{ 'show-btns': hover }" v-bind="attrs" v-on="on"
+                          icon><v-icon>mdi-delete</v-icon></v-btn>
+                      </template>
 
-              <v-list-item-content @click="check(notice.type, notice.id)">
-                <v-list-item-title :class="notice.isRead === false ? 'strong--text' : 'grey--text'">
-                  {{ notice.fromUsername }}
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ messages[notice.type] }}
-                </v-list-item-subtitle>
-                <v-list-item-subtitle>
-                  {{ notice.createAt }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
+                      <v-card>
+                        <v-card-title class="text-h6">
+                          确定删除？
+                        </v-card-title>
 
-                <v-dialog v-model="notice.dialog" width="300">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn color="transparent" :class="{ 'show-btns': hover }" v-bind="attrs" v-on="on"
-                      icon><v-icon>mdi-delete</v-icon></v-btn>
-                  </template>
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn color="primary" text @click="notice.dialog = false">
+                            取消
+                          </v-btn>
+                          <v-btn color="error" text @click="deleteNotice(notice.id); notice.dialog = false">
+                            确定
+                          </v-btn>
 
-                  <v-card>
-                    <v-card-title class="text-h6">
-                      确定删除？
-                    </v-card-title>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
 
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="primary" text @click="notice.dialog = false">
-                        取消
-                      </v-btn>
-                      <v-btn color="error" text @click="deleteNotice(notice.id); notice.dialog = false">
-                        确定
-                      </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-hover>
 
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
+            </div>
 
-              </v-list-item-action>
-            </v-list-item>
-          </v-hover>
-
-        </div>
-
-      </v-list>
+          </v-list>
+        </v-col>
+        <v-col cols="4" v-if="selectedNotice">
+          <v-card class="mr-2">
+            <v-card-title class="text-h5">
+              排班认领
+            </v-card-title>
+            <v-card-subtitle class="mt-2">当前班次安排存在劳动力空缺，点击可以认领排班：</v-card-subtitle>
+            <v-card-text>
+              班次时间：{{ selectedNotice.fromTime }}
+              至 {{ selectedNotice.toTime }}
+            </v-card-text>
+            <v-card-actions>
+              <v-row>
+                <v-col cols="4">
+                  <v-btn block text color="primary" @click="selectedNotice = null">返回</v-btn>
+                </v-col>
+                <v-col cols="8">
+                  <v-btn block outlined color="primary">确认认领</v-btn>
+                </v-col>
+              </v-row>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
 
     </template>
 
     <template v-slot:footer v-if="ready & notices.length !== 0">
-      <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary" :total-visible="7"></v-pagination>
+      <v-pagination class="mt-4" v-model="page" :length="numberOfPages" color="secondary"
+        :total-visible="7"></v-pagination>
     </template>
 
   </v-data-iterator>
@@ -130,7 +155,7 @@
 <script>
 import { getNotis, setAllRead, deleteNoti, setRead } from '@/request/notis'
 import { getUserAvatar } from '@/request/user'
-import { formatDate } from '@/plugins/utility'
+import { formatDate, formatTime } from '@/plugins/utility'
 
 export default {
   data() {
@@ -145,6 +170,8 @@ export default {
 
       notices: [{}],
 
+      selectedNotice: null,
+
       filter: 0,
 
       types: {
@@ -155,7 +182,7 @@ export default {
       messages: {
         1: '发布了一个新的排班表',
         2: '变更了排班',
-        3: '有一个开放班次长时间无人认领，点击进行手动排班',
+        3: '有一个开放班次可以认领',
         4: '申请了请假',
         5: '请假审核状态更新'
       }
@@ -197,12 +224,19 @@ export default {
     checkUnread() {
       this.onlyUnread = !this.onlyUnread
     },
-    check(type, id) {
-      setRead(id)
-      if (type >= 1 && type <= 3) {
-        this.$router.push('/controlpanel/workArrange')
+    check(notice) {
+      setRead(notice.id)
+      if (notice.type >= 1 && notice.type < 3) {
+        this.$router.push('/controlpanel/arrange')
       }
-      else if (type === 4) {
+      else if (notice.type === 3) {
+        let fromTime = notice.text.split(',')[1]
+        let toTime = notice.text.split(',')[2]
+        notice.fromTime = formatDate(fromTime) + ' ' + formatTime(fromTime)
+        notice.toTime = formatDate(toTime) + ' ' + formatTime(toTime)
+        this.selectedNotice = notice
+      }
+      else if (notice.type === 4) {
         this.$router.push('/controlpanel/absences')
       }
     },
@@ -233,8 +267,6 @@ export default {
         this.$emit('msg', '网络错误')
       })
     },
-
-
   },
 
   mounted() {
@@ -242,8 +274,7 @@ export default {
       const notices = res.data.data;
       notices.forEach(notice => {
         notice.avatar = require('../assets/defaultAvatar.png')
-        let time = new Date(notice.createAt)
-        notice.createAt = formatDate(notice.createAt) + ' ' + (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
+        notice.createAt = formatDate(notice.createAt) + ' ' + formatTime(notice.createAt)
       })
       this.notices = notices
       if (notices.length === 0) this.notices = []
