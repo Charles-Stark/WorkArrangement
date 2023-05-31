@@ -132,6 +132,63 @@ id: long 管理员id
 }
 ```
 
+## 按门店获取请假列表
+
+发送请求如下
+
+GET请求 /api/absence/get/shop/{id}
+
+```yaml
+id: long 门店id
+```
+
+```json
+{
+  "code": 0,
+  "message": "获取请假列表成功",
+  "data": [
+    {
+      "id": 5,
+      "employeeId": 2,
+      "managerId": 1,
+      "shopId": 1,
+      "reason": "有事",
+      "isApproved": null,
+      "absenceDate": "2023-03-17 00:00:00",
+      "createAt": "2023-03-16 20:28:37"
+    },
+    {
+      "id": 4,
+      "employeeId": 2,
+      "managerId": 1,
+      "shopId": 1,
+      "reason": "有事",
+      "isApproved": null,
+      "absenceDate": "2023-03-17 00:00:00",
+      "createAt": "2023-03-16 20:27:22"
+    },
+    {
+      "id": 1,
+      "employeeId": 2,
+      "managerId": 1,
+      "shopId": 1,
+      "reason": "有事",
+      "isApproved": null,
+      "absenceDate": "2023-03-17 00:00:00",
+      "createAt": "2023-03-16 20:22:41"
+    }
+  ]
+}
+```
+
+```json
+{
+  "code": 0,
+  "message": "获取请假列表失败",
+  "data": null
+}
+```
+
 ## 获取请假图片附件
 
 发送请求如下
