@@ -55,7 +55,7 @@
                         {{ analysis.nps }}
                         <span class="text-body-1 grey--text">%</span>
                         <p class="text-body-2 grey--text mt-2">
-                            当前指数分析:{{ analysis.nps < 10 ? '较低' : analysis.nps < 50 ? '正常' : '较高' }}</p>
+                            当前指数分析:{{ analysis.nps < -20 ? '较低' : analysis.nps < 20 ? '正常' : '较高' }}</p>
                     </v-card-subtitle>
                 </v-card>
             </v-col>
@@ -150,6 +150,7 @@ export default {
     methods: {
         async changeBranch() {
             let response = (await getAnalysis(this.branch)).data.data
+            console.log(response)
             if (response) {
                 response.optimizedValue = response.optimizedValue.toFixed(2)
                 this.analysis = response
@@ -179,16 +180,19 @@ export default {
                     this.$emit('msg', '上传成功')
                     response.data.optimizedValue = response.data.optimizedValue.toFixed(2)
                     this.analysis = response.data
+                    this.file = null
+
                 } else if (response.code === -1) {
+                    this.file = null
                     this.$emit('msg', '上传失败')
                 }
+                this.dialog = false
             }
 
         }
     },
 
     async mounted() {
-        console.log(this)
         if (this.$store.state.isManager) {
             let branches = (await getAllShop()).data.data
             if (branches.length !== 0) {

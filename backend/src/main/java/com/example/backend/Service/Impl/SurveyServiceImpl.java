@@ -43,7 +43,8 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public Survey analyzeSurvey(long shopId, Survey survey) {
         survey.setShop(shopId);
-        survey.setOptimizedValue((survey.getQ5() * 1.846 - 2.974) / 0.229);
+        double satisfaction = survey.getQ5();
+        survey.setOptimizedValue(-0.2 * Math.pow(satisfaction - 2.521, 2) + satisfaction + 0.8458882);
 
         return survey;
     }

@@ -1,5 +1,6 @@
 
 export function formatDate(value) { // 时间戳转换日期格式方法
+    value=parseInt(value)
     if (value == null) {
         return ''
     } else {
@@ -14,13 +15,16 @@ export function formatDate(value) { // 时间戳转换日期格式方法
 }
 
 
-export function formatTime(value) { // 时间戳转换日期格式方法
+export function formatTime(value) {     // 时间戳转换日期格式方法
+    value=parseInt(value)
     if (value == null) {
         return ''
     } else {
         const date = new Date(value)
-        const h = date.getHours()// 小时
+        let h = date.getHours()// 小时
         let m = date.getMinutes() // 分
+        if(h<10) h='0'+h
+        if(m<10) m='0'+m
         return h + ':'+m
     }
 }

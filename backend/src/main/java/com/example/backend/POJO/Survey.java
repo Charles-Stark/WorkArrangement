@@ -21,17 +21,17 @@ public class Survey {
     @ExcelProperty(index = 2)
     private int nps;
     @ExcelProperty(index = 3)
-    private int q1;
+    private double q1;
     @ExcelProperty(index = 4)
-    private int q2;
+    private double q2;
     @ExcelProperty(index = 5)
-    private int q3;
+    private double q3;
     @ExcelProperty(index = 6)
-    private int q4;
+    private double q4;
     @ExcelProperty(index = 7)
-    private int q5;
+    private double q5;
     @ExcelProperty(index = 8)
-    private int q6;
+    private double q6;
 
     @ExcelIgnore
     private double optimizedValue;  // 系统推荐系数
