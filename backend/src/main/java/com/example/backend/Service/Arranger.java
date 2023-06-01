@@ -5,7 +5,6 @@ import com.example.backend.POJO.*;
 import com.example.backend.VO.EmployeeVO;
 import com.example.backend.mapper.ScheduleMapper;
 import lombok.Data;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -112,15 +111,6 @@ public class Arranger {
                 if(unit==null) continue;
                 workUnits.add(new WorkUnit(unit.getBeginTime(),new Staff().toStaff(unit.getEmployees()),unit.getEmployees().size()));
             }
-        }
-        public ArrayList<TimeStaffNum> getTimeStaffNumList(Schedule.WorkUnit[] day){
-            ArrayList<TimeStaffNum> timeStaffNumList=new ArrayList<>();
-            for(int i=0;i<day.length;i+=4){
-                if (i + 4 < day.length)
-                    timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, i + 4)));
-                else timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, day.length)));
-            }
-            return timeStaffNumList;
         }
         @Data
         public class WorkUnit{
@@ -815,20 +805,15 @@ public class Arranger {
         }
         return timeStaffNumList;
     }
-    //true,排班时调用;false,补全时调用
-    public List<TimeStaffNum> check(List<TimeStaffNum> timeStaffNumList,boolean b,int index,int indexOfUnit) throws Exception {
+    public List<TimeStaffNum> check(List<TimeStaffNum> timeStaffNumList) throws Exception {
         ArrayList<Staff> staffForSelect=new ArrayList<>();
         for(int i=0;i<10;i++) staffForSelect.add(new Staff((long) (-i)));
         LinkedList<Staff> staffList1 =new LinkedList<>();
         int checkTimes=0;
         for(int i = 0;i<timeStaffNumList.size();i++){
-            if(!b) i=index;
             int k=0;
-            for(k=0;k<timeStaffNumList.get(i).workUnits.size();k++){
-            //for(TimeStaffNum.WorkUnit workUnit:timeStaffNumList.get(i).workUnits){
-                if(!b) k=indexOfUnit;
-                TimeStaffNum.WorkUnit workUnit=timeStaffNumList.get(i).workUnits.get(k);
-                //k=timeStaffNumList.get(i).workUnits.indexOf(workUnit);
+            for(TimeStaffNum.WorkUnit workUnit:timeStaffNumList.get(i).workUnits){
+                k=timeStaffNumList.get(i).workUnits.indexOf(workUnit);
                 if(workUnit.beginTime!=null){
                     Set<Staff> staffSet=new HashSet<>(workUnit.staffs);
                     workUnit.staffs=new LinkedList<>(staffSet);
@@ -844,14 +829,12 @@ public class Arranger {
                         if(!staffList1.contains(staff)){
                             double time= staff.getContinuousWorkTime(timeStaffNumList,i,k);
                             try {
-                                if(b&&staff.id<=0L) continue;
+                                if (staff.id <= 0L) continue;//若要将大部分开放班次也补全到2小时，删除此行代码
                                 if(time<=1) {
                                     if(!staff.connect(timeStaffNumList,i,k)){
                                         if(time==1&&staff.dayWorkTime<=staff.prefer.durationOfShift-1 && staff.weekWorkTime<=staff.prefer.durationOfWeek-1) staff.extend(timeStaffNumList,i,k,2);
-                                        else if(!b){
-                                            staff.extend(timeStaffNumList,i,k, (int) (2*(2-time)));
-                                        }
                                         else {
+                                            if (staff.id <= 0L) continue;
                                             workUnit.remove(staff);
                                             for(int t=0;t<10;t++){
                                                 if(!workUnit.haveStaff(t)) {
@@ -867,8 +850,8 @@ public class Arranger {
                                         staffList1.add(staff);
                                     }
                                     else if(staff.id!=0L&&staff.dayWorkTime<=staff.prefer.durationOfShift-2+time && staff.weekWorkTime<=staff.prefer.durationOfWeek-2+time) staff.extend(timeStaffNumList,i,k, (int) ((2-time)*2));
-                                    else if(!b)staff.extend(timeStaffNumList,i,k, (int) ((2-time)*2));
                                     else{
+                                        if (staff.id <= 0L) continue;
                                         workUnit.remove(staff);
                                         for(int t=0;t>-10;t--){
                                             if(!workUnit.haveStaff(t)) {
@@ -884,7 +867,6 @@ public class Arranger {
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
-                            if(!b) return timeStaffNumList;
                         }
                     }
                     for(int j = 0; j< staffList1.size(); j++){
@@ -1161,7 +1143,7 @@ public class Arranger {
             System.out.println("优化失败");
         }
         try {
-            timeStaffNumList = check(timeStaffNumList,true,0,0);
+            timeStaffNumList = check(timeStaffNumList);
             //timeStaffNumList = check(timeStaffNumList);
             for(TimeStaffNum timeStaffNum:timeStaffNumList){
                 for(TimeStaffNum.WorkUnit workUnit:timeStaffNum.workUnits){
@@ -1203,7 +1185,7 @@ public class Arranger {
             for (int i = 0; i < day.length; i += 4) {
                 if (i + 4 < day.length)
                     timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, i + 4)));
-                else timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, day.length)));
+                else timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, i + 4)));
             }
             timeStaffNumArrayList.add(timeStaffNumList);
         }
@@ -1220,7 +1202,7 @@ public class Arranger {
             Schedule.WorkUnit[][] workUnits=new Schedule.WorkUnit[7][timeStaffNumList.get(0).size()*unitNum];
             for(int j=0;j<7;j++){
                 if(timeStaffNumList.size() <=7*i+j) break;
-                int halfHourNum=timeStaffNumList.get(i+j).size()*unitNum-unitNum+timeStaffNumList.get(i+j).get(timeStaffNumList.get(i+j).size()-1).workUnits.size();
+                int halfHourNum=timeStaffNumList.get(i+j).size()*unitNum-unitNum+timeStaffNumList.get(i*7+j).get(timeStaffNumList.get(i*7+j).size()-1).workUnits.size();
                 for(int k=0;k<halfHourNum;k++){
                     workUnits[j][k]=new Schedule.WorkUnit();
                     workUnits[j][k].setBeginTime(timeStaffNumList.get(7*i+j).get(k/unitNum).workUnits.get(k%unitNum).beginTime);
