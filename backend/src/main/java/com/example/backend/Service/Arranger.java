@@ -1,18 +1,18 @@
 package com.example.backend.Service;
 
-import java.util.*;
-
 import com.alibaba.fastjson.JSON;
 import com.example.backend.POJO.*;
 import com.example.backend.VO.EmployeeVO;
-import com.example.backend.VO.ScheduleVO;
 import com.example.backend.mapper.ScheduleMapper;
 import lombok.Data;
-import org.json.JSONObject;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.regex.*;
+import java.sql.Time;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 @Service
 public class Arranger {
     @Autowired
@@ -35,6 +35,7 @@ public class Arranger {
     private Map<Staff,Float>matchingDegree=new HashMap<>();;
     private ArrayList<String> prepare,closing,service;
     private boolean balanced=false;
+    private List<Staff> candidate;
     public void setRule(Rule rule){ //原始客流量预测包含1小时准备时间，不包含收尾时间，即时间为8:00-21:00，不包含21:00之后的半小时
         prepare=new ArrayList<>();
         closing=new ArrayList<>();
@@ -111,6 +112,15 @@ public class Arranger {
                 if(unit==null) continue;
                 workUnits.add(new WorkUnit(unit.getBeginTime(),new Staff().toStaff(unit.getEmployees()),unit.getEmployees().size()));
             }
+        }
+        public ArrayList<TimeStaffNum> getTimeStaffNumList(Schedule.WorkUnit[] day){
+            ArrayList<TimeStaffNum> timeStaffNumList=new ArrayList<>();
+            for(int i=0;i<day.length;i+=4){
+                if (i + 4 < day.length)
+                    timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, i + 4)));
+                else timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, day.length)));
+            }
+            return timeStaffNumList;
         }
         @Data
         public class WorkUnit{
@@ -251,23 +261,21 @@ public class Arranger {
                     if(length>count) timeStaffNum.workUnits.get(workUnits.size()-1).replace(newOne,oldOne,timeStaffNumList,index,count-length);
                 }
             }
-        }
-        public void addUnit(List<TimeStaffNum> timeStaffNumList,int direct){
-            if(direct<0){
-                if(timeStaffNumList.get(0).workUnits.isEmpty()) workUnits.add(0,new WorkUnit(new Date(timeStaffNumList.get(1).startTime.getTime()-1800000),new LinkedList<>(),numberOnDuty));
-                else workUnits.add(0,new WorkUnit(new Date(timeStaffNumList.get(0).workUnits.get(0).beginTime.getTime()-1800000),new LinkedList<>(),numberOnDuty));
-                startTime.setTime(startTime.getTime()-1800000);
+            public boolean haveStaff(Staff staff) {
+                return staffs.contains(staff);
             }
-            else{
-                int last=timeStaffNumList.size()-1;
-                if(timeStaffNumList.get(last).workUnits.isEmpty()) workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last).startTime.getTime()),new LinkedList<>(),numberOnDuty));
-                else workUnits.add(new WorkUnit(new Date(timeStaffNumList.get(last).workUnits.get(workUnits.size()-1).beginTime.getTime()+1800000),new LinkedList<>(),numberOnDuty));
+            public boolean haveStaff(long id){
+                for(Staff staff1:staffs){
+                    if(staff1.id==id) return true;
+                }
+                return false;
             }
         }
         public void add(Staff s){
             currentStaffNum+=1;
             if(staff.contains(s)) return;
             staff.add(s);
+            candidate.remove(s);
             for(TimeStaffNum.WorkUnit workUnit:workUnits) workUnit.add(s);
         }
         public boolean isFull(){
@@ -279,20 +287,15 @@ public class Arranger {
             }
             return false;
         }
-        public void format(int direct){
-            if(workUnits.size()==unitNum) return;
-            int length=unitNum- workUnits.size();
-            if(direct>0){
-                for(int i=0;i<length;i++){
-                    workUnits.add(new WorkUnit(null,new LinkedList<>(),0));
+        public boolean haveStaff(Staff staff){
+            boolean have=false;
+            for(WorkUnit unit:workUnits){
+                if(unit.haveStaff(staff)){
+                    have=true;
+                    break;
                 }
             }
-            else{
-                for(int i=0;i<length;i++){
-                    workUnits.add(0,new WorkUnit(null,new LinkedList<>(),0));
-                    startTime.setTime(startTime.getTime()-1800000);
-                }
-            }
+            return have;
         }
     }
     private class Staff{       //方便使用，替换employee
@@ -310,6 +313,7 @@ public class Arranger {
             position=null;
             monthWorkTime=0;
             continuousWorkDay=0;
+            prefer=new Prefer();
         }
         public Staff(Employee e){
             this(e.getId());
@@ -320,6 +324,9 @@ public class Arranger {
             position=e.getPosition();
         }
         public Staff(){}
+        public void setId(long id){
+            this.id=id;
+        }
         public boolean isTired(){
             if(weekWorkTime>=prefer.durationOfWeek) return true;
             if(dayWorkTime>=prefer.durationOfShift) return true;
@@ -658,7 +665,10 @@ public class Arranger {
             }
         }
 
-        public Prefer() {}
+        public Prefer() {
+            durationOfShift=8;
+            durationOfWeek=40;
+        }
 
         public List<Prefer> toPrefer(List<Preference> preferenceList) {
             var preferList = new ArrayList<Prefer>();
@@ -718,8 +728,8 @@ public class Arranger {
                 }
             }
             if(workingDay!=null){
-                for (int i = 0; i < workingDay.size(); i++) {
-                    if (workingDay.get(i) == dayOfWeek) {
+                for (Integer integer : workingDay) {
+                    if (integer == dayOfWeek) {
                         matchDay = 1;
                         break;
                     }
@@ -805,56 +815,82 @@ public class Arranger {
         }
         return timeStaffNumList;
     }
-    public List<TimeStaffNum> check(List<TimeStaffNum> timeStaffNumList){
-        List<Staff> staffList=new LinkedList();
+    //true,排班时调用;false,补全时调用
+    public List<TimeStaffNum> check(List<TimeStaffNum> timeStaffNumList,boolean b,int index,int indexOfUnit) throws Exception {
+        ArrayList<Staff> staffForSelect=new ArrayList<>();
+        for(int i=0;i<10;i++) staffForSelect.add(new Staff((long) (-i)));
+        LinkedList<Staff> staffList1 =new LinkedList<>();
+        int checkTimes=0;
         for(int i = 0;i<timeStaffNumList.size();i++){
+            if(!b) i=index;
             int k=0;
-            for(TimeStaffNum.WorkUnit workUnit:timeStaffNumList.get(i).workUnits){
-                k=timeStaffNumList.get(i).workUnits.indexOf(workUnit);
+            for(k=0;k<timeStaffNumList.get(i).workUnits.size();k++){
+            //for(TimeStaffNum.WorkUnit workUnit:timeStaffNumList.get(i).workUnits){
+                if(!b) k=indexOfUnit;
+                TimeStaffNum.WorkUnit workUnit=timeStaffNumList.get(i).workUnits.get(k);
+                //k=timeStaffNumList.get(i).workUnits.indexOf(workUnit);
                 if(workUnit.beginTime!=null){
                     Set<Staff> staffSet=new HashSet<>(workUnit.staffs);
                     workUnit.staffs=new LinkedList<>(staffSet);
                     for(int j=0;j<workUnit.staffs.size();j++){
+                        checkTimes++;
+                        if(checkTimes>5000) throw new Exception("结果优化错误");
                         Staff staff=workUnit.staffs.get(j);
                         if(staff.id==null) {
                             workUnit.remove(staff);
                             j--;
                             continue;
                         }
-                        if(!staffList.contains(staff)){
+                        if(!staffList1.contains(staff)){
                             double time= staff.getContinuousWorkTime(timeStaffNumList,i,k);
                             try {
+                                if(b&&staff.id<=0L) continue;
                                 if(time<=1) {
-                                    if (staff.id == 0L) continue;
                                     if(!staff.connect(timeStaffNumList,i,k)){
                                         if(time==1&&staff.dayWorkTime<=staff.prefer.durationOfShift-1 && staff.weekWorkTime<=staff.prefer.durationOfWeek-1) staff.extend(timeStaffNumList,i,k,2);
+                                        else if(!b){
+                                            staff.extend(timeStaffNumList,i,k, (int) (2*(2-time)));
+                                        }
                                         else {
                                             workUnit.remove(staff);
-                                            workUnit.add(new Staff(0L));
+                                            for(int t=0;t<10;t++){
+                                                if(!workUnit.haveStaff(t)) {
+                                                    workUnit.add(staffForSelect.get(t));
+                                                    break;
+                                                }
+                                            }
                                             j--;
                                         }
                                     }
                                 } else if (time>=1&&time<2) {
                                     if(staff.connect(timeStaffNumList,i,k)) {
+                                        staffList1.add(staff);
                                     }
                                     else if(staff.id!=0L&&staff.dayWorkTime<=staff.prefer.durationOfShift-2+time && staff.weekWorkTime<=staff.prefer.durationOfWeek-2+time) staff.extend(timeStaffNumList,i,k, (int) ((2-time)*2));
+                                    else if(!b)staff.extend(timeStaffNumList,i,k, (int) ((2-time)*2));
                                     else{
                                         workUnit.remove(staff);
-                                        workUnit.add(new Staff(0L));
+                                        for(int t=0;t>-10;t--){
+                                            if(!workUnit.haveStaff(t)) {
+                                                workUnit.add(staffForSelect.get(t));
+                                                break;
+                                            }
+                                        }
                                         j--;
                                     }
                                 }else {
-                                    staffList.add(staff);
+                                    staffList1.add(staff);
                                 }
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
+                            if(!b) return timeStaffNumList;
                         }
                     }
-                    for(int j=0;j< staffList.size();j++){
-                        Staff staff=staffList.get(j);
+                    for(int j = 0; j< staffList1.size(); j++){
+                        Staff staff= staffList1.get(j);
                         if(!workUnit.contains(staff)) {
-                            staffList.remove(staff);
+                            staffList1.remove(staff);
                             j--;
                         }
                     }
@@ -903,15 +939,17 @@ public class Arranger {
         List<Preference> preferenceList = findPreference(employeeList);
         preference=new Prefer().toPrefer(preferenceList);
         staffList=new Staff().toStaff(employeeList);
+        candidate=new LinkedList<>(staffList);
+
         for (int i = 0; i < (flows.size() - 1) / 7 + 1; i++) {
             if (i * 7 + 7 > flows.size())
-                timeStaffNumList.addAll(arrangeWeek(shopId, flows.subList(i * 7, flows.size()), ruleId));
-            else timeStaffNumList.addAll(arrangeWeek(shopId, flows.subList(i * 7, (i + 1) * 7), ruleId));
+                timeStaffNumList.addAll(arrangeWeek(flows.subList(i * 7, flows.size())));
+            else timeStaffNumList.addAll(arrangeWeek(flows.subList(i * 7, (i + 1) * 7)));
             System.out.println("完成本周排班，起始日期为" + flows.get(i).getDate());
         }
         return timeStaffNumList;
     }
-    public List<ArrayList<TimeStaffNum>> arrangeWeek(long shopId, List<Flow> flowsOfWeek, long ruleId) throws RuntimeException{
+    public List<ArrayList<TimeStaffNum>> arrangeWeek(List<Flow> flowsOfWeek) throws RuntimeException{
         ArrayList<ArrayList<TimeStaffNum>> timeStaffNumList=new ArrayList<>();
         System.out.println("开始排班，本周排班起始星期为星期"+getDayOfWeek(flowsOfWeek.get(0).getDate()));
         int errorTime=0;
@@ -920,7 +958,7 @@ public class Arranger {
                 Flow flow=flowsOfWeek.get(i);
                 timeStaffNumList.add((ArrayList<TimeStaffNum>) newArrange(flow));
                 errorTime=0;
-            }catch (RuntimeException e){
+            }catch (Exception e){
                 System.out.println(e);
                 errorTime++;
                 i--;
@@ -934,7 +972,7 @@ public class Arranger {
                     System.out.println("本次排班起始星期为星期"+getDayOfWeek(flowsOfWeek.get(0).getDate()));
                     i=-1;
                     timeStaffNumList.clear();
-                    staffList=new Staff().init(staffList);
+                    new Staff().init(staffList);
                 }
                 else {
                     System.out.println("重新开始本日排班");
@@ -1004,10 +1042,10 @@ public class Arranger {
                         if(staff!=null&&!hasSelected(staff,timeStaffNumList,index)&&!staff.isTired()) timeStaffNum.add(staff);
                     }
                     //强抓壮丁
-                    if(t>20) {
-                        if(staff!=null&& !hasSelected(staff, timeStaffNumList, index) &&!staff.isTired()) timeStaffNum.add(staff);
-                    }else if(t>200){
+                    if(t>200) {
                         if(staff!=null&&!staff.isTired()) timeStaffNum.add(staff);
+                    }else if(t>20){
+                        if(staff!=null&& !hasSelected(staff, timeStaffNumList, index) &&!staff.isTired()) timeStaffNum.add(staff);
                     }
                     if (timeStaffNum.isFull()) break;
                 }
@@ -1122,7 +1160,19 @@ public class Arranger {
         }catch (Exception e){
             System.out.println("优化失败");
         }
-        timeStaffNumList=check(timeStaffNumList);
+        try {
+            timeStaffNumList = check(timeStaffNumList,true,0,0);
+            //timeStaffNumList = check(timeStaffNumList);
+            for(TimeStaffNum timeStaffNum:timeStaffNumList){
+                for(TimeStaffNum.WorkUnit workUnit:timeStaffNum.workUnits){
+                    for(Staff staff:workUnit.staffs){
+                        if(staff.id< 0L) staff.setId(0);
+                    }
+                }
+            }
+        }catch (Exception e){
+            System.out.println(e);
+        }
         for(Staff staff:staffList) staff.setContinuousWorkDay(timeStaffNumList);
         int size1=timeStaffNumList.size();
         int size2=timeStaffNumList.get(size1-1).workUnits.size();
@@ -1153,7 +1203,7 @@ public class Arranger {
             for (int i = 0; i < day.length; i += 4) {
                 if (i + 4 < day.length)
                     timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, i + 4)));
-                else timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, i + 4)));
+                else timeStaffNumList.add(new TimeStaffNum(Arrays.stream(day).toList().subList(i, day.length)));
             }
             timeStaffNumArrayList.add(timeStaffNumList);
         }
@@ -1196,17 +1246,14 @@ public class Arranger {
         }
         return staffs;
     }
-    @Autowired
-    ScheduleService scheduleService;
     //关于参数：weekNum：在该组排班中，该周是第几周；dayNum：在该周中，这是第几天，halfHourNum：在该天中，第几个半小时
     //关于输出结果：结果为所有符合要求的员工的id，按照匹配度排列
     public LinkedList<Long> getSuitableEmployees(long scheduleId,int weekNum,int dayNum,int halfHourNum){
-        Schedule schedule=(Schedule) scheduleService.getScheduleById(scheduleId).getData();
+        Schedule schedule= scheduleMapper.selectById(scheduleId);
         long shopId=schedule.getShop();
         ArrayList<Schedule.Week> weeks=schedule.getWeeks();
         Schedule.Week week1 = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(weekNum)), Schedule.Week.class);
         Schedule.WorkUnit[][] week=week1.getData();
-        //LinkedList<Employee> employees = new LinkedList<>((List<Employee>) employeeService.getEmployeeByShop(shopId).getData());
         List<EmployeeVO> employeeVoList = (List<EmployeeVO>) employeeService.getEmployeeByShop(shopId).getData();
         List<Employee> employees = transTo(employeeVoList);
         staffList=new Staff().toStaff(employees);
