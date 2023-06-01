@@ -247,14 +247,22 @@ public class ScheduleServiceImpl implements ScheduleService {
                             } else if (!isOneDay || !isSameDay(workUnits[j][k].getBeginTime(), beginTime)) {
                                 if (inOpenShift) {
                                     inOpenShift = false;
-                                    openShifts.add(workUnits[j][k].getBeginTime());
+                                    if (isSameDay(openShifts.get(openShifts.size() - 1), workUnits[j][k].getBeginTime())) {
+                                        openShifts.add(workUnits[j][k].getBeginTime());
+                                    } else {
+                                        openShifts.add(workUnits[j - 1][workUnits.length - 1].getBeginTime());
+                                    }
                                 }
                                 afterPeriod = true;
                                 break;
                             } else {
                                 if (inOpenShift) {
                                     inOpenShift = false;
-                                    openShifts.add(workUnits[j][k].getBeginTime());
+                                    if (isSameDay(openShifts.get(openShifts.size() - 1), workUnits[j][k].getBeginTime())) {
+                                        openShifts.add(workUnits[j][k].getBeginTime());
+                                    } else {
+                                        openShifts.add(workUnits[j - 1][workUnits.length - 1].getBeginTime());
+                                    }
                                 }
                             }
                         }
