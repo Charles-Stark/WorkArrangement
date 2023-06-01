@@ -1,10 +1,12 @@
 package com.example.backend.Service.Impl;
 
 import com.example.backend.POJO.Shop;
+import com.example.backend.POJO.ShopData;
 import com.example.backend.Service.EmployeeService;
 import com.example.backend.Service.FlowService;
 import com.example.backend.Service.ShopService;
 import com.example.backend.VO.ResultVO;
+import com.example.backend.mapper.ShopDataMapper;
 import com.example.backend.mapper.ShopMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class ShopServiceImpl implements ShopService {
     private ShopMapper shopMapper;
 
     @Autowired
+    private ShopDataMapper shopDataMapper;
+
+    @Autowired
     private FlowService flowService;
 
     @Autowired
@@ -33,7 +38,9 @@ public class ShopServiceImpl implements ShopService {
         try {
             shopMapper.insert(shop);
             flowService.generateFlow(shop.getId(), new Date(), 30);
+            shopDataMapper.insert(new ShopData(null, shop.getId(), manager, new ShopData.Data()));
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResultVO<>(-1, "添加门店失败", null);
         }
         return new ResultVO<>(0, "添加门店成功", shop);
@@ -47,7 +54,11 @@ public class ShopServiceImpl implements ShopService {
         }
         try {
             shopMapper.deleteById(id);
+            Map<String, Object> searchingMap = new HashMap<>();
+            searchingMap.put("shopId", id);
+            shopDataMapper.deleteByMap(searchingMap);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResultVO<>(-1, "删除门店失败", null);
         }
         return new ResultVO<>(0, "删除门店成功", null);
@@ -89,6 +100,17 @@ public class ShopServiceImpl implements ShopService {
             return new ResultVO<>(-1, "更新门店失败", null);
         }
         return new ResultVO<>(0, "更新门店成功", shopMapper.selectById(id));
+    }
+
+    @Override
+    public ResultVO<Object> getShopData(long shopId) {
+        try {
+            Map<String, Object> searchingMap = new HashMap<>();
+            searchingMap.put("shopId", shopId);
+            return new ResultVO<>(0, "获取门店数据成功", shopDataMapper.selectByMap(searchingMap).get(0));
+        } catch (Exception e) {
+            return new ResultVO<>(-1, "获取门店数据失败", null);
+        }
     }
 
 }

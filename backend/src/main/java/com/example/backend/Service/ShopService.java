@@ -14,4 +14,6 @@ public interface ShopService {
 
     ResultVO<Object> updateShop(long id, String name, String address, Double size, Long manager);
 
+    ResultVO<Object> getShopData(long shopId);
+
 }

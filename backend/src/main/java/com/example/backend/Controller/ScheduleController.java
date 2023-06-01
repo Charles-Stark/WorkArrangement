@@ -61,4 +61,13 @@ public class ScheduleController {
         }
     }
 
+    @PostMapping("/claimShift")
+    public ResultVO<Object> claimShift(@RequestParam("schedule") long schedule, @RequestParam("employee") long employee, @RequestParam("begin") long begin) {
+        if (scheduleService.changeShift(schedule, 0, employee, new Date(begin), false)) {
+            return new ResultVO<>(0, "认领成功", null);
+        } else {
+            return new ResultVO<>(-1, "认领失败", null);
+        }
+    }
+
 }
