@@ -42,4 +42,9 @@ public class ShopController {
         return shopService.updateShop(id, name, address, size, manager);
     }
 
+    @GetMapping("/shopData/{id}")
+    public ResultVO<Object> getShopData(@PathVariable long id) {
+        return shopService.getShopData(id);
+    }
+
 }
