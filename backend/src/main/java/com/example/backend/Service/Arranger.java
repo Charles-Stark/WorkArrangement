@@ -1220,7 +1220,7 @@ public class Arranger {
             Schedule.WorkUnit[][] workUnits=new Schedule.WorkUnit[7][timeStaffNumList.get(0).size()*unitNum];
             for(int j=0;j<7;j++){
                 if(timeStaffNumList.size() <=7*i+j) break;
-                int halfHourNum=timeStaffNumList.get(i+j).size()*unitNum-unitNum+timeStaffNumList.get(i+j).get(timeStaffNumList.get(i+j).size()-1).workUnits.size();
+                int halfHourNum=timeStaffNumList.get(7*i+j).size()*unitNum-unitNum+timeStaffNumList.get(7*i+j).get(timeStaffNumList.get(7*i+j).size()-1).workUnits.size();
                 for(int k=0;k<halfHourNum;k++){
                     workUnits[j][k]=new Schedule.WorkUnit();
                     workUnits[j][k].setBeginTime(timeStaffNumList.get(7*i+j).get(k/unitNum).workUnits.get(k%unitNum).beginTime);
