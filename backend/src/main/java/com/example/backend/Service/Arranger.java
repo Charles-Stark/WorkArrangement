@@ -805,6 +805,7 @@ public class Arranger {
         }
         return timeStaffNumList;
     }
+    //待检查版见备份
     public List<TimeStaffNum> check(List<TimeStaffNum> timeStaffNumList) throws Exception {
         ArrayList<Staff> staffForSelect=new ArrayList<>();
         for(int i=0;i<10;i++) staffForSelect.add(new Staff((long) (-i)));
