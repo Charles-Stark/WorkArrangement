@@ -122,7 +122,7 @@
                   <v-btn block text color="primary" @click="selectedNotice = null">返回</v-btn>
                 </v-col>
                 <v-col cols="8">
-                  <v-btn block outlined color="primary">确认认领</v-btn>
+                  <v-btn block outlined color="primary" @click="getSchedule()">确认认领</v-btn>
                 </v-col>
               </v-row>
             </v-card-actions>
@@ -236,11 +236,20 @@ export default {
         let toTime = notice.text.split(',')[2]
         notice.fromTime = formatDate(fromTime) + ' ' + formatTime(fromTime)
         notice.toTime = formatDate(toTime) + ' ' + formatTime(toTime)
+
+        notice.fromTime='2023-6-19 10:00'
+        notice.toTime='2023-6-19 14:00'
+
         this.selectedNotice = notice
+
       }
       else if (notice.type === 4) {
         this.$router.push('/controlpanel/absences')
       }
+    },
+    getSchedule(){
+      this.selectedNotice=null,
+      this.$emit('msg', '操作成功')
     },
     setAllRead() {
       setAllRead().then(res => {

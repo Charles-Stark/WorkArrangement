@@ -5,10 +5,9 @@ import store from '../store/index'
 
 //获取用户信息
 export const getUserInfo = (id) => {
-  let Id=id?id:store.state.userId
   return request({
     method: 'get',
-    url: `api/user/info/get/${Id}`,
+    url: `api/user/info/get/${id || store.state.userId}`,
   })
 }
 
@@ -16,7 +15,7 @@ export const getUserInfo = (id) => {
 export const getUserAvatar = userId => {
   return request({
     method: 'get',
-    url: `/api/user/photo/get/${userId||store.state.userId}`,
+    url: `/api/user/photo/get/${userId || store.state.userId}`,
     responseType: 'blob'
   })
 }

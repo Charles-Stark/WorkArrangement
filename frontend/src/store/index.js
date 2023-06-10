@@ -31,8 +31,8 @@ const mutations = {
   },
   deleteLoginInfo(state){
     localStorage.clear();
-    state.token = ''
-    state.userId = ''
+    state.token = null
+    state.userId = null
   },
   saveAuthority(state,value){
     state.isManager=value.isManager,

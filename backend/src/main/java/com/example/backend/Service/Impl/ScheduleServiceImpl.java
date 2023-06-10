@@ -219,6 +219,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             if (previousEmployee == currentEmployee) {
                 return true;
             }
+            System.out.println(previousEmployee +" " + currentEmployee);
 
             Schedule schedule = scheduleMapper.selectById(scheduleId);
             boolean afterPeriod = false, inOpenShift = false;
@@ -227,13 +228,15 @@ public class ScheduleServiceImpl implements ScheduleService {
             for (int i = 0; i < schedule.getWeeks().size(); i++) {
                 Schedule.Week week = JSON.parseObject(JSON.toJSONString(schedule.getWeeks().get(i)), Schedule.Week.class);
 
-                if (week.getEndAt().before(beginTime)) {
-                    continue;
-                }
+//                if (week.getEndAt().before(beginTime)) {
+//                    System.out.println("here");
+//                    continue;
+//                }
                 Schedule.WorkUnit[][] workUnits = week.getData();
                 for (int j = 0; j < workUnits.length; j++) {
                     for (int k = 0; k < workUnits[j].length; k++) {
                         if (workUnits[j][k] != null && (workUnits[j][k].getBeginTime().compareTo(beginTime) == 0 || workUnits[j][k].getBeginTime().after(beginTime))) {
+                            System.out.println("Inside: ");
                             if (workUnits[j][k].getEmployees().contains(previousEmployee)) {
                                 if (!inOpenShift) {
                                     inOpenShift = true;
@@ -241,28 +244,22 @@ public class ScheduleServiceImpl implements ScheduleService {
                                 }
 
                                 workUnits[j][k].getEmployees().remove(previousEmployee);
+                                System.out.println("Remove: " + previousEmployee);
                                 if (currentEmployee == 0 || !workUnits[j][k].getEmployees().contains(currentEmployee)) {
                                     workUnits[j][k].getEmployees().add(currentEmployee);
+                                    System.out.println("Add: " + currentEmployee);
                                 }
                             } else if (!isOneDay || !isSameDay(workUnits[j][k].getBeginTime(), beginTime)) {
                                 if (inOpenShift) {
                                     inOpenShift = false;
-                                    if (isSameDay(openShifts.get(openShifts.size() - 1), workUnits[j][k].getBeginTime())) {
-                                        openShifts.add(workUnits[j][k].getBeginTime());
-                                    } else {
-                                        openShifts.add(workUnits[j - 1][workUnits.length - 1].getBeginTime());
-                                    }
+                                    openShifts.add(workUnits[j][k].getBeginTime());
                                 }
                                 afterPeriod = true;
                                 break;
                             } else {
                                 if (inOpenShift) {
                                     inOpenShift = false;
-                                    if (isSameDay(openShifts.get(openShifts.size() - 1), workUnits[j][k].getBeginTime())) {
-                                        openShifts.add(workUnits[j][k].getBeginTime());
-                                    } else {
-                                        openShifts.add(workUnits[j - 1][workUnits.length - 1].getBeginTime());
-                                    }
+                                    openShifts.add(workUnits[j][k].getBeginTime());
                                 }
                             }
                         }

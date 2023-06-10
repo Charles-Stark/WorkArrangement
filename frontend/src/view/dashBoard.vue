@@ -1,24 +1,35 @@
 <template>
     <div>
-        <v-card class="part2">
+        <!-- 
+        <v-toolbar :color="$vuetify.theme.dark === false ? 'white' : '#121212'" flat
+            v-if="$store.state.isManager || $store.state.isShopManager">
+            <v-spacer></v-spacer>
+            <v-select v-model="branch" :items="branches" item-text="name" item-value="id" solo interval-minutes="60"
+                no-data-text="没有数据" large flat hide-details style="max-width:140px;min-width:120px" @change="changeBranch()"
+                v-if="$store.state.isManager"></v-select>
+            <span v-if="!$store.state.isManager" class="text-h6 ml-3">{{ shopName }}</span>
+            <v-spacer></v-spacer>
+        </v-toolbar> -->
+
+        <v-card class="part2  pa-2">
             <div class="title2">
                 <img src="../assets/title1-1.png" alt="门店客户信息">
             </div>
             <!-- 折线图 -->
-            <e-charts class="chart1" :option="option1" autoresize/>
+            <e-charts class="chart1" :option="option1" autoresize />
         </v-card>
 
         <div class="part3">
-            <v-card class="part4">
+            <v-card class="part4 pa-2">
                 <div class="title2">
                     <img src="../assets/title1-2.png" alt="门店销售详情">
                 </div>
-                <e-charts class="chart2" :option="option2" autoresize/>
+                <e-charts class="chart2" :option="option2" autoresize />
             </v-card>
 
-            <v-card class="part5">
+            <v-card class="part5  pa-2">
                 <div class="title2">
-                    <img src="../assets/title1-3.png" alt="门店部门业绩">
+                    <img src="../assets/title1-3.png"  alt="门店部门业绩">
                 </div>
                 <e-charts class="chart3" :option="option3" autoresize />
             </v-card>
@@ -59,11 +70,16 @@ import loop2 from '../assets/shoe2.jpg';
 import loop3 from '../assets/shoe3.jpg';
 import loop4 from '../assets/shoe4.jpg';
 import loop5 from '../assets/shoe5.jpg';
+import { getAllShop, getShopInfo } from '@/request/shop'
+
 
 
 export default {
     data() {
         return {
+            branches: [],
+            branch: '',
+            shopName: '',
             // 轮播数据
             baseData: [
                 {
@@ -337,7 +353,7 @@ export default {
         // todo Ajax ...
     },
 
-    mounted() {
+    async mounted() {
         // 初始化轮播
         this.initLoop();
         console.log('centerIdx = ', this.loopCenterIdx);
@@ -345,6 +361,20 @@ export default {
         //基于数据初始化echarts实例
         //折线图
 
+        if (this.$store.state.isManager) {
+            let branches = (await getAllShop()).data.data
+            if (branches.length !== 0) {
+                this.branch = branches[0].id
+            } else {
+                branches = []
+            }
+            this.branches = branches
+        }
+        else if (this.$store.state.isShopManager) {
+            let shop = (await getShopInfo(employee.shop)).data.data
+            this.branch = shop.id
+            this.shopName = shop.name
+        }
 
     },
 
@@ -408,13 +438,12 @@ export default {
 </script>
   
 <style lang="scss" scoped>
-
 .part1 {
     width: 100%;
     margin: 1vw auto;
     padding: 2vw;
     height: 40vh;
-    background-color: rgba(201, 229, 234,0.1);
+    background-color: rgba(201, 229, 234, 0.1);
 }
 
 .title1 {
@@ -431,7 +460,7 @@ export default {
     // padding: 3vw;
     height: 38vh;
     // background-color: rgb(248, 240, 230);
-    background-color: rgba(201, 229, 234,0.1);
+    background-color: rgba(201, 229, 234, 0.1);
 }
 
 .title2 {
@@ -461,7 +490,7 @@ export default {
     .part4 {
         // background-color: bisque;
         // background-color: rgb(248, 240, 230);
-        background-color: rgba(201, 229, 234,0.1);
+        background-color: rgba(201, 229, 234, 0.1);
         width: 49.5%;
         height: 100%;
         margin: auto;
@@ -472,12 +501,12 @@ export default {
         // display: inline-block;
         // background-color: rgb(248, 240, 230);
         // background-color: aquamarine;
-        background-color: rgba(201, 229, 234,0.1);
+        background-color: rgba(201, 229, 234, 0.1);
         width: 49.5%;
         height: 100%;
         margin: auto;
         // display:inline-block;
-        margin-left:1%;
+        margin-left: 1%;
     }
 }
 
@@ -555,12 +584,12 @@ export default {
 }
 
 //饼图
-.chart3{
+.chart3 {
     height: 80%;
     width: 100%;
 }
 
-v-card{
+v-card {
     display: flex;
     justify-content: center;
 }
