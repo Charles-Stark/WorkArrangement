@@ -189,3 +189,12 @@ CREATE TABLE `user`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 206 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+DROP TABLE IF EXISTS `ShopData`;
+CREATE TABLE `ShopData` (
+                            `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                            `shopId` bigint NOT NULL,
+                            `managerId` bigint NOT NULL,
+                            `data` json NOT NULL,
+                            PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
