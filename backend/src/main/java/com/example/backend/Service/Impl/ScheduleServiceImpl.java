@@ -219,7 +219,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             if (previousEmployee == currentEmployee) {
                 return true;
             }
-            System.out.println(previousEmployee +" " + currentEmployee);
+            System.out.println(previousEmployee + " " + currentEmployee);
 
             Schedule schedule = scheduleMapper.selectById(scheduleId);
             boolean afterPeriod = false, inOpenShift = false;
