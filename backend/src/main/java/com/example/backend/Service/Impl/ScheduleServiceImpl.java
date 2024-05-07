@@ -296,7 +296,16 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     private boolean isSameDay(Date a, Date b) {
-        return a.getTime() / (24 * 60 * 60 * 1000L) == b.getTime() / (24 * 60 * 60 * 1000L);
+        // The commented thing is the shitty trash code that cannot judge whether same day at all!!!
+        // System.out.println("Is same day: " + a.getTime() / (24 * 60 * 60 * 1000L) + " and" + b.getTime() / (24 * 60 * 60 * 1000L));
+        // return a.getTime() / (24 * 60 * 60 * 1000L) == b.getTime() / (24 * 60 * 60 * 1000L);
+
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(a);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(b);
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
     private Set<Long> selectEmployeeInvolved(long scheduleId) {
