@@ -30,8 +30,8 @@ spring:
     port: 465
   # Redis数据库配置
   redis:
-    host: 101.36.127.108
-    port: 6377
+    host: localhost
+    port: 6379
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
