@@ -584,7 +584,7 @@ export default {
             p.username.indexOf(this.search2 || "") !== -1 ||
             p.position.indexOf(this.search2 || "") !== -1) &&
           p.id !== 0 &&
-          p.id in this.recommended
+          !(p.id in this.recommended)
         )
       })
     },
